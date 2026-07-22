@@ -1,0 +1,15 @@
+{
+  "name": "card-maker-messages",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A premium client-side card and invitation maker with original messages and printable folded PDFs.",
+  "scripts": {
+    "build": "node tools/build.js",
+    "test": "node tools/tests.js",
+    "check": "npm run build && npm run test",
+    "serve": "python3 -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,9 @@
+# Card Maker Messages
+
+> Beautiful cards and the right words for every occasion. A client-side card and invitation maker with original messages and one-tap designs.
+
+## Key pages
+- https://cardmakermessages.com/app.html: Create a personalised digital or folded printable card.
+- https://cardmakermessages.com/occasions.html: Browse all occasion message guides.
+- https://cardmakermessages.com/printable-card-guide.html: Print and fold the generated PDF.
+- https://cardmakermessages.com/methodology.html: How original messages are written and checked.

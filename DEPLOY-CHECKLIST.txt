@@ -1,0 +1,41 @@
+CARD MAKER MESSAGES - DEPLOY CHECKLIST
+
+CONFIGURATION ALREADY SET
+[x] Brand: Card Maker Messages
+[x] Domain: https://cardmakermessages.com
+[x] Contact email: info@cardmakermessages.com
+[ ] Do not change the IndexNow key after launch
+
+BEFORE GITHUB
+[ ] Double-click build.bat
+[ ] Confirm 41 HTML pages and 40 indexable URLs are built
+[ ] Confirm the QA suite passes
+[ ] Open docs/home-preview.png and docs/app-premium-preview.png
+
+GITHUB
+[ ] Add the extracted card-maker-messages folder in GitHub Desktop
+[ ] Commit any final changes
+[ ] Push or publish the main branch
+
+HOSTINGER
+[ ] Connect the correct GitHub repository
+[ ] Deploy main to public_html
+[ ] Open https://cardmakermessages.com/app.html in a private browser window
+[ ] Create a digital PNG
+[ ] Create an invitation and confirm its date, venue and RSVP details
+[ ] Create an A4 folded PDF
+[ ] Test the mobile menu
+[ ] Confirm a missing URL displays 404.html with a real 404 status
+
+INDEXING
+[ ] Add https://cardmakermessages.com/sitemap.xml to Google Search Console
+[ ] Import the property into Bing Webmaster Tools
+[ ] Run: node tools/submit-index.js after deployment
+[ ] Do not change the IndexNow key after launch
+
+PRINT TEST
+[ ] Use plain paper first
+[ ] Landscape orientation
+[ ] Actual Size or 100%
+[ ] Double-sided
+[ ] Flip on short edge

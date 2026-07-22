@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Card Maker Messages">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8c4a62"/><stop offset="1" stop-color="#56283a"/></linearGradient></defs>
+  <rect width="64" height="64" rx="15" fill="#f8f4ec"/>
+  <rect x="7" y="7" width="50" height="50" rx="15" fill="url(#g)"/>
+  <g fill="none" stroke="#fff8ec" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="17" y="19" width="27" height="31" rx="5"/>
+    <rect x="22" y="14" width="27" height="31" rx="5"/>
+    <path d="M29 25h13M29 31h10M29 37h7"/>
+  </g>
+</svg>
