@@ -1,0 +1,22 @@
+CARD MAKER MESSAGES V5
+
+This release corrects the final size and review workflow.
+
+WHAT CHANGED
+- Digital, social, one-page print and folded-card sizes are selected before review.
+- The live preview changes to the exact selected aspect ratio.
+- Digital choices now cover WhatsApp, Instagram, Facebook, LinkedIn, X, Pinterest, email and landscape cards.
+- One-page print choices now include A4, A5, A6, 5 x 7, 4 x 6, 6 x 6 square and US Letter.
+- Folded choices remain A4 to A5, A5 to A6 and US Letter.
+- Digital sharing actions are separated from print and folded-PDF actions.
+- Review shows one exact selected digital or flat-print shape, or all four panels for a folded card.
+- Step changes return the visitor to the card-maker workspace instead of leaving them lower on the page.
+- The sticky mobile card preview is larger while the controls remain visible.
+- Burgundy buttons use white text consistently, including the mobile menu.
+- Changing a size or design after review requires a fresh review before exporting.
+
+VERIFICATION
+- 5,911 automated static checks passed.
+- Desktop and mobile interaction tests passed.
+- Digital, one-page print and folded review modes passed.
+- Zero mobile horizontal overflow was confirmed at 390 pixels.

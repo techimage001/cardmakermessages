@@ -1,0 +1,21 @@
+CARD MAKER MESSAGES V7
+
+PHOTO POSITIONING
+- Uploaded photos appear immediately in a dedicated top photo area.
+- Drag directly in the live card with a mouse or finger.
+- Zoom, centre, arrow-button and keyboard positioning controls are included.
+- The selected crop is stored in the card state and reused for review, PNG, JPG and PDF output.
+- Large photos are resized locally in the browser before storage. They are not uploaded to the server.
+- Greeting cards, postcards and invitations can use the top photo area.
+
+VERIFIED EMAIL ACCESS
+- Uses the layered verification pattern supplied in strongmomquotes-SEO-UPDATEv8.zip.
+- Authenticated Hostinger SMTP is used instead of unauthenticated PHP mail.
+- Includes honeypot, timing check, browser SHA-256 request token, IP-hash rate limiting, disposable-address blocking and MX/A-domain checking.
+- A time-limited private link must be opened before unlimited access is unlocked.
+- SMTP password and site salt stay in cmm_private/secrets.php outside public_html and Git.
+
+DEPLOYMENT
+- Asset version is 7.
+- Upload the complete package.
+- Follow EMAIL-VERIFICATION-SETUP.md before testing sign-up.

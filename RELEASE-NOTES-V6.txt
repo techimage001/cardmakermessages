@@ -1,0 +1,12 @@
+Card Maker Messages V6
+
+- Keeps the small occasion label above the main card heading, as requested.
+- Makes all design controls visible and expands frames, illustrations, accents, text styles and fonts.
+- Keeps the live preview sticky in the editor and shows a floating preview through related links and the footer.
+- Makes review open as a fixed full-card overlay instead of leaving the user near the FAQ or footer.
+- Makes the landing-page Choose design control a real link.
+- Enforces white text on every burgundy action and active control.
+- Adds verified-email access with anti-bot controls and notifies the site mailbox only after verification.
+- Removes old cache-first service-worker behaviour and hardens no-cache deployment headers.
+- Preserves exact social, one-page print and folded-card formats before review.
+- Preserves original, copyright-safe procedural visual designs with no third-party templates.
