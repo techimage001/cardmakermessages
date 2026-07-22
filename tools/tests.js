@@ -13,6 +13,8 @@ let checks = 0;
 const seenTitles = new Set();
 const seenDescriptions = new Set();
 const versions = new Set();
+const seenFaqQuestions = new Map();
+const seenFaqAnswers = new Map();
 
 function check(condition, message) {
   checks += 1;
@@ -62,9 +64,26 @@ for (const file of htmlFiles) {
     check(types.includes('BreadcrumbList'), `${file}: schema missing BreadcrumbList`);
   });
 
+  if (file !== '404.html') {
+    const faqPairs = [...source.matchAll(/<details><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)];
+    check(faqPairs.length >= 3, `${file}: every indexable page needs at least three visible FAQs`);
+    faqPairs.forEach(match => {
+      const question = match[1].replace(/<[^>]+>/g, '').trim();
+      const answer = match[2].replace(/<[^>]+>/g, '').trim();
+      check(!seenFaqQuestions.has(question), `${file}: repeated FAQ question also used on ${seenFaqQuestions.get(question)}: ${question}`);
+      check(!seenFaqAnswers.has(answer), `${file}: repeated FAQ answer also used on ${seenFaqAnswers.get(answer)}`);
+      seenFaqQuestions.set(question, file);
+      seenFaqAnswers.set(answer, file);
+    });
+    const main = firstMatch(source, /<main id="main">([\s\S]*?)<\/main>/i);
+    const internalMainLinks = new Set([...main.matchAll(/href="(\/[^"#?]*)/g)].map(match => match[1]));
+    check(internalMainLinks.size >= 3, `${file}: needs at least three distinct internal links in the main content`);
+  }
+
   check(!/[—–]/.test(source), `${file}: em or en dash found`);
   check(!/\bCanva\b|Adobe Express|Greetings Island|Moonpig|Punchbowl/i.test(source), `${file}: competitor name found`);
   check(!/adsbygoogle|googlesyndication|pagead2|data-ad-client|doubleclick|googletag|amazon-adsystem/i.test(source), `${file}: advertising code found`);
+  check(!/No adverts\. No paid API\. Photos stay in your browser\.|code-drawn designs?/i.test(source), `${file}: unwanted technical footer wording found`);
   check(!/src="https?:\/\//i.test(source), `${file}: external script or image source found`);
 
   for (const match of source.matchAll(/(?:href|src)="(\/[^"]+)"/g)) {
@@ -77,7 +96,7 @@ for (const file of htmlFiles) {
 
 check(versions.size === 1 && versions.has(config.assetVersion), `Asset version mismatch: ${[...versions].join(', ')}`);
 
-for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess']) {
+for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md']) {
   check(fs.existsSync(path.join(ROOT, file)), `Missing required file: ${file}`);
 }
 
@@ -105,16 +124,19 @@ check(!/html[^}]*overflow-x:\s*hidden/i.test(css), 'Sticky-breaking overflow hid
 check(css.includes('min-height: 44px'), 'CSS missing 44px tap targets');
 
 const app = fs.readFileSync(path.join(ROOT, 'app.html'), 'utf8');
-for (const id of ['cardCanvas','messageOptions','downloadPng','downloadPdf','photoInput','backgroundPicker','mainMessage','eventTitle','eventDate','eventVenue','eventRsvp']) {
+for (const id of ['cardCanvas','messageOptions','messageOptionsPanel','downloadPng','downloadPdf','reviewCard','photoInput','backgroundPicker','mainMessage','frontHeading','backMessage','customOccasion','eventTitle','eventDate','eventVenue','eventRsvp','downloadSinglePdf','downloadWorkspace','signupForm']) {
   check(app.includes(`id="${id}"`), `app.html missing #${id}`);
 }
-for (const text of ['Folded printable card','A4 folded to A5','Photos stay in your browser']) {
+for (const text of ['Folded card PDF','A4 folded to A5','A5 folded to A6','Review finished card','Instagram square','5 × 7 inch','Show message choices']) {
   check(app.includes(text), `app.html missing required copy: ${text}`);
 }
+check(app.includes('data-signup-open'), 'app.html missing sign-up control');
+check(app.includes('data-inside-paper="white"') && app.includes('data-inside-paper="ivory"'), 'app.html missing light inside-paper choices');
 check(app.includes('data-creation-type="invitation"'), 'app.html missing invitation creation mode');
 check(app.includes('data-creation-type="postcard"'), 'app.html missing postcard creation mode');
 check(app.includes(config.domain), 'app.html missing configured domain');
 check(fs.readFileSync(path.join(ROOT, 'contact.html'), 'utf8').includes(config.email), 'contact page email mismatch');
+for (const file of ['api/subscribe.php','api/unsubscribe.php','fathers-day-card-maker.html','valentines-day-card-maker.html','graduation-card-maker.html','retirement-card-maker.html','child-naming-ceremony-card-maker.html','job-promotion-card-maker.html']) check(fs.existsSync(path.join(ROOT,file)), `Missing launch file: ${file}`);
 
 // Keyword landing pages must be genuinely distinct, not synonym duplicates.
 const toolPages = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/tool-pages.json'), 'utf8'));
@@ -139,6 +161,12 @@ for (let i = 0; i < toolPages.length; i += 1) {
     check(score <= 0.72, `Keyword pages too similar (${score.toFixed(3)}): ${toolPages[i].slug} / ${toolPages[j].slug}`);
   }
 }
+
+const appSource = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
+check(appSource.includes('All visual motifs are original procedural canvas drawings'), 'Copyright-safety declaration missing from visual engine');
+check(!/@font-face|fonts\.googleapis|cdnjs|unpkg|jsdelivr/i.test(css + appSource), 'External font or asset dependency found');
+const copyrightSafety = fs.readFileSync(path.join(ROOT, 'COPYRIGHT-SAFETY.md'), 'utf8');
+check(copyrightSafety.includes('does not bundle third-party greeting-card templates'), 'Copyright safety document is incomplete');
 
 for (const js of ['assets/site.js','assets/messages.js','assets/pdf.js','assets/app.js','tools/build.js','tools/tests.js','tools/submit-index.js']) {
   const full = path.join(ROOT, js);

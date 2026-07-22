@@ -7,6 +7,7 @@
   const ctx = canvas.getContext('2d');
   const live = document.getElementById('appLiveRegion');
 
+  // All visual motifs are original procedural canvas drawings. No external artwork, characters, logos or template assets are used.
   const presets = {
     floral: { label: 'Elegant floral', bg: '#f8f1e8', ink: '#4a2837', accent: '#b86a76', soft: '#e8c7c5', font: 'serif' },
     minimal: { label: 'Modern minimal', bg: '#f4f1ea', ink: '#172a3a', accent: '#b58c4b', soft: '#d7dde0', font: 'sans' },
@@ -21,11 +22,20 @@
   };
 
   const sizes = {
-    square: { label: 'Square card', width: 1200, height: 1200 },
-    portrait: { label: 'Portrait card', width: 1080, height: 1350 },
+    square: { label: 'Instagram square', width: 1080, height: 1080 },
+    portrait: { label: 'WhatsApp portrait', width: 1080, height: 1350 },
     landscape: { label: 'Landscape card', width: 1600, height: 900 },
-    story: { label: 'Story', width: 1080, height: 1920 },
+    story: { label: 'Instagram Story', width: 1080, height: 1920 },
+    facebook: { label: 'Facebook or LinkedIn post', width: 1200, height: 630 },
     pinterest: { label: 'Pinterest pin', width: 1000, height: 1500 }
+  };
+
+  const printSizes = {
+    A4: { label: 'A4 one-page PDF', width: 2480, height: 3508, pdf: 'A4P' },
+    A5: { label: 'A5 one-page PDF', width: 1748, height: 2480, pdf: 'A5P' },
+    A6: { label: 'A6 one-page PDF', width: 1240, height: 1748, pdf: 'A6P' },
+    '5x7': { label: '5 × 7 inch one-page PDF', width: 1500, height: 2100, pdf: '5X7' },
+    Letter: { label: 'US Letter one-page PDF', width: 2550, height: 3300, pdf: 'LETTERP' }
   };
 
   const defaultState = {
@@ -33,6 +43,7 @@
     creationType: 'card',
     occasion: 'birthday',
     occasionLabel: 'Birthday',
+    customOccasion: '',
     recipient: 'Friend',
     tone: 'heartfelt',
     recipientName: '',
@@ -45,9 +56,12 @@
     eventRsvp: '',
     eventHost: '',
     mainMessage: '',
+    frontHeading: 'Happy Birthday',
     coverMessage: 'Wishing you a wonderful day',
     insideLeftMode: 'blank',
     insideLeftText: 'A little note, made especially for you.',
+    insidePaper: 'ivory',
+    backMessage: '',
     preset: 'floral',
     background: '',
     textColour: '',
@@ -59,10 +73,12 @@
     activePanel: 'front',
     outputMode: 'digital',
     size: 'square',
+    singlePrintSize: 'A5',
     printPaper: 'A4',
     printQuality: 'home',
     showFoldMarks: true,
     showWebsite: true,
+    reviewed: false,
     savedAt: 0
   };
 
@@ -83,7 +99,8 @@
   }
 
   function updateState(patch, options = {}) {
-    state = { ...state, ...patch };
+    const reviewSensitive = Object.keys(patch).some(key => !['step', 'activePanel', 'reviewed', 'outputMode', 'size', 'singlePrintSize', 'printPaper', 'printQuality', 'showFoldMarks'].includes(key));
+    state = { ...state, ...patch, ...(reviewSensitive ? { reviewed: false } : {}) };
     syncControls();
     if (options.persist !== false) persist();
     queueRender();
@@ -113,6 +130,7 @@
       patch.occasion = occasion;
       patch.occasionLabel = DATA.occasions[occasion].label;
       patch.coverMessage = defaultCover(occasion);
+      patch.frontHeading = DATA.occasions[occasion].front || DATA.occasions[occasion].label;
     }
     if (tone && DATA.tones.some(item => item[0] === tone)) patch.tone = tone;
     if (recipient) patch.recipient = recipient;
@@ -126,13 +144,14 @@
       anniversary: 'Celebrating your love', easter: 'Hope and joy this Easter', thanks: 'With sincere appreciation',
       congratulations: 'You did something wonderful', 'new-baby': 'A beautiful new beginning', retirement: 'Enjoy your next chapter',
       'get-well': 'Sending care and warm wishes', valentine: 'With all my love', graduation: 'Your future starts here',
-      'mothers-day': 'With love and gratitude', 'birthday-invitation': 'You’re invited', 'party-invitation': 'Let’s celebrate',
+      'mothers-day': 'With love and gratitude', 'fathers-day': 'With appreciation and love', 'child-naming': 'Welcome, little one', 'job-promotion': 'A well-earned next step', custom: 'Made especially for this occasion', 'birthday-invitation': 'You’re invited', 'party-invitation': 'Let’s celebrate',
       'wedding-invitation': 'Together with joy', 'christmas-invitation': 'A festive invitation', postcard: 'A little note from me'
     };
     return cover[occasion] || 'Made especially for you';
   }
 
   function generateMessages(selectFirst = true) {
+    state.reviewed = false;
     messageOptions = DATA.chooseMessages(
       state.occasion,
       state.tone,
@@ -167,6 +186,7 @@
     container.querySelectorAll('[data-use-message]').forEach(button => {
       button.addEventListener('click', () => {
         state.mainMessage = messageOptions[Number(button.dataset.useMessage)];
+        state.reviewed = false;
         document.getElementById('mainMessage').value = state.mainMessage;
         renderMessageOptions();
         persist();
@@ -226,6 +246,11 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    document.querySelectorAll('[data-inside-paper]').forEach(button => {
+      const active = button.dataset.insidePaper === state.insidePaper;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
     document.querySelectorAll('[data-panel]').forEach(button => {
       const active = button.dataset.panel === state.activePanel;
       button.classList.toggle('active', active);
@@ -246,17 +271,27 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    document.querySelectorAll('[data-single-print-size]').forEach(button => {
+      const active = button.dataset.singlePrintSize === state.singlePrintSize;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
     document.querySelectorAll('[data-print-quality]').forEach(button => {
       const active = button.dataset.printQuality === state.printQuality;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
     const digitalOptions = document.getElementById('digitalOptions');
+    const singlePrintOptions = document.getElementById('singlePrintOptions');
     const printOptions = document.getElementById('printOptions');
+    const downloadWorkspace = document.getElementById('downloadWorkspace');
     if (digitalOptions) digitalOptions.hidden = state.outputMode !== 'digital';
-    if (printOptions) printOptions.hidden = state.outputMode !== 'print';
+    if (singlePrintOptions) singlePrintOptions.hidden = state.outputMode !== 'single-print';
+    if (printOptions) printOptions.hidden = state.outputMode !== 'folded';
+    if (downloadWorkspace) downloadWorkspace.hidden = !state.reviewed;
     const inputs = {
       recipientSelect: state.recipient,
+      customOccasion: state.customOccasion,
       recipientName: state.recipientName,
       senderName: state.senderName,
       personalNote: state.personalNote,
@@ -267,7 +302,9 @@
       eventRsvp: state.eventRsvp,
       eventHost: state.eventHost,
       mainMessage: state.mainMessage,
+      frontHeading: state.frontHeading,
       coverMessage: state.coverMessage,
+      backMessage: state.backMessage,
       insideLeftText: state.insideLeftText,
       backgroundPicker: state.background || presets[state.preset].bg,
       textColourPicker: state.textColour || presets[state.preset].ink
@@ -278,17 +315,24 @@
     });
     const invitationDetails = document.getElementById('invitationDetails');
     if (invitationDetails) invitationDetails.hidden = state.creationType !== 'invitation';
+    const customOccasionField = document.getElementById('customOccasionField');
+    if (customOccasionField) customOccasionField.hidden = state.occasion !== 'custom';
+    const customOccasion = document.getElementById('customOccasion');
+    if (customOccasion && customOccasion.value !== state.customOccasion) customOccasion.value = state.customOccasion;
+    const editor = document.getElementById('persistentMessageEditor');
+    const slot = document.querySelector(`[data-editor-slot="${state.step}"]`);
+    if (editor && slot && editor.parentElement !== slot) slot.appendChild(editor);
     const mainLabel = document.querySelector('label[for="mainMessage"]');
     if (mainLabel) mainLabel.textContent = state.creationType === 'invitation' ? 'Invitation wording' : state.creationType === 'postcard' ? 'Postcard message' : 'Your final message';
     const website = document.getElementById('showWebsite');
     const marks = document.getElementById('showFoldMarks');
     if (website) website.checked = state.showWebsite;
     if (marks) marks.checked = state.showFoldMarks;
+    const selectedOccasion = DATA.occasions[state.occasion];
+    state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
     const summary = document.getElementById('downloadSummary');
     if (summary) {
-      summary.textContent = state.outputMode === 'print'
-        ? `${state.printPaper === 'A4' ? 'A4 folded to A5' : 'US Letter folded card'}, two-page PDF`
-        : `${sizes[state.size].label}, high-resolution image`;
+      summary.textContent = `${sizes[state.size].label}, ${sizes[state.size].width} × ${sizes[state.size].height} high-resolution image`;
     }
   }
 
@@ -577,11 +621,19 @@
   }
 
   function drawPanel(context, x, y, width, height, panel, renderState, folded = false) {
-    const p = paletteFor(renderState);
+    const exterior = paletteFor(renderState);
+    const isInside = panel === 'inside-left' || panel === 'inside-right';
+    const p = isInside ? { ...exterior, bg: renderState.insidePaper === 'white' ? '#ffffff' : '#fffaf0', ink: '#2e2930', soft: '#eee5d8' } : exterior;
     context.save();
     context.beginPath(); context.rect(x, y, width, height); context.clip();
-    drawBackground(context, x, y, width, height, renderState);
-    drawFrame(context, x, y, width, height, renderState, p);
+    if (isInside) {
+      context.fillStyle = p.bg; context.fillRect(x, y, width, height);
+      context.strokeStyle = hexToRgba(exterior.accent, .28); context.lineWidth = Math.max(2, width * .0025);
+      context.strokeRect(x + width * .055, y + height * .04, width * .89, height * .92);
+    } else {
+      drawBackground(context, x, y, width, height, renderState);
+      drawFrame(context, x, y, width, height, renderState, p);
+    }
     const family = fontFamily(renderState, p);
     const pad = width * .12;
 
@@ -620,9 +672,9 @@
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.font = `700 ${Math.max(20, width * .03)}px Arial, Helvetica, sans-serif`;
-      context.fillText((DATA.occasions[renderState.occasion]?.label || 'Special Occasion').toUpperCase(), x + width / 2, y + height * (photoSpace ? .47 : .18), width * .76);
+      context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (photoSpace ? .47 : .18), width * .76);
 
-      const title = digital ? renderState.mainMessage : (DATA.occasions[renderState.occasion]?.front || 'For You');
+      const title = digital ? renderState.mainMessage : (renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You')));
       drawTextBlock(context, title, {
         x: x + pad, y: y + height * (photoSpace ? .5 : .25), width: width - pad * 2, height: height * (digital ? .37 : .28)
       }, {
@@ -679,7 +731,7 @@
     } else if (panel === 'back') {
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038}px ${family}`;
-      context.fillText(renderState.recipientName ? `Created especially for ${renderState.recipientName}` : 'Created especially for someone special', x + width / 2, y + height * .44, width * .7);
+      context.fillText(renderState.backMessage || (renderState.recipientName ? `Created especially for ${renderState.recipientName}` : 'Created especially for someone special'), x + width / 2, y + height * .44, width * .7);
       if (renderState.showWebsite) {
         context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
         context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
@@ -690,16 +742,38 @@
   }
 
   function previewDimensions() {
-    if (state.activePanel !== 'front' || state.outputMode === 'print') return { width: 1000, height: 1400 };
     if (state.creationType === 'postcard') return sizes.landscape;
+    if (state.outputMode === 'single-print') {
+      const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+      return { width: 1000, height: Math.round(1000 * selected.height / selected.width) };
+    }
+    if (state.outputMode === 'folded') return { width: 1000, height: 1400 };
     return sizes[state.size] || sizes.square;
+  }
+
+  function fitPreviewCanvas() {
+    const wrap = canvas.parentElement;
+    if (!wrap) return;
+    const availableWidth = Math.max(1, wrap.clientWidth - 10);
+    const availableHeight = Math.max(1, wrap.clientHeight - 10);
+    const ratio = canvas.width / canvas.height;
+    const availableRatio = availableWidth / availableHeight;
+    if (availableRatio > ratio) {
+      canvas.style.height = `${availableHeight}px`;
+      canvas.style.width = `${Math.round(availableHeight * ratio)}px`;
+    } else {
+      canvas.style.width = `${availableWidth}px`;
+      canvas.style.height = `${Math.round(availableWidth / ratio)}px`;
+    }
   }
 
   function renderPreview() {
     const dimensions = previewDimensions();
     canvas.width = dimensions.width;
     canvas.height = dimensions.height;
-    drawPanel(ctx, 0, 0, canvas.width, canvas.height, state.activePanel, state, state.outputMode === 'print');
+    canvas.style.aspectRatio = `${dimensions.width} / ${dimensions.height}`;
+    drawPanel(ctx, 0, 0, canvas.width, canvas.height, state.activePanel, state, state.outputMode === 'folded');
+    requestAnimationFrame(fitPreviewCanvas);
     const label = document.getElementById('previewCaption');
     if (label) {
       const panelLabels = { front: 'Front cover', 'inside-left': 'Inside left', 'inside-right': 'Inside message', back: 'Back cover' };
@@ -755,11 +829,23 @@
     announce('Card image copied.');
   }
 
+  async function createSinglePagePdf() {
+    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+    const output = createPanelCanvas('front', selected.width, selected.height, false);
+    const pdf = await window.CardPDF.canvasesToPdf([output], selected.pdf);
+    window.CardPDF.openBlob(pdf, filename('pdf'));
+    announce(`${selected.label} opened in a new tab.`);
+  }
+
   async function createFoldedPdf() {
-    const a4 = state.printPaper === 'A4';
-    const pageWidth = a4 ? 3508 : 3300;
-    const pageHeight = a4 ? 2480 : 2550;
-    const margin = state.printQuality === 'professional' ? 35 : 120;
+    const specs = {
+      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
+      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
+      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
+    };
+    const spec = specs[state.printPaper] || specs.A4;
+    const { pageWidth, pageHeight } = spec;
+    const margin = state.printQuality === 'shop' ? 35 : 120;
     const half = pageWidth / 2;
     const panelWidth = half - margin * 2;
     const panelHeight = pageHeight - margin * 2;
@@ -785,7 +871,7 @@
       });
     }
 
-    const pdf = await window.CardPDF.canvasesToPdf([outside, inside], state.printPaper);
+    const pdf = await window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
     window.CardPDF.openBlob(pdf, filename('pdf'));
     announce('Your folded card PDF opened in a new tab.');
   }
@@ -828,6 +914,7 @@
     const reader = new FileReader();
     reader.onload = () => {
       state.photoData = String(reader.result);
+      state.reviewed = false;
       photoImage = new Image();
       photoImage.onload = () => { persist(); queueRender(); announce('Photo added. It stays on this device.'); };
       photoImage.src = state.photoData;
@@ -840,6 +927,37 @@
     photoImage = new Image();
     photoImage.onload = queueRender;
     photoImage.src = state.photoData;
+  }
+
+  function renderReviewModal() {
+    const panelSize = { width: 700, height: 980 };
+    document.querySelectorAll('[data-review-panel]').forEach(canvasEl => {
+      const panel = canvasEl.dataset.reviewPanel;
+      canvasEl.width = panelSize.width; canvasEl.height = panelSize.height;
+      canvasEl.style.aspectRatio = `${panelSize.width} / ${panelSize.height}`;
+      drawPanel(canvasEl.getContext('2d'), 0, 0, panelSize.width, panelSize.height, panel, state, true);
+    });
+  }
+
+  function openReview() {
+    renderReviewModal();
+    const modal = document.getElementById('reviewModal');
+    if (modal) { modal.hidden = false; document.body.classList.add('modal-open'); }
+  }
+
+  function closeReview() {
+    const modal = document.getElementById('reviewModal');
+    if (modal) { modal.hidden = true; document.body.classList.remove('modal-open'); }
+  }
+
+  async function withUsageGate(action) {
+    const access = window.CardMakerSignup;
+    if (access && !access.isUnlocked()) {
+      const current = Number(Store.load().usageCount || 0);
+      if (current >= 3) { access.open('You have used your three free exports. Sign up free to keep creating.'); return; }
+      Store.save({ usageCount: current + 1 });
+    }
+    await action();
   }
 
   function initControls() {
@@ -855,8 +973,10 @@
       const occasion = defaults[creationType];
       state.creationType = creationType;
       state.occasion = occasion;
-      state.occasionLabel = DATA.occasions[occasion].label;
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
+      state.frontHeading = DATA.occasions[occasion]?.front || DATA.occasions[occasion]?.label || 'For You';
+      state.reviewed = false;
       if (creationType === 'postcard') state.size = 'landscape';
       generateMessages(); syncControls();
     }));
@@ -866,8 +986,10 @@
       const occasion = button.dataset.occasion;
       state.creationType = button.dataset.kind || state.creationType;
       state.occasion = occasion;
-      state.occasionLabel = DATA.occasions[occasion].label;
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
+      state.frontHeading = DATA.occasions[occasion]?.front || (occasion === 'custom' ? 'For Your Special Occasion' : DATA.occasions[occasion]?.label) || 'For You';
+      state.reviewed = false;
       const eventTitles = { 'birthday-invitation': 'A Birthday Celebration', 'party-invitation': 'A Special Celebration', 'wedding-invitation': 'Our Wedding Celebration', 'christmas-invitation': 'A Christmas Gathering' };
       if (eventTitles[occasion]) state.eventTitle = eventTitles[occasion];
       generateMessages(); syncControls();
@@ -876,8 +998,10 @@
     document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => updateState({ preset: button.dataset.preset, background: '', textColour: '', font: presets[button.dataset.preset].font })));
     document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ frame: button.dataset.frame })));
     document.querySelectorAll('[data-inside-left]').forEach(button => button.addEventListener('click', () => updateState({ insideLeftMode: button.dataset.insideLeft })));
+    document.querySelectorAll('[data-inside-paper]').forEach(button => button.addEventListener('click', () => updateState({ insidePaper: button.dataset.insidePaper })));
     document.querySelectorAll('[data-panel]').forEach(button => button.addEventListener('click', () => updateState({ activePanel: button.dataset.panel })));
     document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front' })));
+    document.querySelectorAll('[data-single-print-size]').forEach(button => button.addEventListener('click', () => updateState({ singlePrintSize: button.dataset.singlePrintSize })));
     document.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => updateState({ size: button.dataset.size })));
     document.querySelectorAll('[data-paper]').forEach(button => button.addEventListener('click', () => updateState({ printPaper: button.dataset.paper })));
     document.querySelectorAll('[data-print-quality]').forEach(button => button.addEventListener('click', () => updateState({ printQuality: button.dataset.printQuality })));
@@ -887,23 +1011,44 @@
     }));
 
     const bindings = {
-      recipientSelect: 'recipient', recipientName: 'recipientName', senderName: 'senderName', personalNote: 'personalNote',
+      recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName', personalNote: 'personalNote',
       eventTitle: 'eventTitle', eventDate: 'eventDate', eventTime: 'eventTime', eventVenue: 'eventVenue', eventRsvp: 'eventRsvp', eventHost: 'eventHost',
-      mainMessage: 'mainMessage', coverMessage: 'coverMessage', insideLeftText: 'insideLeftText',
+      mainMessage: 'mainMessage', frontHeading: 'frontHeading', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
       backgroundPicker: 'background', textColourPicker: 'textColour'
     };
     Object.entries(bindings).forEach(([id, key]) => {
-      document.getElementById(id)?.addEventListener('input', event => updateState({ [key]: event.target.value }));
+      document.getElementById(id)?.addEventListener('input', event => {
+        const patch = { [key]: event.target.value };
+        if (key === 'customOccasion') {
+          patch.occasionLabel = event.target.value.trim() || 'Custom Occasion';
+          patch.coverMessage = event.target.value.trim() ? `Celebrating ${event.target.value.trim()}` : 'Made especially for this occasion';
+          patch.frontHeading = event.target.value.trim() || 'For Your Special Occasion';
+        }
+        updateState(patch);
+      });
     });
 
-    document.getElementById('generateMessages')?.addEventListener('click', generateMessages);
+    document.getElementById('generateMessages')?.addEventListener('click', () => {
+      const panel = document.getElementById('messageOptionsPanel');
+      const button = document.getElementById('generateMessages');
+      if (!panel || !button) return;
+      const opening = panel.hidden;
+      panel.hidden = !opening;
+      button.textContent = opening ? 'Hide message choices' : 'Show message choices';
+      button.setAttribute('aria-expanded', String(opening));
+      if (opening) {
+        generateMessages(false);
+        window.setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      }
+    });
     document.getElementById('photoInput')?.addEventListener('change', event => loadPhoto(event.target.files?.[0]));
     document.getElementById('removePhoto')?.addEventListener('click', () => { photoImage = null; updateState({ photoData: '' }); });
     document.getElementById('surpriseDesign')?.addEventListener('click', surprise);
-    document.getElementById('downloadPng')?.addEventListener('click', () => openImage('image/png').catch(handleError));
-    document.getElementById('downloadJpg')?.addEventListener('click', () => openImage('image/jpeg').catch(handleError));
-    document.getElementById('downloadPdf')?.addEventListener('click', () => createFoldedPdf().catch(handleError));
-    document.getElementById('shareImage')?.addEventListener('click', () => shareImage().catch(handleError));
+    document.getElementById('downloadPng')?.addEventListener('click', () => withUsageGate(() => openImage('image/png')).catch(handleError));
+    document.getElementById('downloadJpg')?.addEventListener('click', () => withUsageGate(() => openImage('image/jpeg')).catch(handleError));
+    document.getElementById('downloadSinglePdf')?.addEventListener('click', () => withUsageGate(createSinglePagePdf).catch(handleError));
+    document.getElementById('downloadPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
+    document.getElementById('shareImage')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
     document.getElementById('shareLink')?.addEventListener('click', () => shareLink().catch(handleError));
     document.getElementById('copyImage')?.addEventListener('click', () => copyImage().catch(handleError));
     document.getElementById('copyMessage')?.addEventListener('click', () => copyMessage().catch(handleError));
@@ -911,12 +1056,19 @@
       const text = encodeURIComponent(`${state.mainMessage}\n\nCreate a card: ${location.origin}${location.pathname}`);
       window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
     });
-    document.getElementById('startAgain')?.addEventListener('click', () => {
+    const resetCard = () => {
       if (!confirm('Start again and clear the current card?')) return;
       state = { ...defaultState };
       photoImage = null;
       generateMessages(); syncControls(); queueRender(); announce('Started a new card.');
-    });
+    };
+    document.getElementById('startAgain')?.addEventListener('click', resetCard);
+    document.getElementById('startAgainBottom')?.addEventListener('click', resetCard);
+    document.getElementById('reviewCard')?.addEventListener('click', openReview);
+    document.getElementById('closeReview')?.addEventListener('click', closeReview);
+    document.getElementById('editFromReview')?.addEventListener('click', () => { updateState({ reviewed: false }); closeReview(); });
+    document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true }); closeReview(); document.getElementById('downloadWorkspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
     document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
   }
@@ -935,11 +1087,13 @@
       const notice = document.getElementById('resumeNotice');
       if (notice) notice.hidden = false;
     }
+    if (!state.frontHeading) state.frontHeading = DATA.occasions[state.occasion]?.front || state.occasionLabel || 'For You';
     generateMessages(false);
     syncControls();
     queueRender();
     window.setInterval(persist, 5000);
     window.addEventListener('pagehide', persist);
+    window.addEventListener('resize', () => requestAnimationFrame(fitPreviewCanvas), { passive: true });
   }
 
   init();

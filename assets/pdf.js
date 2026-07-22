@@ -75,9 +75,16 @@
   async function canvasesToPdf(canvases, pageSize = 'A4') {
     const sizes = {
       A4: { widthPt: 841.89, heightPt: 595.28 },
-      LETTER: { widthPt: 792, heightPt: 612 }
+      A5L: { widthPt: 595.28, heightPt: 419.53 },
+      LETTER: { widthPt: 792, heightPt: 612 },
+      A4P: { widthPt: 595.28, heightPt: 841.89 },
+      A5P: { widthPt: 419.53, heightPt: 595.28 },
+      A6P: { widthPt: 297.64, heightPt: 419.53 },
+      '5X7': { widthPt: 360, heightPt: 504 },
+      LETTERP: { widthPt: 612, heightPt: 792 }
     };
-    const selected = sizes[pageSize] || sizes.A4;
+    const key = String(pageSize || 'A4').toUpperCase();
+    const selected = sizes[key] || sizes.A4;
     const pages = [];
     for (const canvas of canvases) {
       pages.push({

@@ -195,6 +195,67 @@
         ['funny','Thank you for knowing where everything is, even when nobody has looked properly.']
       ]
     },
+
+    'fathers-day': {
+      label: 'Father’s Day', front: 'Happy Father’s Day', icon: '◇',
+      messages: [
+        ['heartfelt','Thank you for the calm advice, practical help and steady encouragement you have given me over the years.'],
+        ['short','Wishing you a very happy Father’s Day and a day filled with the things you enjoy most.'],
+        ['funny','Happy Father’s Day to the person who taught me that almost anything can be fixed with patience and the right tool.'],
+        ['formal','With sincere appreciation for your guidance, example and constant support. Happy Father’s Day.'],
+        ['religious','May God bless you for the strength, wisdom and care you have shared with our family.'],
+        ['inspirational','Your example has shown me that real strength can be patient, kind and dependable.'],
+        ['heartfelt','You have been a steady presence, a thoughtful guide and someone I can always rely on.'],
+        ['short','With love and appreciation on Father’s Day.'],
+        ['professional','Wishing you a happy Father’s Day and a well-deserved day of rest and appreciation.'],
+        ['funny','Today is your official permission to repeat your best stories and control the remote.']
+      ]
+    },
+    'child-naming': {
+      label: 'Child Naming Ceremony', front: 'Welcome, Little One', icon: '✧',
+      messages: [
+        ['heartfelt','Welcome, little one. May your name always be spoken with love and your life be surrounded by people who help you grow with confidence.'],
+        ['short','Warmest congratulations on this beautiful naming ceremony and joyful family occasion.'],
+        ['formal','Please accept our sincere congratulations to the child and family on this meaningful celebration.'],
+        ['religious','May God guide this precious child, protect every step and fill the years ahead with grace and purpose.'],
+        ['inspirational','Today a beautiful name is celebrated, and a lifetime of possibility begins.'],
+        ['heartfelt','May this child grow in wisdom, good health and the security of a family that celebrates every step.'],
+        ['short','Welcome to a life of love, belonging and wonderful new beginnings.'],
+        ['religious','May this child be surrounded by faithful love, wise guidance and lasting peace.'],
+        ['formal','With warm wishes to the whole family on the child’s naming ceremony.'],
+        ['inspirational','May the meaning carried in this name be matched by a life of courage, kindness and purpose.']
+      ]
+    },
+    'job-promotion': {
+      label: 'Job Promotion', front: 'Congratulations on Your Promotion', icon: '↑',
+      messages: [
+        ['heartfelt','Congratulations on your promotion. Your judgement, consistency and willingness to support others have made this achievement thoroughly deserved.'],
+        ['short','Warmest congratulations on your new role and this well-earned next step.'],
+        ['funny','You have officially been promoted from answering questions to receiving even more questions. Congratulations.'],
+        ['formal','Please accept my sincere congratulations on this well-earned professional achievement.'],
+        ['professional','Congratulations on your promotion. Wishing you confidence, success and rewarding opportunities in the new role.'],
+        ['religious','May God give you wisdom, favour and strength as you take on this new responsibility.'],
+        ['inspirational','This promotion recognises what your hard work has already shown: you are ready for the next level.'],
+        ['heartfelt','It is wonderful to see your effort, character and patience recognised in such a meaningful way.'],
+        ['short','Congratulations. You earned this moment and the opportunity ahead.'],
+        ['professional','Your leadership and dependable contribution have prepared you well for this next chapter.']
+      ]
+    },
+    custom: {
+      label: 'Custom Occasion', front: 'A Special Message', icon: '+',
+      messages: [
+        ['heartfelt','This moment deserves to be marked with warmth, gratitude and a message made especially for you.'],
+        ['short','Warm wishes for this special occasion.'],
+        ['funny','This occasion called for a card, so here is one made especially for you.'],
+        ['formal','Please accept my warmest wishes on this special occasion.'],
+        ['professional','With sincere congratulations and every good wish for the occasion.'],
+        ['religious','May God bless this occasion and guide every step that follows.'],
+        ['inspirational','May this moment become the beginning of something meaningful and rewarding.'],
+        ['heartfelt','I am grateful to share this important moment and celebrate it with you.'],
+        ['short','Celebrating this special moment with you.'],
+        ['formal','With warm regards and best wishes for this memorable occasion.']
+      ]
+    },
     'birthday-invitation': {
       label: 'Birthday Invitation', front: 'You’re Invited', icon: '✦',
       messages: [

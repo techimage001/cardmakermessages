@@ -8,10 +8,37 @@
     "answer": "Card Maker Messages helps you create a polished card by choosing rather than designing from scratch. Select an occasion, recipient and message, then tap a complete visual style. You can add a private photo, download a high-resolution image or create a two-page folded PDF for home printing without managing layers or moving objects.",
     "question": "How does this card maker stay simple?",
     "sectionAnswer": "The maker limits each decision to useful choices: message, complete design, photo, format and download. Presets automatically coordinate typography, colour, frame and decoration. Text is fitted inside safe margins, while digital and print outputs are separated so users do not need to understand design software.",
-    "steps": ["Choose a card or invitation type.", "Pick the occasion and wording.", "Tap a complete premium design.", "Download an image or folded PDF."],
-    "features": [["Message-first workflow", "Start with what you want to say instead of a blank canvas."], ["One-tap designs", "Each preset changes the whole card consistently."], ["Private photo handling", "Photos stay in the browser and are not uploaded."], ["Print-ready option", "Create A4-to-A5 or US Letter folded PDFs."]],
+    "steps": [
+      "Choose a card or invitation type.",
+      "Pick the occasion and wording.",
+      "Tap a complete premium design.",
+      "Download an image or folded PDF."
+    ],
+    "features": [
+      [
+        "Message-first workflow",
+        "Start with what you want to say instead of a blank canvas."
+      ],
+      [
+        "One-tap designs",
+        "Each preset changes the whole card consistently."
+      ],
+      [
+        "Private photo handling",
+        "Photos stay in the browser and are not uploaded."
+      ],
+      [
+        "Print-ready option",
+        "Create A4-to-A5 or US Letter folded PDFs."
+      ]
+    ],
     "appQuery": "",
-    "related": ["birthday-card-maker", "christmas-card-maker", "digital-card-maker", "custom-card-maker"]
+    "related": [
+      "birthday-card-maker",
+      "christmas-card-maker",
+      "digital-card-maker",
+      "custom-card-maker"
+    ]
   },
   {
     "slug": "invitation-maker",
@@ -22,10 +49,37 @@
     "answer": "The invitation maker creates a complete invitation from a few essential details. Choose the event, enter the date, time, venue and RSVP information, then select a ready-made design. The result can be downloaded as a digital invitation for messaging or email, without arranging every element manually or starting from an empty template.",
     "question": "What information should an online invitation include?",
     "sectionAnswer": "A useful invitation clearly states what the event is, who it celebrates, when and where it happens and how guests should respond. Add dress information, age guidance or gift notes only when necessary. The most important details should remain visible at a glance on a phone screen.",
-    "steps": ["Choose birthday, wedding, party or Christmas invitation.", "Enter the event date, time, venue and RSVP details.", "Pick a complete invitation design.", "Download and share the finished invitation."],
-    "features": [["Essential event fields", "Date, time, venue, host and RSVP are kept together."], ["Digital-first sizes", "Choose portrait, square or Story formats for sharing."], ["Editable wording", "Use a suggested invitation line or write your own."], ["No design learning curve", "Typography and spacing are handled automatically."]],
+    "steps": [
+      "Choose birthday, wedding, party or Christmas invitation.",
+      "Enter the event date, time, venue and RSVP details.",
+      "Pick a complete invitation design.",
+      "Download and share the finished invitation."
+    ],
+    "features": [
+      [
+        "Essential event fields",
+        "Date, time, venue, host and RSVP are kept together."
+      ],
+      [
+        "Digital-first sizes",
+        "Choose portrait, square or Story formats for sharing."
+      ],
+      [
+        "Editable wording",
+        "Use a suggested invitation line or write your own."
+      ],
+      [
+        "No design learning curve",
+        "Typography and spacing are handled automatically."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=birthday-invitation",
-    "related": ["birthday-invitation-maker", "party-invitation-maker", "wedding-invitation-maker", "digital-invitation-maker"]
+    "related": [
+      "birthday-invitation-maker",
+      "party-invitation-maker",
+      "wedding-invitation-maker",
+      "digital-invitation-maker"
+    ]
   },
   {
     "slug": "birthday-card-maker",
@@ -36,10 +90,37 @@
     "answer": "The birthday card maker combines ready-to-use birthday wording with complete designs for friends, family and colleagues. Add the recipient’s name, select a heartfelt, funny, short or religious tone and choose a photo or illustrated style. Download a digital card or print an A4 sheet that folds into an A5 birthday card.",
     "question": "What makes a birthday card feel personal?",
     "sectionAnswer": "A personal birthday card names the recipient, uses a tone that suits the relationship and includes one real detail. A milestone age, shared memory or quality you appreciate is enough. The design should support the message rather than crowd it with decorations or make the writing difficult to read.",
-    "steps": ["Choose the recipient and birthday tone.", "Select or edit an original message.", "Add a name, age or photo if useful.", "Download the card or folded PDF."],
-    "features": [["Relationship choices", "Create wording for Mum, Dad, a partner, friend or colleague."], ["Milestone-friendly", "Add an age without rebuilding the design."], ["Photo and non-photo styles", "Choose the layout that fits the recipient."], ["Printable birthday card", "Use A4, A5 or US Letter output."]],
+    "steps": [
+      "Choose the recipient and birthday tone.",
+      "Select or edit an original message.",
+      "Add a name, age or photo if useful.",
+      "Download the card or folded PDF."
+    ],
+    "features": [
+      [
+        "Relationship choices",
+        "Create wording for Mum, Dad, a partner, friend or colleague."
+      ],
+      [
+        "Milestone-friendly",
+        "Add an age without rebuilding the design."
+      ],
+      [
+        "Photo and non-photo styles",
+        "Choose the layout that fits the recipient."
+      ],
+      [
+        "Printable birthday card",
+        "Use A4, A5 or US Letter output."
+      ]
+    ],
     "appQuery": "occasion=birthday",
-    "related": ["birthday-card-messages", "birthday-invitation-maker", "birthday-invitation-templates", "card-maker"]
+    "related": [
+      "birthday-card-messages",
+      "birthday-invitation-maker",
+      "birthday-invitation-templates",
+      "card-maker"
+    ]
   },
   {
     "slug": "birthday-invitation-maker",
@@ -50,10 +131,37 @@
     "answer": "The birthday invitation maker turns event details into a polished invitation that is easy to read on a phone. Add the person’s name or age, date, time, venue and RSVP information, then choose a complete design. It suits children’s parties, adult celebrations and milestone birthdays without requiring a complicated design editor.",
     "question": "What should a birthday invitation say?",
     "sectionAnswer": "A birthday invitation should identify the celebration, guest of honour, date, start time, venue and response method. Add an end time for children’s parties and mention themes, food or age restrictions only when guests need the information. Keep the main invitation line cheerful and the practical details concise.",
-    "steps": ["Enter the guest of honour and optional age.", "Add date, time, venue and RSVP details.", "Choose a playful, elegant or photo design.", "Download the finished invitation image."],
-    "features": [["Milestone invitations", "Works for 18th, 21st, 30th, 40th, 50th and later birthdays."], ["Children’s party details", "Include end time, theme and parent contact information."], ["Phone-friendly layout", "Important details remain readable when shared."], ["Instant editing", "Change details without remaking the design."]],
+    "steps": [
+      "Enter the guest of honour and optional age.",
+      "Add date, time, venue and RSVP details.",
+      "Choose a playful, elegant or photo design.",
+      "Download the finished invitation image."
+    ],
+    "features": [
+      [
+        "Milestone invitations",
+        "Works for 18th, 21st, 30th, 40th, 50th and later birthdays."
+      ],
+      [
+        "Children’s party details",
+        "Include end time, theme and parent contact information."
+      ],
+      [
+        "Phone-friendly layout",
+        "Important details remain readable when shared."
+      ],
+      [
+        "Instant editing",
+        "Change details without remaking the design."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=birthday-invitation",
-    "related": ["birthday-invitation-templates", "party-invitation-maker", "birthday-card-maker", "invitation-maker"]
+    "related": [
+      "birthday-invitation-templates",
+      "party-invitation-maker",
+      "birthday-card-maker",
+      "invitation-maker"
+    ]
   },
   {
     "slug": "party-invitation-maker",
@@ -64,10 +172,37 @@
     "answer": "The party invitation maker creates a clear invitation for celebrations, dinners, showers and informal events. Enter the event title, date, time, location and RSVP information, then select a coordinated design. The tool keeps essential details readable and lets you download a shareable image without arranging text boxes or graphic layers.",
     "question": "How do I make a party invitation easy to understand?",
     "sectionAnswer": "Lead with the event name and guest of honour, then place the date, time and venue together. Give guests one clear way to respond and include a deadline when numbers matter. Themes, dress codes and food notes should appear after the core details, not compete with them.",
-    "steps": ["Name the party and person being celebrated.", "Add practical event and RSVP details.", "Choose a complete style that fits the event.", "Download for WhatsApp, email or social sharing."],
-    "features": [["Flexible event titles", "Use it for dinners, showers, reunions and celebrations."], ["RSVP clarity", "Show contact and response deadline together."], ["Multiple image shapes", "Square, portrait, landscape and Story sizes."], ["Reusable design", "Update details for another event in seconds."]],
+    "steps": [
+      "Name the party and person being celebrated.",
+      "Add practical event and RSVP details.",
+      "Choose a complete style that fits the event.",
+      "Download for WhatsApp, email or social sharing."
+    ],
+    "features": [
+      [
+        "Flexible event titles",
+        "Use it for dinners, showers, reunions and celebrations."
+      ],
+      [
+        "RSVP clarity",
+        "Show contact and response deadline together."
+      ],
+      [
+        "Multiple image shapes",
+        "Square, portrait, landscape and Story sizes."
+      ],
+      [
+        "Reusable design",
+        "Update details for another event in seconds."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=party-invitation",
-    "related": ["invitation-maker", "birthday-invitation-maker", "invitation-templates", "digital-invitation-maker"]
+    "related": [
+      "invitation-maker",
+      "birthday-invitation-maker",
+      "invitation-templates",
+      "digital-invitation-maker"
+    ]
   },
   {
     "slug": "wedding-invitation-maker",
@@ -78,10 +213,37 @@
     "answer": "The wedding invitation maker creates a refined digital invitation around the couple’s names and essential event information. Add the ceremony date, time, venue and RSVP details, then choose an elegant floral, modern minimal or luxury design. The layout remains structured and readable without requiring manual alignment or design experience.",
     "question": "What details belong on a wedding invitation?",
     "sectionAnswer": "A wedding invitation normally includes the couple’s names, date, ceremony time, venue and response instructions. Reception details can appear on the same invitation when simple, or in a separate information card when complex. Use consistent names and wording across every item so guests do not receive conflicting information.",
-    "steps": ["Enter the couple’s preferred names.", "Add ceremony date, time and venue.", "Include RSVP contact and deadline.", "Choose an elegant design and download."],
-    "features": [["Elegant presets", "Floral, botanical, minimal and luxury styles."], ["Clear hierarchy", "Names and date receive emphasis while details remain readable."], ["Digital sharing", "Create a high-resolution invitation for messaging or email."], ["Easy corrections", "Update a venue or time without rebuilding the card."]],
+    "steps": [
+      "Enter the couple’s preferred names.",
+      "Add ceremony date, time and venue.",
+      "Include RSVP contact and deadline.",
+      "Choose an elegant design and download."
+    ],
+    "features": [
+      [
+        "Elegant presets",
+        "Floral, botanical, minimal and luxury styles."
+      ],
+      [
+        "Clear hierarchy",
+        "Names and date receive emphasis while details remain readable."
+      ],
+      [
+        "Digital sharing",
+        "Create a high-resolution invitation for messaging or email."
+      ],
+      [
+        "Easy corrections",
+        "Update a venue or time without rebuilding the card."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=wedding-invitation",
-    "related": ["wedding-invitation-templates", "wedding-card-maker", "invitation-maker", "digital-invitation-maker"]
+    "related": [
+      "wedding-invitation-templates",
+      "wedding-card-maker",
+      "invitation-maker",
+      "digital-invitation-maker"
+    ]
   },
   {
     "slug": "christmas-card-maker",
@@ -92,10 +254,37 @@
     "answer": "The Christmas card maker lets you combine a seasonal message, family name and optional photo with a complete festive design. Choose traditional, modern, religious or professional wording, then download a digital image or printable folded PDF. The design presets coordinate colours and typography so the card looks finished after only a few choices.",
     "question": "How do I design a Christmas card that feels polished?",
     "sectionAnswer": "Choose one clear visual direction and keep the message readable. Family photos suit restrained frames, while illustrated cards can use stronger festive colour. Business Christmas cards should remain inclusive and professional. A short cover greeting and a warmer inside message usually create better balance than placing everything on the front.",
-    "steps": ["Choose family, religious or business wording.", "Add names and an optional photo.", "Tap a traditional or modern festive design.", "Download digitally or create a folded PDF."],
-    "features": [["Photo Christmas cards", "Add a family image that stays on your device."], ["Religious and inclusive messages", "Choose wording suitable for the recipient."], ["Business card option", "Thank customers, employees or suppliers professionally."], ["Home printing", "Create an A4 sheet that folds to A5."]],
+    "steps": [
+      "Choose family, religious or business wording.",
+      "Add names and an optional photo.",
+      "Tap a traditional or modern festive design.",
+      "Download digitally or create a folded PDF."
+    ],
+    "features": [
+      [
+        "Photo Christmas cards",
+        "Add a family image that stays on your device."
+      ],
+      [
+        "Religious and inclusive messages",
+        "Choose wording suitable for the recipient."
+      ],
+      [
+        "Business card option",
+        "Thank customers, employees or suppliers professionally."
+      ],
+      [
+        "Home printing",
+        "Create an A4 sheet that folds to A5."
+      ]
+    ],
     "appQuery": "occasion=christmas",
-    "related": ["christmas-card-messages", "christmas-invitation-maker", "card-maker", "digital-card-maker"]
+    "related": [
+      "christmas-card-messages",
+      "christmas-invitation-maker",
+      "card-maker",
+      "digital-card-maker"
+    ]
   },
   {
     "slug": "christmas-invitation-maker",
@@ -106,10 +295,37 @@
     "answer": "The Christmas invitation maker creates digital invitations for parties, dinners, church gatherings and seasonal events. Add the event title, date, time, venue and RSVP details, then choose a traditional festive, elegant or modern design. The invitation remains easy to read when shared through WhatsApp, email or social media.",
     "question": "What should a Christmas party invitation include?",
     "sectionAnswer": "State whether the event is a party, meal, service or family gathering, then give the date, start time, venue and response method. Mention dress themes, children, food contributions or gift exchanges only when relevant. An RSVP deadline helps hosts plan catering and seating accurately.",
-    "steps": ["Choose the type of Christmas event.", "Add date, time, venue and RSVP information.", "Select a festive design.", "Download and share the invitation."],
-    "features": [["Multiple event types", "Suitable for parties, dinners, services and community events."], ["Seasonal styles", "Traditional green, modern winter and elegant gold options."], ["Clear practical details", "Keep venue and response information visible."], ["Fast sharing", "Download a phone-friendly invitation image."]],
+    "steps": [
+      "Choose the type of Christmas event.",
+      "Add date, time, venue and RSVP information.",
+      "Select a festive design.",
+      "Download and share the invitation."
+    ],
+    "features": [
+      [
+        "Multiple event types",
+        "Suitable for parties, dinners, services and community events."
+      ],
+      [
+        "Seasonal styles",
+        "Traditional green, modern winter and elegant gold options."
+      ],
+      [
+        "Clear practical details",
+        "Keep venue and response information visible."
+      ],
+      [
+        "Fast sharing",
+        "Download a phone-friendly invitation image."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=christmas-invitation",
-    "related": ["christmas-card-maker", "invitation-maker", "party-invitation-maker", "digital-invitation-maker"]
+    "related": [
+      "christmas-card-maker",
+      "invitation-maker",
+      "party-invitation-maker",
+      "digital-invitation-maker"
+    ]
   },
   {
     "slug": "wedding-card-maker",
@@ -120,10 +336,37 @@
     "answer": "The wedding card maker creates a congratulations card for the couple rather than an event invitation. Choose heartfelt, formal, religious or light-hearted wording, add the couple’s names and select an elegant design. Download the front as a digital image or create a folded card with the longer message placed inside.",
     "question": "How is a wedding card different from a wedding invitation?",
     "sectionAnswer": "A wedding invitation gives guests practical event details, while a wedding card celebrates the couple and contains congratulations or a blessing. The wedding card can be sent before or after the ceremony and does not need the date, venue or RSVP information required by an invitation.",
-    "steps": ["Choose wording for the couple.", "Add their names and your signature.", "Select an elegant or religious design.", "Download or print the finished wedding card."],
-    "features": [["Couple-focused wording", "Congratulate both partners naturally."], ["Elegant card styles", "Floral, minimal, botanical and luxury designs."], ["Inside message panel", "Keep the front refined and the personal message inside."], ["Folded PDF", "Print a complete wedding card at home."]],
+    "steps": [
+      "Choose wording for the couple.",
+      "Add their names and your signature.",
+      "Select an elegant or religious design.",
+      "Download or print the finished wedding card."
+    ],
+    "features": [
+      [
+        "Couple-focused wording",
+        "Congratulate both partners naturally."
+      ],
+      [
+        "Elegant card styles",
+        "Floral, minimal, botanical and luxury designs."
+      ],
+      [
+        "Inside message panel",
+        "Keep the front refined and the personal message inside."
+      ],
+      [
+        "Folded PDF",
+        "Print a complete wedding card at home."
+      ]
+    ],
     "appQuery": "occasion=wedding",
-    "related": ["wedding-card-messages", "wedding-invitation-maker", "card-maker", "custom-card-maker"]
+    "related": [
+      "wedding-card-messages",
+      "wedding-invitation-maker",
+      "card-maker",
+      "custom-card-maker"
+    ]
   },
   {
     "slug": "digital-invitation-maker",
@@ -134,10 +377,37 @@
     "answer": "The digital invitation maker creates a high-resolution invitation image for WhatsApp, email and social sharing. Enter the event details once, choose a complete design and select a square, portrait or Story format. The tool keeps text readable at phone size and does not require guests to open a complicated editing or account platform.",
     "question": "Which format is best for a digital invitation?",
     "sectionAnswer": "Portrait works well for messaging and email because it gives event details room to breathe. Square is versatile across messaging and social feeds. Story format is useful for temporary social posts but should not be the only invitation because guests may need to find the details again later.",
-    "steps": ["Choose the event type.", "Enter the essential event information.", "Select a phone-friendly design and shape.", "Download and share the image."],
-    "features": [["WhatsApp-friendly", "Create a readable image without a separate app."], ["Multiple aspect ratios", "Choose square, portrait, landscape or Story."], ["High-resolution export", "Keep text sharp when viewed or forwarded."], ["Private creation", "Event details are processed in your browser."]],
+    "steps": [
+      "Choose the event type.",
+      "Enter the essential event information.",
+      "Select a phone-friendly design and shape.",
+      "Download and share the image."
+    ],
+    "features": [
+      [
+        "WhatsApp-friendly",
+        "Create a readable image without a separate app."
+      ],
+      [
+        "Multiple aspect ratios",
+        "Choose square, portrait, landscape or Story."
+      ],
+      [
+        "High-resolution export",
+        "Keep text sharp when viewed or forwarded."
+      ],
+      [
+        "Private creation",
+        "Event details are processed in your browser."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=party-invitation&size=portrait",
-    "related": ["invitation-maker", "birthday-invitation-maker", "wedding-invitation-maker", "digital-card-maker"]
+    "related": [
+      "invitation-maker",
+      "birthday-invitation-maker",
+      "wedding-invitation-maker",
+      "digital-card-maker"
+    ]
   },
   {
     "slug": "digital-card-maker",
@@ -148,10 +418,37 @@
     "answer": "The digital card maker creates a finished image for WhatsApp, email or social media. Choose an occasion and message, select a complete design and pick the most useful image shape. The card can include a photo, recipient’s name and signature while remaining simple enough to create on a phone.",
     "question": "What makes a digital greeting card easy to share?",
     "sectionAnswer": "A shareable card uses a readable font, strong contrast and a format suited to the destination. Square works almost everywhere, portrait gives longer messages more space and landscape suits email headers. Keep the most important wording inside the card because captions may be removed when images are forwarded.",
-    "steps": ["Choose the occasion and message.", "Tap a complete card design.", "Select square, portrait or landscape.", "Download or share the image."],
-    "features": [["High-resolution images", "Download PNG or JPG without a watermark."], ["Social formats", "Create square, portrait, landscape, Story and Pinterest sizes."], ["Photo support", "Add a private image processed locally."], ["Separate link sharing", "Share the card and website link independently."]],
+    "steps": [
+      "Choose the occasion and message.",
+      "Tap a complete card design.",
+      "Select square, portrait or landscape.",
+      "Download or share the image."
+    ],
+    "features": [
+      [
+        "High-resolution images",
+        "Download PNG or JPG without a watermark."
+      ],
+      [
+        "Social formats",
+        "Create square, portrait, landscape, Story and Pinterest sizes."
+      ],
+      [
+        "Photo support",
+        "Add a private image processed locally."
+      ],
+      [
+        "Separate link sharing",
+        "Share the card and website link independently."
+      ]
+    ],
     "appQuery": "",
-    "related": ["card-maker", "custom-card-maker", "postcard-maker", "digital-invitation-maker"]
+    "related": [
+      "card-maker",
+      "custom-card-maker",
+      "postcard-maker",
+      "digital-invitation-maker"
+    ]
   },
   {
     "slug": "custom-card-maker",
@@ -162,10 +459,37 @@
     "answer": "The custom card maker gives you meaningful personalisation without a complex blank canvas. Change the recipient’s name, wording, photo, colour, font and card format while a complete design preset protects the layout. This keeps the finished card distinctive and personal without requiring manual positioning or professional design skills.",
     "question": "Which parts of the card can I customise?",
     "sectionAnswer": "You can customise the occasion, recipient, message, cover line, signature, photo, background, text colour, type style, frame, inside-left panel and output size. The tool deliberately avoids free-positioned layers because automatic spacing and text fitting produce more consistent results for most users.",
-    "steps": ["Choose an occasion or write your own wording.", "Add names, a signature and optional photo.", "Pick a complete design and adjust key details.", "Download the custom card."],
-    "features": [["Personal wording", "Edit every suggested message before exporting."], ["Photo privacy", "Images remain in your browser."], ["Controlled customisation", "Useful options without layers or dragging."], ["Digital and print output", "Use one design in multiple formats."]],
+    "steps": [
+      "Choose an occasion or write your own wording.",
+      "Add names, a signature and optional photo.",
+      "Pick a complete design and adjust key details.",
+      "Download the custom card."
+    ],
+    "features": [
+      [
+        "Personal wording",
+        "Edit every suggested message before exporting."
+      ],
+      [
+        "Photo privacy",
+        "Images remain in your browser."
+      ],
+      [
+        "Controlled customisation",
+        "Useful options without layers or dragging."
+      ],
+      [
+        "Digital and print output",
+        "Use one design in multiple formats."
+      ]
+    ],
     "appQuery": "",
-    "related": ["card-maker", "digital-card-maker", "birthday-card-maker", "postcard-maker"]
+    "related": [
+      "card-maker",
+      "digital-card-maker",
+      "birthday-card-maker",
+      "postcard-maker"
+    ]
   },
   {
     "slug": "postcard-maker",
@@ -176,10 +500,37 @@
     "answer": "The postcard maker creates a landscape greeting with a photo or illustrated design and a short personal message. It is useful for travel updates, thank-you notes, moving announcements and simple thinking-of-you greetings. Choose Postcard in the maker, add a concise message and download a wide image suitable for email or messaging.",
     "question": "What should I write on a modern postcard?",
     "sectionAnswer": "A postcard works best with one clear update, one personal detail and a warm sign-off. Mention where you are, what reminded you of the recipient or what you appreciate. Keep the wording shorter than a folded card message because the image and message share the same visible surface.",
-    "steps": ["Choose the postcard format.", "Add a short update or greeting.", "Use a photo or landscape design.", "Download the finished landscape image."],
-    "features": [["Landscape format", "Designed for wide digital sharing."], ["Photo focus", "Turn a travel or family image into the main visual."], ["Short-message guidance", "Keep postcard wording clear and personal."], ["Versatile uses", "Travel, thanks, new home and thinking-of-you notes."]],
+    "steps": [
+      "Choose the postcard format.",
+      "Add a short update or greeting.",
+      "Use a photo or landscape design.",
+      "Download the finished landscape image."
+    ],
+    "features": [
+      [
+        "Landscape format",
+        "Designed for wide digital sharing."
+      ],
+      [
+        "Photo focus",
+        "Turn a travel or family image into the main visual."
+      ],
+      [
+        "Short-message guidance",
+        "Keep postcard wording clear and personal."
+      ],
+      [
+        "Versatile uses",
+        "Travel, thanks, new home and thinking-of-you notes."
+      ]
+    ],
     "appQuery": "type=postcard&occasion=postcard&size=landscape",
-    "related": ["digital-card-maker", "custom-card-maker", "thank-you-card-messages", "card-maker"]
+    "related": [
+      "digital-card-maker",
+      "custom-card-maker",
+      "thank-you-card-messages",
+      "card-maker"
+    ]
   },
   {
     "slug": "mothers-day-card-maker",
@@ -190,10 +541,37 @@
     "answer": "The Mother’s Day card maker helps you create a personal card for Mum, a grandmother or another mother figure. Choose heartfelt, grateful, funny or religious wording, add a name or photo and select an elegant design. The finished card can be shared digitally or printed as a folded A5 card from an A4 sheet.",
     "question": "How do I make a Mother’s Day card more meaningful?",
     "sectionAnswer": "Mention one specific form of care, encouragement or sacrifice you appreciate. Use the relationship term that feels right and avoid assuming every family story is the same. A photo can add warmth, but a sincere message about an ordinary thing she does often creates the strongest personal connection.",
-    "steps": ["Choose Mum, grandmother or another mother figure.", "Select or edit a grateful message.", "Add a photo or elegant floral design.", "Download digitally or print the folded card."],
-    "features": [["Inclusive relationships", "Create for mums, stepmums, grandmothers and mother figures."], ["Original wording", "Heartfelt, short, funny and religious options."], ["Photo designs", "Add a family photo without uploading it."], ["Folded print option", "Create an A4-to-A5 Mother’s Day card."]],
+    "steps": [
+      "Choose Mum, grandmother or another mother figure.",
+      "Select or edit a grateful message.",
+      "Add a photo or elegant floral design.",
+      "Download digitally or print the folded card."
+    ],
+    "features": [
+      [
+        "Inclusive relationships",
+        "Create for mums, stepmums, grandmothers and mother figures."
+      ],
+      [
+        "Original wording",
+        "Heartfelt, short, funny and religious options."
+      ],
+      [
+        "Photo designs",
+        "Add a family photo without uploading it."
+      ],
+      [
+        "Folded print option",
+        "Create an A4-to-A5 Mother’s Day card."
+      ]
+    ],
     "appQuery": "occasion=mothers-day",
-    "related": ["mothers-day-card-messages", "card-maker", "custom-card-maker", "thank-you-card-messages"]
+    "related": [
+      "mothers-day-card-messages",
+      "card-maker",
+      "custom-card-maker",
+      "thank-you-card-messages"
+    ]
   },
   {
     "slug": "invitation-templates",
@@ -204,10 +582,37 @@
     "answer": "These invitation templates are complete design systems rather than empty layouts. Choose a birthday, wedding, party or Christmas invitation, then replace the sample details with your own event information. Each template coordinates typography, colours and spacing automatically and can be downloaded in a phone-friendly image format.",
     "question": "How do I choose the right invitation template?",
     "sectionAnswer": "Match the template to the event’s formality, audience and amount of information. A children’s party can use bright playful styling, while a wedding benefits from calm typography and more space. Choose a photo template only when the image supports the event details instead of competing with them.",
-    "steps": ["Choose the event category.", "Select a style that fits the event.", "Replace the sample details with your information.", "Download the completed invitation."],
-    "features": [["Complete layouts", "No blank canvas or manual alignment."], ["Event-specific styles", "Birthday, wedding, party and Christmas options."], ["Editable details", "Change names, dates, venues and RSVP information."], ["Reusable formats", "Create portrait, square or Story versions."]],
+    "steps": [
+      "Choose the event category.",
+      "Select a style that fits the event.",
+      "Replace the sample details with your information.",
+      "Download the completed invitation."
+    ],
+    "features": [
+      [
+        "Complete layouts",
+        "No blank canvas or manual alignment."
+      ],
+      [
+        "Event-specific styles",
+        "Birthday, wedding, party and Christmas options."
+      ],
+      [
+        "Editable details",
+        "Change names, dates, venues and RSVP information."
+      ],
+      [
+        "Reusable formats",
+        "Create portrait, square or Story versions."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=party-invitation",
-    "related": ["birthday-invitation-templates", "wedding-invitation-templates", "invitation-maker", "party-invitation-maker"]
+    "related": [
+      "birthday-invitation-templates",
+      "wedding-invitation-templates",
+      "invitation-maker",
+      "party-invitation-maker"
+    ]
   },
   {
     "slug": "birthday-invitation-templates",
@@ -218,10 +623,37 @@
     "answer": "Birthday invitation templates provide a finished visual structure for children’s parties, adult celebrations and milestone birthdays. Choose a playful, photo, modern or elegant design, then add the guest of honour, age, date, time, venue and RSVP details. The layout adapts without asking you to move or resize individual objects.",
     "question": "Which birthday invitation template should I use?",
     "sectionAnswer": "Use playful colour for children’s parties, bold type for milestone ages and elegant or photo-led designs for adult celebrations. The best template leaves enough room for practical details and remains readable on a phone. Avoid selecting a busy design when the invitation includes several notes or instructions.",
-    "steps": ["Choose child, adult or milestone birthday.", "Pick a suitable complete template.", "Enter the event and RSVP details.", "Download the invitation image."],
-    "features": [["Children’s party layouts", "Space for end time, theme and parent contact."], ["Milestone designs", "Highlight an age without clutter."], ["Photo invitation option", "Add the guest of honour’s image privately."], ["Easy corrections", "Update details and export again instantly."]],
+    "steps": [
+      "Choose child, adult or milestone birthday.",
+      "Pick a suitable complete template.",
+      "Enter the event and RSVP details.",
+      "Download the invitation image."
+    ],
+    "features": [
+      [
+        "Children’s party layouts",
+        "Space for end time, theme and parent contact."
+      ],
+      [
+        "Milestone designs",
+        "Highlight an age without clutter."
+      ],
+      [
+        "Photo invitation option",
+        "Add the guest of honour’s image privately."
+      ],
+      [
+        "Easy corrections",
+        "Update details and export again instantly."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=birthday-invitation",
-    "related": ["birthday-invitation-maker", "invitation-templates", "party-invitation-maker", "birthday-card-maker"]
+    "related": [
+      "birthday-invitation-maker",
+      "invitation-templates",
+      "party-invitation-maker",
+      "birthday-card-maker"
+    ]
   },
   {
     "slug": "wedding-invitation-templates",
@@ -232,9 +664,282 @@
     "answer": "Wedding invitation templates give the couple a complete elegant layout while keeping every practical detail editable. Choose floral, botanical, minimal or luxury styling, then add the couple’s names, ceremony date, time, venue and RSVP information. The finished invitation can be downloaded as a high-resolution digital image for sharing.",
     "question": "What makes a wedding invitation template look elegant?",
     "sectionAnswer": "Elegant invitations use clear hierarchy, generous space and a limited palette. The couple’s names and date should stand out while venue and response information remain easy to find. Decorative elements should frame the wording rather than sit behind it or reduce contrast.",
-    "steps": ["Choose an elegant visual style.", "Enter names and ceremony information.", "Add RSVP contact and deadline.", "Download the completed invitation."],
-    "features": [["Refined visual styles", "Floral, botanical, minimal and luxury options."], ["Structured details", "Names, date, venue and RSVP remain distinct."], ["Phone-ready export", "High-resolution portrait and square images."], ["No template software", "Edit directly in the browser."]],
+    "steps": [
+      "Choose an elegant visual style.",
+      "Enter names and ceremony information.",
+      "Add RSVP contact and deadline.",
+      "Download the completed invitation."
+    ],
+    "features": [
+      [
+        "Refined visual styles",
+        "Floral, botanical, minimal and luxury options."
+      ],
+      [
+        "Structured details",
+        "Names, date, venue and RSVP remain distinct."
+      ],
+      [
+        "Phone-ready export",
+        "High-resolution portrait and square images."
+      ],
+      [
+        "No template software",
+        "Edit directly in the browser."
+      ]
+    ],
     "appQuery": "type=invitation&occasion=wedding-invitation",
-    "related": ["wedding-invitation-maker", "invitation-templates", "wedding-card-maker", "digital-invitation-maker"]
+    "related": [
+      "wedding-invitation-maker",
+      "invitation-templates",
+      "wedding-card-maker",
+      "digital-invitation-maker"
+    ]
+  },
+  {
+    "slug": "fathers-day-card-maker",
+    "keyword": "Father’s Day card maker",
+    "title": "Father’s Day Card Maker with Personal Messages",
+    "description": "Father’s Day card maker for personalised digital and printable cards with warm messages, photos and simple one-tap designs.",
+    "eyebrow": "Create a thoughtful Father’s Day card",
+    "answer": "The Father’s Day card maker helps you choose or write wording for a dad, stepdad, grandad or father figure, then turn it into a polished digital or folded card. Every important line remains editable, and the one-tap designs keep the process simple on mobile, tablet and desktop.",
+    "question": "How do I make a personal Father’s Day card?",
+    "sectionAnswer": "Choose the relationship, add the recipient’s name and edit the message so it sounds like you. A complete design can then be applied with one tap. Use a digital image for WhatsApp or email, or preview all four panels before opening a folded PDF for printing.",
+    "steps": [
+      "Choose Father’s Day and the correct relationship.",
+      "Edit the final message, name, cover line and signature.",
+      "Tap a complete design and review every card panel.",
+      "Open the digital image or folded PDF before saving it."
+    ],
+    "features": [
+      [
+        "Relationship-aware wording",
+        "Start with messages for dads, grandads, stepdads and father figures."
+      ],
+      [
+        "Everything stays editable",
+        "Change every prepared line before or after choosing the design."
+      ],
+      [
+        "Print-friendly inside",
+        "White or warm ivory inside panels improve readability and reduce ink use."
+      ],
+      [
+        "Full review first",
+        "Inspect the front, inside and back before downloading."
+      ]
+    ],
+    "appQuery": "occasion=fathers-day",
+    "related": [
+      "fathers-day-card-messages",
+      "mothers-day-card-maker",
+      "birthday-card-maker",
+      "custom-card-maker"
+    ]
+  },
+  {
+    "slug": "valentines-day-card-maker",
+    "keyword": "Valentine’s Day card maker",
+    "title": "Valentine’s Day Card Maker for Personal Love Messages",
+    "description": "Valentine’s Day card maker for romantic, warm or funny messages, photos, digital sharing and printable folded cards.",
+    "eyebrow": "Make the words feel personal",
+    "answer": "The Valentine’s Day card maker combines editable love messages with complete one-tap designs. You can write something romantic, warm or playful, add a name and signature, then review the front and inside before opening a high-resolution image or printable folded card.",
+    "question": "How can I make a Valentine’s card that does not feel generic?",
+    "sectionAnswer": "Start with a message that reflects the real relationship rather than a grand claim. Add one ordinary thing you value, edit the short cover line and choose a design that suits the person. The prepared wording is only a starting point and remains editable through every stage.",
+    "steps": [
+      "Choose Valentine’s Day and a suitable tone.",
+      "Edit the message, recipient name, cover line and signature.",
+      "Choose a coordinated design and optional photo.",
+      "Review the finished card before sharing or printing."
+    ],
+    "features": [
+      [
+        "Romantic or light-hearted",
+        "Choose the tone without being forced into one style of love message."
+      ],
+      [
+        "Editable at every stage",
+        "Change the wording during Message, Design or Download."
+      ],
+      [
+        "Private photo option",
+        "Add a personal image that stays in the browser."
+      ],
+      [
+        "Digital or folded",
+        "Create a shareable image or a card for home printing."
+      ]
+    ],
+    "appQuery": "occasion=valentine",
+    "related": [
+      "valentines-card-messages",
+      "anniversary-card-messages",
+      "wedding-card-maker",
+      "custom-card-maker"
+    ]
+  },
+  {
+    "slug": "graduation-card-maker",
+    "keyword": "Graduation card maker",
+    "title": "Graduation Card Maker with Congratulations Messages",
+    "description": "Graduation card maker for personalised congratulations, photos, digital cards and folded printable cards for every graduate.",
+    "eyebrow": "Celebrate the work behind the result",
+    "answer": "The graduation card maker turns an editable congratulations message into a polished card for a school, college, university or professional qualification. Add the graduate’s name and your own wording, then choose a complete design and review the finished card before downloading.",
+    "question": "How do I make a graduation card for a specific achievement?",
+    "sectionAnswer": "Name the qualification or milestone in the personal detail, recognise the effort behind it and add a forward-looking wish. The tool keeps the wording editable while the design system handles typography, spacing and safe margins automatically.",
+    "steps": [
+      "Choose Graduation and add the graduate’s name.",
+      "Mention the qualification or achievement in the personal detail.",
+      "Edit the message and select a complete design.",
+      "Review the card and open the preferred image or PDF."
+    ],
+    "features": [
+      [
+        "Works for many qualifications",
+        "Personalise school, university, training and professional achievements."
+      ],
+      [
+        "Photo-ready designs",
+        "Add a graduation photo without uploading it to the site."
+      ],
+      [
+        "Clear congratulations",
+        "Use original wording that can be shortened or rewritten freely."
+      ],
+      [
+        "Preview before saving",
+        "Check every panel and the final print arrangement first."
+      ]
+    ],
+    "appQuery": "occasion=graduation",
+    "related": [
+      "graduation-card-messages",
+      "job-promotion-card-maker",
+      "congratulations-card-messages",
+      "custom-card-maker"
+    ]
+  },
+  {
+    "slug": "retirement-card-maker",
+    "keyword": "Retirement card maker",
+    "title": "Retirement Card Maker for Colleagues, Friends and Family",
+    "description": "Retirement card maker with editable messages, professional designs, digital sharing and printable folded cards for a retirement celebration.",
+    "eyebrow": "Mark a well-earned new chapter",
+    "answer": "The retirement card maker helps a colleague, team, friend or family member create a card that recognises both service and the life ahead. Choose a prepared message or write your own, edit every line and review the complete card before sharing or printing it.",
+    "question": "How do I make a retirement card from a team?",
+    "sectionAnswer": "Use a warm professional message, mention the person’s contribution and sign from the team or individual colleagues. Avoid jokes about age unless they fit the relationship. The folded format leaves the inside-left panel available for an extra note or photo.",
+    "steps": [
+      "Choose Retirement and select the relationship.",
+      "Edit the message to recognise the person’s contribution.",
+      "Add the sender or team name and choose a design.",
+      "Review all panels before opening the image or PDF."
+    ],
+    "features": [
+      [
+        "Professional and personal tones",
+        "Create a team card or a warmer message from friends and family."
+      ],
+      [
+        "Flexible signatures",
+        "Add one sender, a department or the whole team."
+      ],
+      [
+        "Readable printed inside",
+        "Neutral inside panels provide a comfortable writing and reading surface."
+      ],
+      [
+        "No complicated layout work",
+        "One tap coordinates the design while the wording stays yours."
+      ]
+    ],
+    "appQuery": "occasion=retirement",
+    "related": [
+      "retirement-card-messages",
+      "job-promotion-card-maker",
+      "thank-you-card-messages",
+      "custom-card-maker"
+    ]
+  },
+  {
+    "slug": "child-naming-ceremony-card-maker",
+    "keyword": "Child naming ceremony card maker",
+    "title": "Child Naming Ceremony Card Maker and Blessings",
+    "description": "Child naming ceremony card maker with editable welcome messages, original blessings, photos and printable folded cards.",
+    "eyebrow": "Welcome a child with care",
+    "answer": "The child naming ceremony card maker creates a respectful card for a family celebration, cultural ceremony or faith occasion. Add the child’s name, choose or write an original blessing and select a gentle design without relying on copied poems, characters or branded artwork.",
+    "question": "How do I create a naming ceremony card for different traditions?",
+    "sectionAnswer": "Use wording that fits what you know about the family and avoid assumptions about the ceremony. A general welcome can focus on love, belonging and hope, while a religious option can offer an original blessing. Every field remains editable so the family’s preferred wording can be used exactly.",
+    "steps": [
+      "Choose Child naming ceremony and enter the child’s name.",
+      "Select a general or religious tone, or write your own blessing.",
+      "Edit the cover line, message and signature.",
+      "Choose a gentle design and review every panel before download."
+    ],
+    "features": [
+      [
+        "Respectful flexible wording",
+        "Use cultural, family or faith-appropriate language without fixed assumptions."
+      ],
+      [
+        "Original blessing choices",
+        "Start from wording created for the site rather than copied creative works."
+      ],
+      [
+        "Photo or illustration options",
+        "Create a simple keepsake while keeping the image on the device."
+      ],
+      [
+        "Print-ready card",
+        "Review the complete folded arrangement before opening the PDF."
+      ]
+    ],
+    "appQuery": "occasion=child-naming",
+    "related": [
+      "child-naming-ceremony-card-messages",
+      "new-baby-card-messages",
+      "mothers-day-card-maker",
+      "custom-card-maker"
+    ]
+  },
+  {
+    "slug": "job-promotion-card-maker",
+    "keyword": "Job promotion card maker",
+    "title": "Job Promotion Card Maker for Colleagues and Teams",
+    "description": "Job promotion card maker with professional congratulations messages, team signatures, digital cards and printable folded PDFs.",
+    "eyebrow": "Recognise a well-earned achievement",
+    "answer": "The job promotion card maker creates a polished congratulations card for a colleague, employee, manager, friend or family member. Edit the wording, recipient name, achievement detail and team signature, then choose a professional design and review it before downloading.",
+    "question": "How do I make a professional promotion card?",
+    "sectionAnswer": "Keep the message positive and specific. Recognise a visible strength or contribution, avoid private salary or performance details and finish with a confident wish for the new role. The design presets provide a professional result without requiring layout skills.",
+    "steps": [
+      "Choose Job promotion and select the relationship.",
+      "Add the new role or achievement as a personal detail.",
+      "Edit the congratulations message and team signature.",
+      "Review the finished card before opening the image or PDF."
+    ],
+    "features": [
+      [
+        "Workplace-safe wording",
+        "Avoid awkward salary, comparison or office-politics language."
+      ],
+      [
+        "Team or individual sender",
+        "Sign from one person, a manager or a whole department."
+      ],
+      [
+        "Professional design presets",
+        "Choose restrained, celebratory layouts with one tap."
+      ],
+      [
+        "Easy final review",
+        "Check the front, inside and back before sharing."
+      ]
+    ],
+    "appQuery": "occasion=job-promotion",
+    "related": [
+      "job-promotion-card-messages",
+      "retirement-card-maker",
+      "graduation-card-maker",
+      "congratulations-card-messages"
+    ]
   }
 ]
