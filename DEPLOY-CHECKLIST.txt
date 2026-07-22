@@ -10,7 +10,6 @@ BEFORE GITHUB
 [ ] Double-click build.bat
 [ ] Confirm 50 HTML pages and 49 indexable URLs are built
 [ ] Confirm the QA suite passes
-[ ] Open docs/home-preview-v4.png and docs/app-premium-preview-v4.png
 [ ] Read COPYRIGHT-SAFETY.md before adding new designs or wording
 
 GITHUB
@@ -21,9 +20,15 @@ GITHUB
 HOSTINGER
 [ ] Connect the correct GitHub repository
 [ ] Deploy main to public_html
+[ ] Read EMAIL-VERIFICATION-SETUP.md
 [ ] Create cmm_private beside public_html and allow PHP write access
+[ ] Copy CMM-SECRETS-TEMPLATE.php to cmm_private/secrets.php and fill SITE_SALT and smtp_pass
+[ ] Confirm PHP SQLite is enabled
+[ ] Confirm authenticated SMTP sends from info@cardmakermessages.com
+[ ] Configure SPF, DKIM and DMARC for info@cardmakermessages.com
 [ ] Open https://cardmakermessages.com/app.html in a private browser window
 [ ] Create three free exports and confirm the fourth requests free sign-up
+[ ] Open the verification email and confirm access unlocks only after clicking its link
 [ ] Confirm the Sign up button appears in the top-right header
 [ ] Create a social image in at least two sizes
 [ ] Create an A5 one-page printable PDF
@@ -45,3 +50,24 @@ PRINT TEST
 [ ] Actual Size or 100%
 [ ] Double-sided
 [ ] Flip on short edge
+
+V7 PHOTO, DESIGN, REVIEW AND REFRESH CHECK
+- Open app.html on a phone and desktop browser.
+- Confirm size choices appear before the Review button.
+- Select at least one digital, one flat-print and one folded format.
+- Confirm the live preview changes to the exact selected shape.
+- Confirm Continue to design and Choose size and review return to the app workspace instead of leaving the user lower on the page.
+- Confirm the mobile preview is large enough to read while the controls remain visible below it.
+- Confirm burgundy buttons use white text.
+- Confirm every design control is visible without opening a More design options box.
+- Confirm the Choose design button on invitation landing pages opens the correct maker.
+- Confirm Continue to review opens the fixed review overlay and does not leave the user near the FAQ or footer.
+- Scroll past the editor and confirm the compact live card remains visible through the footer.
+- Deploy V6 completely and confirm old CSS and JavaScript are not served from a stale cache.
+
+PHOTO POSITIONING TEST
+- Upload a portrait and a landscape photo.
+- Confirm each appears immediately in the top photo area.
+- Drag with a mouse on desktop and a finger on mobile.
+- Change Photo zoom, use Centre photo and arrow controls, then review the card.
+- Confirm the chosen crop remains identical in PNG, JPG, one-page PDF and folded PDF.

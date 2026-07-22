@@ -96,7 +96,7 @@ for (const file of htmlFiles) {
 
 check(versions.size === 1 && versions.has(config.assetVersion), `Asset version mismatch: ${[...versions].join(', ')}`);
 
-for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md']) {
+for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md','EMAIL-VERIFICATION-SETUP.md','CMM-SECRETS-TEMPLATE.php']) {
   check(fs.existsSync(path.join(ROOT, file)), `Missing required file: ${file}`);
 }
 
@@ -124,17 +124,50 @@ check(!/html[^}]*overflow-x:\s*hidden/i.test(css), 'Sticky-breaking overflow hid
 check(css.includes('min-height: 44px'), 'CSS missing 44px tap targets');
 
 const app = fs.readFileSync(path.join(ROOT, 'app.html'), 'utf8');
-for (const id of ['cardCanvas','messageOptions','messageOptionsPanel','downloadPng','downloadPdf','reviewCard','photoInput','backgroundPicker','mainMessage','frontHeading','backMessage','customOccasion','eventTitle','eventDate','eventVenue','eventRsvp','downloadSinglePdf','downloadWorkspace','signupForm']) {
+for (const id of ['cardCanvas','messageOptions','messageOptionsPanel','downloadPng','downloadPdf','reviewCard','photoInput','photoPositionControls','photoZoom','centrePhoto','backgroundPicker','mainMessage','frontHeading','backMessage','customOccasion','eventTitle','eventDate','eventVenue','eventRsvp','downloadSinglePdf','downloadWorkspace','signupForm']) {
   check(app.includes(`id="${id}"`), `app.html missing #${id}`);
 }
-for (const text of ['Folded card PDF','A4 folded to A5','A5 folded to A6','Review finished card','Instagram square','5 × 7 inch','Show message choices']) {
+for (const text of ['Folded card','A4 folded to A5','A5 folded to A6','Review selected format','Instagram square','5 × 7 inch','Show message choices','WhatsApp square','LinkedIn post','4 × 6 inch postcard','6 × 6 inch square']) {
   check(app.includes(text), `app.html missing required copy: ${text}`);
 }
+
+check(app.indexOf('id="outputFormatSection"') < app.indexOf('id="reviewCard"'), 'Size and format choices must appear before review');
+check(app.includes('id="reviewSingleWrap"') && app.includes('id="reviewFoldedWrap"'), 'app.html missing exact-format review views');
+check(app.includes('id="facebookShare"') && app.includes('id="linkedinShare"') && app.includes('id="pinterestShare"'), 'app.html missing social share choices');
+check(app.includes('id="cardMakerWorkspace"'), 'app.html missing workspace scroll target');
 check(app.includes('data-signup-open'), 'app.html missing sign-up control');
 check(app.includes('data-inside-paper="white"') && app.includes('data-inside-paper="ivory"'), 'app.html missing light inside-paper choices');
 check(app.includes('data-creation-type="invitation"'), 'app.html missing invitation creation mode');
 check(app.includes('data-creation-type="postcard"'), 'app.html missing postcard creation mode');
 check(app.includes(config.domain), 'app.html missing configured domain');
+
+check(app.includes('class="design-options-visible"'), 'app.html must keep the full design studio visible');
+check(!app.includes('<details class="more-options"'), 'app.html must not hide design controls in a More design options disclosure');
+for (const selectorText of ['data-frame="wreath"','data-frame="lily"','data-frame="paw"','data-frame="rainbow"','data-illustration="heart"','data-illustration="dove"','data-illustration="rainbow"','data-illustration="paw"','data-accent="dove"','data-accent="paw"','data-text-style="quotes"','data-font="handwritten"']) {
+  check(app.includes(selectorText), `app.html missing robust design control ${selectorText}`);
+}
+check(app.includes('id="floatingPreviewDock"') && app.includes('id="floatingCardCanvas"'), 'app.html missing persistent floating card preview');
+const invitationTemplates = fs.readFileSync(path.join(ROOT, 'invitation-templates.html'), 'utf8');
+check(/class="mock-design-link" href="\/app\.html/.test(invitationTemplates), 'Invitation template Choose design control must be a real app link');
+const serviceWorker = fs.readFileSync(path.join(ROOT, 'service-worker.js'), 'utf8');
+check(serviceWorker.includes("cache:'no-store'"), 'Service worker must use fresh network requests');
+check(!serviceWorker.includes('caches.match(event.request)'), 'Cache-first service-worker response found');
+const htaccess = fs.readFileSync(path.join(ROOT, '.htaccess'), 'utf8');
+check(htaccess.includes('no-cache, no-store, must-revalidate, max-age=0'), '.htaccess missing deployment freshness headers');
+check(css.includes('.design-options-visible { display: block !important; }'), 'CSS must keep full design controls visible');
+check(css.includes('.mock-controls .mock-design-link') && css.includes('pointer-events: auto'), 'Choose design link needs an interactive CSS layer');
+check(css.includes('.floating-preview-dock'), 'CSS missing persistent footer preview');
+for (const file of ['api/bootstrap.php','api/verify.php','api/status.php','api/logout.php','api/smtp_mailer.php']) check(fs.existsSync(path.join(ROOT,file)), `Missing verified-email access file: ${file}`);
+const subscribeSource = fs.readFileSync(path.join(ROOT, 'api/subscribe.php'), 'utf8');
+const verifySource = fs.readFileSync(path.join(ROOT, 'api/verify.php'), 'utf8');
+check(subscribeSource.includes('verification link') && subscribeSource.includes('honeypot'), 'Signup must use email verification and bot protection');
+check(subscribeSource.includes("hash_equals($expected") && subscribeSource.includes('checkdnsrr') && subscribeSource.includes('CMM_MIN_SUBMIT_SECONDS'), 'Signup must use the browser token, mail-domain checks and timing protection');
+check(verifySource.includes('cmm_set_session_cookie') && verifySource.includes('verified_at'), 'Verification endpoint must unlock only a verified email session');
+const bootstrapSource = fs.readFileSync(path.join(ROOT, 'api/bootstrap.php'), 'utf8');
+const smtpSource = fs.readFileSync(path.join(ROOT, 'api/smtp_mailer.php'), 'utf8');
+check(bootstrapSource.includes("cmm_private/secrets.php") && bootstrapSource.includes('CMM_SECRETS_PRESENT'), 'Email secrets must load from private storage outside public_html');
+check(smtpSource.includes('AUTH LOGIN') && smtpSource.includes('smtp.hostinger.com'), 'Email verification must use authenticated Hostinger SMTP');
+
 check(fs.readFileSync(path.join(ROOT, 'contact.html'), 'utf8').includes(config.email), 'contact page email mismatch');
 for (const file of ['api/subscribe.php','api/unsubscribe.php','fathers-day-card-maker.html','valentines-day-card-maker.html','graduation-card-maker.html','retirement-card-maker.html','child-naming-ceremony-card-maker.html','job-promotion-card-maker.html']) check(fs.existsSync(path.join(ROOT,file)), `Missing launch file: ${file}`);
 
@@ -164,6 +197,9 @@ for (let i = 0; i < toolPages.length; i += 1) {
 
 const appSource = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
 check(appSource.includes('All visual motifs are original procedural canvas drawings'), 'Copyright-safety declaration missing from visual engine');
+check(appSource.includes("canvas.addEventListener('pointerdown'") && appSource.includes('data-photo-nudge') && appSource.includes('photoZoom'), 'Photo must support direct pointer dragging, nudging and zoom');
+check(appSource.includes('Photo added at the top of the card') && appSource.includes('drawPhotoTopArea'), 'Uploaded photo must appear immediately in the card top area');
+check(css.includes('#cardCanvas.photo-draggable') && css.includes('touch-action: none'), 'Photo dragging CSS must support mouse and touch');
 check(!/@font-face|fonts\.googleapis|cdnjs|unpkg|jsdelivr/i.test(css + appSource), 'External font or asset dependency found');
 const copyrightSafety = fs.readFileSync(path.join(ROOT, 'COPYRIGHT-SAFETY.md'), 'utf8');
 check(copyrightSafety.includes('does not bundle third-party greeting-card templates'), 'Copyright safety document is incomplete');

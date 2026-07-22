@@ -22,12 +22,22 @@
   };
 
   const sizes = {
-    square: { label: 'Instagram square', width: 1080, height: 1080 },
-    portrait: { label: 'WhatsApp portrait', width: 1080, height: 1350 },
-    landscape: { label: 'Landscape card', width: 1600, height: 900 },
-    story: { label: 'Instagram Story', width: 1080, height: 1920 },
-    facebook: { label: 'Facebook or LinkedIn post', width: 1200, height: 630 },
-    pinterest: { label: 'Pinterest pin', width: 1000, height: 1500 }
+    'whatsapp-square': { label: 'WhatsApp square', width: 1080, height: 1080, group: 'WhatsApp' },
+    'whatsapp-portrait': { label: 'WhatsApp portrait', width: 1080, height: 1350, group: 'WhatsApp' },
+    'whatsapp-landscape': { label: 'WhatsApp landscape', width: 1600, height: 900, group: 'WhatsApp' },
+    'instagram-square': { label: 'Instagram square', width: 1080, height: 1080, group: 'Instagram' },
+    'instagram-portrait': { label: 'Instagram portrait', width: 1080, height: 1350, group: 'Instagram' },
+    'instagram-story': { label: 'Instagram Story', width: 1080, height: 1920, group: 'Instagram' },
+    facebook: { label: 'Facebook post', width: 1200, height: 630, group: 'Social' },
+    linkedin: { label: 'LinkedIn post', width: 1200, height: 627, group: 'Social' },
+    x: { label: 'X post', width: 1600, height: 900, group: 'Social' },
+    pinterest: { label: 'Pinterest pin', width: 1000, height: 1500, group: 'Social' },
+    email: { label: 'Email card', width: 1200, height: 800, group: 'Digital' },
+    landscape: { label: 'Standard digital landscape', width: 1600, height: 900, group: 'Digital' }
+  };
+
+  const legacySizeMap = {
+    square: 'instagram-square', portrait: 'whatsapp-portrait', story: 'instagram-story'
   };
 
   const printSizes = {
@@ -35,6 +45,8 @@
     A5: { label: 'A5 one-page PDF', width: 1748, height: 2480, pdf: 'A5P' },
     A6: { label: 'A6 one-page PDF', width: 1240, height: 1748, pdf: 'A6P' },
     '5x7': { label: '5 × 7 inch one-page PDF', width: 1500, height: 2100, pdf: '5X7' },
+    '4x6': { label: '4 × 6 inch postcard PDF', width: 1200, height: 1800, pdf: '4X6' },
+    square: { label: '6 × 6 inch square PDF', width: 1800, height: 1800, pdf: 'SQUARE' },
     Letter: { label: 'US Letter one-page PDF', width: 2550, height: 3300, pdf: 'LETTERP' }
   };
 
@@ -67,12 +79,16 @@
     textColour: '',
     font: 'serif',
     frame: 'classic',
-    illustration: 'auto',
+    illustration: 'none',
     accent: 'sparkles',
+    textStyle: 'clean',
     photoData: '',
+    photoX: 0.5,
+    photoY: 0.5,
+    photoZoom: 1.08,
     activePanel: 'front',
     outputMode: 'digital',
-    size: 'square',
+    size: 'instagram-square',
     singlePrintSize: 'A5',
     printPaper: 'A4',
     printQuality: 'home',
@@ -99,7 +115,7 @@
   }
 
   function updateState(patch, options = {}) {
-    const reviewSensitive = Object.keys(patch).some(key => !['step', 'activePanel', 'reviewed', 'outputMode', 'size', 'singlePrintSize', 'printPaper', 'printQuality', 'showFoldMarks'].includes(key));
+    const reviewSensitive = Object.keys(patch).some(key => !['step', 'activePanel', 'reviewed'].includes(key));
     state = { ...state, ...patch, ...(reviewSensitive ? { reviewed: false } : {}) };
     syncControls();
     if (options.persist !== false) persist();
@@ -126,6 +142,7 @@
     const patch = {};
     if (['card','invitation','postcard'].includes(type)) patch.creationType = type;
     if (sizes[size]) patch.size = size;
+    else if (legacySizeMap[size]) patch.size = legacySizeMap[size];
     if (occasion && DATA.occasions[occasion]) {
       patch.occasion = occasion;
       patch.occasionLabel = DATA.occasions[occasion].label;
@@ -241,6 +258,26 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    document.querySelectorAll('[data-illustration]').forEach(button => {
+      const active = button.dataset.illustration === state.illustration;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-accent]').forEach(button => {
+      const active = button.dataset.accent === state.accent;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-text-style]').forEach(button => {
+      const active = button.dataset.textStyle === state.textStyle;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-background]').forEach(button => {
+      const active = button.dataset.background.toLowerCase() === String(state.background || '').toLowerCase();
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
     document.querySelectorAll('[data-inside-left]').forEach(button => {
       const active = button.dataset.insideLeft === state.insideLeftMode;
       button.classList.toggle('active', active);
@@ -281,13 +318,19 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
-    const digitalOptions = document.getElementById('digitalOptions');
-    const singlePrintOptions = document.getElementById('singlePrintOptions');
-    const printOptions = document.getElementById('printOptions');
+    const digitalSizeOptions = document.getElementById('digitalSizeOptions');
+    const singlePrintSizeOptions = document.getElementById('singlePrintSizeOptions');
+    const foldedSizeOptions = document.getElementById('foldedSizeOptions');
+    const digitalActions = document.getElementById('digitalActions');
+    const singlePrintActions = document.getElementById('singlePrintActions');
+    const foldedActions = document.getElementById('foldedActions');
     const downloadWorkspace = document.getElementById('downloadWorkspace');
-    if (digitalOptions) digitalOptions.hidden = state.outputMode !== 'digital';
-    if (singlePrintOptions) singlePrintOptions.hidden = state.outputMode !== 'single-print';
-    if (printOptions) printOptions.hidden = state.outputMode !== 'folded';
+    if (digitalSizeOptions) digitalSizeOptions.hidden = state.outputMode !== 'digital';
+    if (singlePrintSizeOptions) singlePrintSizeOptions.hidden = state.outputMode !== 'single-print';
+    if (foldedSizeOptions) foldedSizeOptions.hidden = state.outputMode !== 'folded';
+    if (digitalActions) digitalActions.hidden = state.outputMode !== 'digital';
+    if (singlePrintActions) singlePrintActions.hidden = state.outputMode !== 'single-print';
+    if (foldedActions) foldedActions.hidden = state.outputMode !== 'folded';
     if (downloadWorkspace) downloadWorkspace.hidden = !state.reviewed;
     const inputs = {
       recipientSelect: state.recipient,
@@ -313,6 +356,14 @@
       const input = document.getElementById(id);
       if (input && input.value !== value) input.value = value;
     });
+    const photoControls = document.getElementById('photoPositionControls');
+    const photoHelp = document.getElementById('photoPositionHelp');
+    const photoZoom = document.getElementById('photoZoom');
+    const removePhoto = document.getElementById('removePhoto');
+    if (photoControls) photoControls.hidden = !state.photoData;
+    if (photoHelp) photoHelp.hidden = !state.photoData;
+    if (removePhoto) removePhoto.hidden = !state.photoData;
+    if (photoZoom && Number(photoZoom.value) !== Number(state.photoZoom)) photoZoom.value = String(state.photoZoom || 1.08);
     const invitationDetails = document.getElementById('invitationDetails');
     if (invitationDetails) invitationDetails.hidden = state.creationType !== 'invitation';
     const customOccasionField = document.getElementById('customOccasionField');
@@ -330,10 +381,13 @@
     if (marks) marks.checked = state.showFoldMarks;
     const selectedOccasion = DATA.occasions[state.occasion];
     state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
-    const summary = document.getElementById('downloadSummary');
-    if (summary) {
-      summary.textContent = `${sizes[state.size].label}, ${sizes[state.size].width} × ${sizes[state.size].height} high-resolution image`;
-    }
+    const format = selectedFormat();
+    const formatSummary = document.getElementById('selectedFormatSummary');
+    const reviewButton = document.getElementById('reviewCard');
+    const downloadSummary = document.getElementById('downloadSummary');
+    if (formatSummary) formatSummary.textContent = `${format.label} · ${format.detail}`;
+    if (reviewButton) reviewButton.textContent = `Review ${format.shortLabel}`;
+    if (downloadSummary) downloadSummary.textContent = `${format.label} · ${format.detail}`;
   }
 
   function roundedRect(context, x, y, width, height, radius) {
@@ -386,21 +440,12 @@
       context.lineWidth = Math.max(2, width * .003);
       context.beginPath(); context.moveTo(x + width * .12, y + height * .2); context.lineTo(x + width * .88, y + height * .2); context.stroke();
     } else if (renderState.preset === 'photo') {
-      if (photoImage) {
-        drawCoverImage(context, photoImage, x, y, width, height);
-        const grad = context.createLinearGradient(x, y, x, y + height);
-        grad.addColorStop(0, 'rgba(0,0,0,.08)');
-        grad.addColorStop(.55, 'rgba(0,0,0,.35)');
-        grad.addColorStop(1, 'rgba(0,0,0,.75)');
-        context.fillStyle = grad; context.fillRect(x, y, width, height);
-      } else {
-        const grad = context.createLinearGradient(x, y, x + width, y + height);
-        grad.addColorStop(0, p.bg); grad.addColorStop(1, '#71808b');
-        context.fillStyle = grad; context.fillRect(x, y, width, height);
-        context.fillStyle = 'rgba(255,255,255,.11)';
-        for (let i = 0; i < 8; i += 1) {
-          context.beginPath(); context.arc(x + width * (0.1 + i * .13), y + height * (.18 + (i % 3) * .25), width * .06, 0, Math.PI * 2); context.fill();
-        }
+      const grad = context.createLinearGradient(x, y, x + width, y + height);
+      grad.addColorStop(0, p.bg); grad.addColorStop(1, '#71808b');
+      context.fillStyle = grad; context.fillRect(x, y, width, height);
+      context.fillStyle = 'rgba(255,255,255,.11)';
+      for (let i = 0; i < 8; i += 1) {
+        context.beginPath(); context.arc(x + width * (0.1 + i * .13), y + height * (.18 + (i % 3) * .25), width * .06, 0, Math.PI * 2); context.fill();
       }
     } else if (renderState.preset === 'bold') {
       drawConfetti(context, x, y, width, height, p.accent, p.soft);
@@ -506,13 +551,53 @@
     }
   }
 
-  function drawCoverImage(context, image, x, y, width, height) {
-    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
-    const sw = width / scale;
-    const sh = height / scale;
-    const sx = (image.naturalWidth - sw) / 2;
-    const sy = (image.naturalHeight - sh) / 2;
-    context.drawImage(image, sx, sy, sw, sh, x, y, width, height);
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function positionedImageMetrics(image, width, height, renderState) {
+    const zoom = clamp(Number(renderState.photoZoom) || 1, 1, 2.5);
+    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight) * zoom;
+    const drawWidth = image.naturalWidth * scale;
+    const drawHeight = image.naturalHeight * scale;
+    const overflowX = Math.max(0, drawWidth - width);
+    const overflowY = Math.max(0, drawHeight - height);
+    const focalX = clamp(Number(renderState.photoX) || 0.5, 0, 1);
+    const focalY = clamp(Number(renderState.photoY) || 0.5, 0, 1);
+    return {
+      drawWidth,
+      drawHeight,
+      dx: -overflowX * focalX,
+      dy: -overflowY * focalY,
+      overflowX,
+      overflowY
+    };
+  }
+
+  function drawCoverImage(context, image, x, y, width, height, renderState = state) {
+    const metrics = positionedImageMetrics(image, width, height, renderState);
+    context.drawImage(image, x + metrics.dx, y + metrics.dy, metrics.drawWidth, metrics.drawHeight);
+    return metrics;
+  }
+
+  function frontPhotoRegion(width, height) {
+    return {
+      x: width * .09,
+      y: height * .055,
+      width: width * .82,
+      height: height * .255,
+      radius: Math.min(width, height) * .028
+    };
+  }
+
+  function currentPhotoRegion() {
+    if (!photoImage) return null;
+    if (state.activePanel === 'front') return frontPhotoRegion(canvas.width, canvas.height);
+    if (state.activePanel === 'inside-left' && state.insideLeftMode === 'photo') {
+      const margin = canvas.width * .1;
+      return { x: margin, y: margin, width: canvas.width - margin * 2, height: canvas.height - margin * 2, radius: canvas.width * .04 };
+    }
+    return null;
   }
 
   function fontFamily(renderState, p) {
@@ -581,36 +666,177 @@
     return fitted.size;
   }
 
-  function drawFrame(context, x, y, width, height, renderState, p) {
-    if (renderState.frame === 'none') return;
+  function drawHeart(context, cx, cy, size, colour, alpha = .8) {
     context.save();
-    const margin = width * .045;
-    context.strokeStyle = hexToRgba(p.accent, renderState.frame === 'soft' ? .45 : .85);
-    context.lineWidth = Math.max(2, width * (renderState.frame === 'double' ? .004 : .003));
-    if (renderState.frame === 'arch') {
-      roundedRect(context, x + margin, y + margin, width - margin * 2, height - margin * 2, width * .18); context.stroke();
-    } else {
-      roundedRect(context, x + margin, y + margin, width - margin * 2, height - margin * 2, width * .02); context.stroke();
-      if (renderState.frame === 'double') {
-        const inner = margin * 1.35;
-        roundedRect(context, x + inner, y + inner, width - inner * 2, height - inner * 2, width * .018); context.stroke();
+    context.translate(cx, cy);
+    context.scale(size, size);
+    context.fillStyle = hexToRgba(colour, alpha);
+    context.beginPath();
+    context.moveTo(0, .3);
+    context.bezierCurveTo(-.72, -.18, -.45, -.78, 0, -.42);
+    context.bezierCurveTo(.45, -.78, .72, -.18, 0, .3);
+    context.fill();
+    context.restore();
+  }
+
+
+  function drawPaw(context, cx, cy, size, colour, alpha = .82) {
+    context.save();
+    context.fillStyle = hexToRgba(colour, alpha);
+    context.beginPath(); context.ellipse(cx, cy + size * .3, size * .62, size * .5, 0, 0, Math.PI * 2); context.fill();
+    [[-.62,-.35],[-.2,-.72],[.28,-.7],[.68,-.28]].forEach(([dx,dy], index) => {
+      context.beginPath();
+      context.ellipse(cx + size * dx, cy + size * dy, size * .22, size * (index === 1 || index === 2 ? .31 : .27), dx * .16, 0, Math.PI * 2);
+      context.fill();
+    });
+    context.restore();
+  }
+
+  function drawRainbow(context, cx, cy, radius, colours, alpha = .55) {
+    context.save();
+    context.lineCap = 'round';
+    colours.forEach((colour, index) => {
+      context.strokeStyle = hexToRgba(colour, alpha);
+      context.lineWidth = Math.max(3, radius * .09);
+      context.beginPath();
+      context.arc(cx, cy, radius * (1 - index * .13), Math.PI, Math.PI * 2);
+      context.stroke();
+    });
+    context.restore();
+  }
+
+  function drawSelectedIllustration(context, x, y, width, height, renderState, p) {
+    const type = renderState.illustration || 'none';
+    if (type === 'none') return;
+    context.save();
+    context.beginPath(); context.rect(x, y, width, height); context.clip();
+    const cx = x + width * .5;
+    const top = y + height * .13;
+    if (type === 'heart') {
+      drawHeart(context, cx, top, width * .09, p.accent, .34);
+    } else if (type === 'sunrise') {
+      context.strokeStyle = hexToRgba(p.accent, .55); context.lineWidth = Math.max(2, width * .004);
+      context.beginPath(); context.arc(cx, top + width * .04, width * .12, Math.PI, Math.PI * 2); context.stroke();
+      for (let i = -3; i <= 3; i += 1) {
+        const angle = -Math.PI / 2 + i * .18;
+        context.beginPath(); context.moveTo(cx + Math.cos(angle) * width * .15, top + width * .04 + Math.sin(angle) * width * .15); context.lineTo(cx + Math.cos(angle) * width * .21, top + width * .04 + Math.sin(angle) * width * .21); context.stroke();
       }
+    } else if (type === 'hills') {
+      context.fillStyle = hexToRgba(p.soft, .32);
+      context.beginPath(); context.moveTo(x, y + height * .83); context.quadraticCurveTo(x + width * .24, y + height * .69, x + width * .5, y + height * .83); context.quadraticCurveTo(x + width * .76, y + height * .68, x + width, y + height * .81); context.lineTo(x + width, y + height); context.lineTo(x, y + height); context.fill();
+    } else if (type === 'waves') {
+      context.strokeStyle = hexToRgba(p.accent, .35); context.lineWidth = Math.max(3, width * .006);
+      for (let row = 0; row < 3; row += 1) {
+        const yy = y + height * (.78 + row * .035);
+        context.beginPath(); context.moveTo(x + width * .08, yy);
+        for (let i = 0; i < 4; i += 1) context.quadraticCurveTo(x + width * (.17 + i * .22), yy - width * .035, x + width * (.28 + i * .22), yy);
+        context.stroke();
+      }
+    } else if (type === 'botanical') {
+      drawLeafSprig(context, x + width * .14, y + height * .18, width * .22, p.accent, -.45);
+      drawLeafSprig(context, x + width * .86, y + height * .82, width * .24, p.accent, 2.7);
+    } else if (type === 'confetti') {
+      drawConfetti(context, x, y, width, height, p.accent, p.soft);
+    } else if (type === 'dove') {
+      context.strokeStyle = hexToRgba(p.accent, .55); context.lineWidth = Math.max(3, width * .005);
+      context.beginPath(); context.moveTo(cx - width * .13, top); context.quadraticCurveTo(cx - width * .02, top - width * .1, cx + width * .04, top); context.quadraticCurveTo(cx + width * .1, top - width * .06, cx + width * .16, top - width * .02); context.quadraticCurveTo(cx + width * .08, top + width * .08, cx, top + width * .04); context.quadraticCurveTo(cx - width * .08, top + width * .08, cx - width * .13, top); context.stroke();
+    } else if (type === 'rainbow') {
+      drawRainbow(context, cx, top + width * .08, width * .18, [p.accent, p.soft, '#8da5e5', '#f2c967']);
+    } else if (type === 'paw') {
+      drawPaw(context, cx, top + width * .06, width * .055, p.accent, .35);
+      drawPaw(context, cx + width * .12, top + width * .12, width * .04, p.soft, .3);
     }
     context.restore();
   }
 
-  function drawPhotoMedallion(context, x, y, width, height, renderState, p) {
-    if (!photoImage || renderState.preset === 'photo') return 0;
-    const size = Math.min(width * .5, height * .3);
-    const cx = x + width / 2;
-    const cy = y + height * .26;
+  function drawLittleAccent(context, x, y, width, height, renderState, p) {
+    const type = renderState.accent || 'none';
+    if (type === 'none') return;
+    const cx = x + width * .5;
+    const cy = y + height * .89;
+    const size = width * .028;
     context.save();
-    context.beginPath(); context.arc(cx, cy, size / 2, 0, Math.PI * 2); context.clip();
-    drawCoverImage(context, photoImage, cx - size / 2, cy - size / 2, size, size);
+    context.strokeStyle = p.accent; context.fillStyle = p.accent; context.lineWidth = Math.max(2, width * .003);
+    if (type === 'heart') drawHeart(context, cx, cy, size, p.accent, .88);
+    else if (type === 'star' || type === 'sparkles') {
+      const points = type === 'star' ? 5 : 4;
+      context.beginPath();
+      for (let i = 0; i < points * 2; i += 1) {
+        const a = -Math.PI / 2 + i * Math.PI / points;
+        const r = i % 2 ? size * .4 : size;
+        const px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r;
+        i ? context.lineTo(px, py) : context.moveTo(px, py);
+      }
+      context.closePath(); context.fill();
+      if (type === 'sparkles') { context.beginPath(); context.arc(cx + size * 1.7, cy - size * .6, size * .18, 0, Math.PI * 2); context.fill(); }
+    } else if (type === 'flower') {
+      for (let i = 0; i < 6; i += 1) { const a = i * Math.PI / 3; context.beginPath(); context.ellipse(cx + Math.cos(a) * size * .65, cy + Math.sin(a) * size * .65, size * .55, size * .28, a, 0, Math.PI * 2); context.fill(); }
+      context.fillStyle = p.ink; context.beginPath(); context.arc(cx, cy, size * .25, 0, Math.PI * 2); context.fill();
+    } else if (type === 'leaf' || type === 'feather') drawLeafSprig(context, cx - size * 2.2, cy + size, size * 4.4, p.accent, -.25);
+    else if (type === 'sun') { context.beginPath(); context.arc(cx, cy, size * .55, 0, Math.PI * 2); context.fill(); for (let i=0;i<8;i+=1){const a=i*Math.PI/4;context.beginPath();context.moveTo(cx+Math.cos(a)*size*.9,cy+Math.sin(a)*size*.9);context.lineTo(cx+Math.cos(a)*size*1.35,cy+Math.sin(a)*size*1.35);context.stroke();} }
+    else if (type === 'candle') { context.fillRect(cx-size*.25,cy-size*.45,size*.5,size*1.25); context.beginPath(); context.moveTo(cx,cy-size*.7); context.quadraticCurveTo(cx-size*.35,cy-size*1.2,cx,cy-size*1.55); context.quadraticCurveTo(cx+size*.35,cy-size*1.2,cx,cy-size*.7); context.fill(); }
+    else if (type === 'dove') { context.beginPath(); context.moveTo(cx-size*1.2,cy); context.quadraticCurveTo(cx-size*.2,cy-size*.9,cx+size*.35,cy); context.quadraticCurveTo(cx+size*.8,cy-size*.55,cx+size*1.25,cy-size*.2); context.quadraticCurveTo(cx+size*.65,cy+size*.5,cx,cy+size*.25); context.quadraticCurveTo(cx-size*.65,cy+size*.45,cx-size*1.2,cy); context.stroke(); }
+    else if (type === 'paw') drawPaw(context, cx, cy, size * .78, p.accent, .9);
     context.restore();
-    context.strokeStyle = p.accent; context.lineWidth = Math.max(4, width * .008);
-    context.beginPath(); context.arc(cx, cy, size / 2, 0, Math.PI * 2); context.stroke();
-    return size;
+  }
+
+  function drawFrame(context, x, y, width, height, renderState, p) {
+    const frame = renderState.frame || 'none';
+    if (frame === 'none') return;
+    context.save();
+    const margin = width * .045;
+    context.strokeStyle = hexToRgba(p.accent, frame === 'soft' ? .45 : .88);
+    context.fillStyle = hexToRgba(p.accent, .8);
+    context.lineWidth = Math.max(2, width * .003);
+    const left = x + margin, top = y + margin, w = width - margin * 2, h = height - margin * 2;
+    if (frame === 'arch') {
+      roundedRect(context, left, top, w, h, width * .18); context.stroke();
+    } else if (frame === 'gold-deco') {
+      context.lineWidth = Math.max(3, width * .004); roundedRect(context,left,top,w,h,width*.018); context.stroke();
+      const d=width*.035; [[left,top],[left+w,top],[left,top+h],[left+w,top+h]].forEach(([cx,cy],i)=>{context.save();context.translate(cx,cy);context.rotate((i%2?1:-1)*Math.PI/4);context.strokeRect(-d/2,-d/2,d,d);context.restore();});
+    } else if (frame === 'botanical') {
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.08,width*.15,p.accent,-.55); drawLeafSprig(context,left+w-width*.02,top+h-height*.07,width*.16,p.accent,2.55);
+    } else if (frame === 'ribbon') {
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); context.fillStyle=hexToRgba(p.accent,.18); context.fillRect(left, y+height*.12, w, height*.055); context.fillRect(left, y+height*.83, w, height*.055);
+    } else if (frame === 'inset') {
+      const inner=margin*1.5; roundedRect(context,x+inner,y+inner,width-inner*2,height-inner*2,width*.016); context.stroke();
+    } else if (frame === 'deco-corners') {
+      const len=width*.11; context.lineWidth=Math.max(3,width*.004); [[left,top,1,1],[left+w,top,-1,1],[left,top+h,1,-1],[left+w,top+h,-1,-1]].forEach(([cx,cy,sx,sy])=>{context.beginPath();context.moveTo(cx+sx*len,cy);context.lineTo(cx,cy);context.lineTo(cx,cy+sy*len);context.stroke();context.beginPath();context.moveTo(cx+sx*len*.65,cy+sy*len*.2);context.lineTo(cx+sx*len*.2,cy+sy*len*.2);context.lineTo(cx+sx*len*.2,cy+sy*len*.65);context.stroke();});
+    } else if (frame === 'wreath') {
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); context.save(); context.translate(x+width/2,y+height*.13); for(let i=0;i<16;i+=1){context.rotate(Math.PI/8);context.beginPath();context.ellipse(width*.11,0,width*.024,width*.01,0,0,Math.PI*2);context.fill();} context.restore();
+    } else if (frame === 'lily') {
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.02,top+height*.06,width*.19,p.accent,-.2);
+    } else if (frame === 'paw') {
+      roundedRect(context,left,top,w,h,width*.018); context.stroke();
+      drawPaw(context, left + width * .07, top + height * .08, width * .022, p.accent, .55);
+      drawPaw(context, left + w - width * .07, top + h - height * .08, width * .022, p.accent, .55);
+    } else if (frame === 'rainbow') {
+      roundedRect(context,left,top,w,h,width*.018); context.stroke();
+      drawRainbow(context, x + width * .5, y + height * .12, width * .18, [p.accent, p.soft, '#8da5e5', '#f2c967'], .42);
+    } else {
+      roundedRect(context, left, top, w, h, width * .02); context.stroke();
+      if (frame === 'double') { const inner = margin * 1.35; roundedRect(context, x + inner, y + inner, width - inner * 2, height - inner * 2, width * .018); context.stroke(); }
+    }
+    context.restore();
+  }
+
+  function drawPhotoTopArea(context, x, y, width, height, renderState, p) {
+    if (!photoImage) return false;
+    const region = frontPhotoRegion(width, height);
+    const rx = x + region.x;
+    const ry = y + region.y;
+    context.save();
+    roundedRect(context, rx, ry, region.width, region.height, region.radius);
+    context.clip();
+    drawCoverImage(context, photoImage, rx, ry, region.width, region.height, renderState);
+    context.restore();
+    context.save();
+    context.strokeStyle = hexToRgba(p.accent, .92);
+    context.lineWidth = Math.max(3, width * .005);
+    roundedRect(context, rx, ry, region.width, region.height, region.radius);
+    context.stroke();
+    context.restore();
+    return true;
   }
 
   function formatEventDate(value) {
@@ -632,51 +858,55 @@
       context.strokeRect(x + width * .055, y + height * .04, width * .89, height * .92);
     } else {
       drawBackground(context, x, y, width, height, renderState);
+      drawSelectedIllustration(context, x, y, width, height, renderState, p);
       drawFrame(context, x, y, width, height, renderState, p);
     }
     const family = fontFamily(renderState, p);
     const pad = width * .12;
 
     if (panel === 'front' && renderState.creationType === 'invitation') {
+      const hasPhoto = drawPhotoTopArea(context, x, y, width, height, renderState, p);
       context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.font = `700 ${Math.max(20, width * .028)}px Arial, Helvetica, sans-serif`;
-      context.fillText('YOU’RE INVITED', x + width / 2, y + height * .12, width * .72);
+      context.fillText('YOU’RE INVITED', x + width / 2, y + height * (hasPhoto ? .355 : .12), width * .72);
       const eventName = renderState.eventTitle || DATA.occasions[renderState.occasion]?.front || 'A Special Celebration';
       drawTextBlock(context, eventName, {
-        x: x + pad, y: y + height * .19, width: width - pad * 2, height: height * .22
-      }, { colour: p.ink, family, startSize: width * .075, minSize: width * .038, weight: 700, lineHeight: 1.15, maxLines: 4 });
+        x: x + pad, y: y + height * (hasPhoto ? .39 : .19), width: width - pad * 2, height: height * (hasPhoto ? .14 : .22)
+      }, { colour: p.ink, family, startSize: width * (hasPhoto ? .058 : .075), minSize: width * .032, weight: 700, lineHeight: 1.15, maxLines: hasPhoto ? 3 : 4 });
       const guest = renderState.recipientName ? `CELEBRATING ${renderState.recipientName.toUpperCase()}` : '';
       if (guest) {
-        context.fillStyle = p.accent; context.font = `700 ${width * .028}px Arial, Helvetica, sans-serif`;
-        context.fillText(guest, x + width / 2, y + height * .45, width * .72);
+        context.fillStyle = p.accent; context.font = `700 ${width * .026}px Arial, Helvetica, sans-serif`;
+        context.fillText(guest, x + width / 2, y + height * (hasPhoto ? .56 : .45), width * .72);
       }
       const when = [formatEventDate(renderState.eventDate), renderState.eventTime].filter(Boolean).join('  •  ');
       const details = [when, renderState.eventVenue].filter(Boolean).join('\n');
       drawTextBlock(context, details || 'Add the date, time and venue', {
-        x: x + pad, y: y + height * .5, width: width - pad * 2, height: height * .17
-      }, { colour: p.ink, family, startSize: width * .038, minSize: width * .025, weight: 600, lineHeight: 1.42, maxLines: 4 });
+        x: x + pad, y: y + height * (hasPhoto ? .6 : .5), width: width - pad * 2, height: height * (hasPhoto ? .13 : .17)
+      }, { colour: p.ink, family, startSize: width * .035, minSize: width * .023, weight: 600, lineHeight: 1.35, maxLines: 4 });
       drawTextBlock(context, renderState.mainMessage, {
-        x: x + pad * 1.1, y: y + height * .67, width: width - pad * 2.2, height: height * .13
-      }, { colour: p.ink, family, startSize: width * .031, minSize: width * .021, weight: 500, lineHeight: 1.35, maxLines: 4 });
+        x: x + pad * 1.1, y: y + height * (hasPhoto ? .73 : .67), width: width - pad * 2.2, height: height * (hasPhoto ? .1 : .13)
+      }, { colour: p.ink, family, startSize: width * .029, minSize: width * .02, weight: 500, lineHeight: 1.3, maxLines: hasPhoto ? 3 : 4 });
       const response = renderState.eventRsvp ? (/^rsvp/i.test(renderState.eventRsvp.trim()) ? renderState.eventRsvp : `RSVP  ${renderState.eventRsvp}`) : renderState.eventHost ? `HOSTED BY ${renderState.eventHost.toUpperCase()}` : '';
       if (response) {
-        context.fillStyle = p.accent; context.font = `700 ${width * .025}px Arial, Helvetica, sans-serif`;
+        context.fillStyle = p.accent; context.font = `700 ${width * .024}px Arial, Helvetica, sans-serif`;
         context.fillText(response, x + width / 2, y + height * .88, width * .74);
       }
     } else if (panel === 'front') {
       const digital = renderState.outputMode === 'digital' && !folded;
-      const photoSpace = drawPhotoMedallion(context, x, y, width, height, renderState, p);
+      const hasPhoto = drawPhotoTopArea(context, x, y, width, height, renderState, p);
       context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.font = `700 ${Math.max(20, width * .03)}px Arial, Helvetica, sans-serif`;
-      context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (photoSpace ? .47 : .18), width * .76);
+      context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
 
-      const title = digital ? renderState.mainMessage : (renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You')));
+      let title = digital ? renderState.mainMessage : (renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You')));
+      if (renderState.textStyle === 'quotes' && digital) title = `“${title}”`;
+      if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
-        x: x + pad, y: y + height * (photoSpace ? .5 : .25), width: width - pad * 2, height: height * (digital ? .37 : .28)
+        x: x + pad, y: y + height * (hasPhoto ? .405 : .25), width: width - pad * 2, height: height * (hasPhoto ? (digital ? .33 : .25) : (digital ? .37 : .28))
       }, {
         colour: p.ink, family, startSize: width * (digital ? .07 : .095), minSize: width * .035,
         weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.2, maxLines: digital ? 7 : 4
@@ -687,18 +917,23 @@
         : (renderState.recipientName ? `${renderState.coverMessage}\n${renderState.recipientName}` : renderState.coverMessage);
       if (lower) {
         drawTextBlock(context, lower, {
-          x: x + pad, y: y + height * .67, width: width - pad * 2, height: height * .18
+          x: x + pad, y: y + height * (hasPhoto ? .76 : .67), width: width - pad * 2, height: height * (hasPhoto ? .15 : .18)
         }, {
           colour: renderState.preset === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .034, minSize: width * .024,
           weight: 600, lineHeight: 1.35, maxLines: 3
         });
       }
+      if (renderState.textStyle === 'underline') {
+        context.strokeStyle = p.accent; context.lineWidth = Math.max(3, width * .004);
+        context.beginPath(); context.moveTo(x + width * .31, y + height * .64); context.lineTo(x + width * .69, y + height * .64); context.stroke();
+      }
+      drawLittleAccent(context, x, y, width, height, renderState, p);
     } else if (panel === 'inside-left') {
       if (renderState.insideLeftMode === 'photo' && photoImage) {
         const margin = width * .1;
         context.save();
         roundedRect(context, x + margin, y + margin, width - margin * 2, height - margin * 2, width * .04); context.clip();
-        drawCoverImage(context, photoImage, x + margin, y + margin, width - margin * 2, height - margin * 2);
+        drawCoverImage(context, photoImage, x + margin, y + margin, width - margin * 2, height - margin * 2, renderState);
         context.restore();
       } else if (renderState.insideLeftMode === 'quote') {
         context.fillStyle = p.accent;
@@ -741,14 +976,30 @@
     context.restore();
   }
 
+  function selectedFormat() {
+    if (state.outputMode === 'single-print') {
+      const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+      return { label: selected.label, shortLabel: selected.label.replace(' one-page PDF', ''), detail: `${selected.width} × ${selected.height} print pixels`, width: selected.width, height: selected.height, kind: 'single-print' };
+    }
+    if (state.outputMode === 'folded') {
+      const folded = {
+        A4: { label: 'A4 folded to A5', detail: 'two-page folded PDF' },
+        A5: { label: 'A5 folded to A6', detail: 'two-page folded PDF' },
+        Letter: { label: 'US Letter folded card', detail: 'two-page folded PDF' }
+      }[state.printPaper] || { label: 'A4 folded to A5', detail: 'two-page folded PDF' };
+      return { ...folded, shortLabel: folded.label, width: 1000, height: 1400, kind: 'folded' };
+    }
+    const selected = sizes[state.size] || sizes['instagram-square'];
+    return { label: selected.label, shortLabel: selected.label, detail: `${selected.width} × ${selected.height} pixels`, width: selected.width, height: selected.height, kind: 'digital' };
+  }
+
   function previewDimensions() {
-    if (state.creationType === 'postcard') return sizes.landscape;
     if (state.outputMode === 'single-print') {
       const selected = printSizes[state.singlePrintSize] || printSizes.A5;
       return { width: 1000, height: Math.round(1000 * selected.height / selected.width) };
     }
     if (state.outputMode === 'folded') return { width: 1000, height: 1400 };
-    return sizes[state.size] || sizes.square;
+    return sizes[state.size] || sizes['instagram-square'];
   }
 
   function fitPreviewCanvas() {
@@ -773,7 +1024,11 @@
     canvas.height = dimensions.height;
     canvas.style.aspectRatio = `${dimensions.width} / ${dimensions.height}`;
     drawPanel(ctx, 0, 0, canvas.width, canvas.height, state.activePanel, state, state.outputMode === 'folded');
-    requestAnimationFrame(fitPreviewCanvas);
+    const draggablePhoto = Boolean(currentPhotoRegion());
+    canvas.classList.toggle('photo-draggable', draggablePhoto);
+    canvas.tabIndex = draggablePhoto ? 0 : -1;
+    canvas.setAttribute('aria-label', draggablePhoto ? 'Live card preview. Drag the photo to reposition it, or use the arrow keys.' : 'Live preview of your personalised card');
+    requestAnimationFrame(() => { fitPreviewCanvas(); syncFloatingPreview(); });
     const label = document.getElementById('previewCaption');
     if (label) {
       const panelLabels = { front: 'Front cover', 'inside-left': 'Inside left', 'inside-right': 'Inside message', back: 'Back cover' };
@@ -789,7 +1044,7 @@
   }
 
   async function canvasBlob(type = 'image/png', quality = .95) {
-    const selected = sizes[state.size] || sizes.square;
+    const selected = sizes[state.size] || sizes['instagram-square'];
     const output = createPanelCanvas('front', selected.width, selected.height, false);
     return new Promise((resolve, reject) => output.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
   }
@@ -898,7 +1153,7 @@
     const keys = Object.keys(presets);
     const choices = keys.filter(key => key !== state.preset);
     const preset = choices[Math.floor(Math.random() * choices.length)];
-    const frames = ['none', 'classic', 'double', 'arch', 'soft'];
+    const frames = ['none', 'classic', 'gold-deco', 'arch', 'botanical', 'ribbon', 'inset', 'deco-corners', 'wreath', 'lily', 'paw', 'rainbow'];
     updateState({ preset, frame: frames[Math.floor(Math.random() * frames.length)], background: '', textColour: '' });
     announce(`Applied ${presets[preset].label}.`);
   }
@@ -911,14 +1166,38 @@
     if (file.size > 12 * 1024 * 1024) {
       announce('Please choose a photo smaller than 12 MB.'); return;
     }
+    announce('Adding your photo…');
     const reader = new FileReader();
     reader.onload = () => {
-      state.photoData = String(reader.result);
-      state.reviewed = false;
-      photoImage = new Image();
-      photoImage.onload = () => { persist(); queueRender(); announce('Photo added. It stays on this device.'); };
-      photoImage.src = state.photoData;
+      const source = new Image();
+      source.onload = () => {
+        const maxEdge = 2200;
+        const scale = Math.min(1, maxEdge / Math.max(source.naturalWidth, source.naturalHeight));
+        const reduced = document.createElement('canvas');
+        reduced.width = Math.max(1, Math.round(source.naturalWidth * scale));
+        reduced.height = Math.max(1, Math.round(source.naturalHeight * scale));
+        reduced.getContext('2d').drawImage(source, 0, 0, reduced.width, reduced.height);
+        const photoData = reduced.toDataURL('image/jpeg', 0.9);
+        state.photoData = photoData;
+        state.photoX = 0.5;
+        state.photoY = 0.5;
+        state.photoZoom = 1.08;
+        state.activePanel = 'front';
+        state.reviewed = false;
+        photoImage = new Image();
+        photoImage.onload = () => {
+          persist();
+          syncControls();
+          queueRender();
+          canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          announce('Photo added at the top of the card. Drag it in the preview to reposition it.');
+        };
+        photoImage.src = photoData;
+      };
+      source.onerror = () => announce('This image could not be opened. Please choose another photo.');
+      source.src = String(reader.result);
     };
+    reader.onerror = () => announce('This image could not be read. Please try again.');
     reader.readAsDataURL(file);
   }
 
@@ -930,24 +1209,67 @@
   }
 
   function renderReviewModal() {
-    const panelSize = { width: 700, height: 980 };
-    document.querySelectorAll('[data-review-panel]').forEach(canvasEl => {
-      const panel = canvasEl.dataset.reviewPanel;
-      canvasEl.width = panelSize.width; canvasEl.height = panelSize.height;
-      canvasEl.style.aspectRatio = `${panelSize.width} / ${panelSize.height}`;
-      drawPanel(canvasEl.getContext('2d'), 0, 0, panelSize.width, panelSize.height, panel, state, true);
-    });
+    const format = selectedFormat();
+    const summary = document.getElementById('reviewFormatSummary');
+    const singleWrap = document.getElementById('reviewSingleWrap');
+    const foldedWrap = document.getElementById('reviewFoldedWrap');
+    if (summary) summary.textContent = `${format.label} · ${format.detail}`;
+
+    if (format.kind === 'folded') {
+      if (singleWrap) singleWrap.hidden = true;
+      if (foldedWrap) foldedWrap.hidden = false;
+      const panelSize = { width: 700, height: 980 };
+      document.querySelectorAll('[data-review-panel]').forEach(canvasEl => {
+        const panel = canvasEl.dataset.reviewPanel;
+        canvasEl.width = panelSize.width;
+        canvasEl.height = panelSize.height;
+        canvasEl.style.aspectRatio = `${panelSize.width} / ${panelSize.height}`;
+        drawPanel(canvasEl.getContext('2d'), 0, 0, panelSize.width, panelSize.height, panel, state, true);
+      });
+    } else {
+      if (singleWrap) singleWrap.hidden = false;
+      if (foldedWrap) foldedWrap.hidden = true;
+      const canvasEl = document.querySelector('[data-review-single]');
+      if (canvasEl) {
+        const ratio = format.width / format.height;
+        const maxWidth = 900;
+        const width = ratio >= 1 ? maxWidth : Math.round(700 * ratio);
+        const height = ratio >= 1 ? Math.round(maxWidth / ratio) : 700;
+        canvasEl.width = Math.max(420, width);
+        canvasEl.height = Math.max(420, height);
+        canvasEl.style.aspectRatio = `${format.width} / ${format.height}`;
+        drawPanel(canvasEl.getContext('2d'), 0, 0, canvasEl.width, canvasEl.height, 'front', state, false);
+      }
+    }
   }
 
   function openReview() {
+    // Review is a fixed overlay. It must never leave the user near the FAQ or footer.
+    state.step = 3;
+    state.reviewed = false;
+    syncControls();
     renderReviewModal();
     const modal = document.getElementById('reviewModal');
-    if (modal) { modal.hidden = false; document.body.classList.add('modal-open'); }
+    if (!modal) return;
+    modal.hidden = false;
+    modal.removeAttribute('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    modal.scrollTop = 0;
+    window.requestAnimationFrame(() => {
+      const dialog = modal.querySelector('.review-modal');
+      if (dialog) dialog.scrollTop = 0;
+      document.getElementById('reviewTitle')?.focus({ preventScroll: true });
+    });
   }
 
   function closeReview() {
     const modal = document.getElementById('reviewModal');
-    if (modal) { modal.hidden = true; document.body.classList.remove('modal-open'); }
+    if (modal) {
+      modal.hidden = true;
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
   }
 
   async function withUsageGate(action) {
@@ -960,13 +1282,82 @@
     await action();
   }
 
+  function scrollToWorkspace() {
+    const tabs = document.querySelector('.step-tabs');
+    const panel = document.querySelector(`[data-step-panel="${state.step}"]`);
+    const target = tabs || panel || document.getElementById('cardMakerWorkspace');
+    if (!target) return;
+    window.requestAnimationFrame(() => {
+      const header = document.querySelector('.site-header');
+      const offset = (header?.offsetHeight || 0) + 10;
+      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
+      window.scrollTo({ top, behavior: 'smooth' });
+      window.setTimeout(() => {
+        const heading = panel?.querySelector('h2');
+        if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+      }, 420);
+    });
+  }
+
+  function goToStep(step) {
+    updateState({ step: Math.max(1, Math.min(3, Number(step) || 1)) });
+    scrollToWorkspace();
+  }
+
+  function openSocialLink(network) {
+    const cleanUrl = `${location.origin}${location.pathname}`;
+    const url = encodeURIComponent(cleanUrl);
+    const text = encodeURIComponent(`${state.mainMessage}
+
+Create your own card: ${cleanUrl}`);
+    const targets = {
+      whatsapp: `https://wa.me/?text=${text}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+      x: `https://twitter.com/intent/tweet?text=${text}`,
+      pinterest: `https://www.pinterest.com/pin/create/button/?url=${url}&description=${encodeURIComponent(state.mainMessage)}`,
+      email: `mailto:?subject=${encodeURIComponent(`${state.occasionLabel} card`)}&body=${text}`
+    };
+    if (targets[network]) window.open(targets[network], '_blank', 'noopener,noreferrer');
+  }
+
+  function syncFloatingPreview() {
+    const floating = document.getElementById('floatingCardCanvas');
+    if (!floating || !canvas.width || !canvas.height) return;
+    floating.width = canvas.width;
+    floating.height = canvas.height;
+    floating.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
+    const fctx = floating.getContext('2d');
+    fctx.clearRect(0, 0, floating.width, floating.height);
+    fctx.drawImage(canvas, 0, 0);
+  }
+
+  function initFloatingPreview() {
+    const dock = document.getElementById('floatingPreviewDock');
+    const workspace = document.getElementById('cardMakerWorkspace');
+    if (!dock || !workspace) return;
+    const update = () => {
+      if (document.body.classList.contains('modal-open')) { dock.hidden = true; return; }
+      const rect = workspace.getBoundingClientRect();
+      // The main preview is sticky while the editor is on screen. Once the editor has
+      // passed, keep a compact live preview visible through the related links and footer.
+      const belowEditor = rect.bottom < 110;
+      dock.hidden = !belowEditor;
+      if (!dock.hidden) syncFloatingPreview();
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+    document.getElementById('returnToEditor')?.addEventListener('click', () => scrollToWorkspace());
+    update();
+  }
+
   function initControls() {
     const recipientSelect = document.getElementById('recipientSelect');
     DATA.recipients.forEach(recipient => {
       const option = document.createElement('option'); option.value = recipient; option.textContent = recipient; recipientSelect.appendChild(option);
     });
 
-    document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => updateState({ step: Number(button.dataset.step) })));
+    document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };
@@ -980,8 +1371,8 @@
       if (creationType === 'postcard') state.size = 'landscape';
       generateMessages(); syncControls();
     }));
-    document.querySelectorAll('[data-next-step]').forEach(button => button.addEventListener('click', () => updateState({ step: Math.min(3, state.step + 1) })));
-    document.querySelectorAll('[data-prev-step]').forEach(button => button.addEventListener('click', () => updateState({ step: Math.max(1, state.step - 1) })));
+    document.querySelectorAll('[data-next-step]').forEach(button => button.addEventListener('click', () => goToStep(state.step + 1)));
+    document.querySelectorAll('[data-prev-step]').forEach(button => button.addEventListener('click', () => goToStep(state.step - 1)));
     document.querySelectorAll('[data-occasion]').forEach(button => button.addEventListener('click', () => {
       const occasion = button.dataset.occasion;
       state.creationType = button.dataset.kind || state.creationType;
@@ -997,10 +1388,14 @@
     document.querySelectorAll('[data-tone]').forEach(button => button.addEventListener('click', () => { state.tone = button.dataset.tone; generateMessages(); syncControls(); }));
     document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => updateState({ preset: button.dataset.preset, background: '', textColour: '', font: presets[button.dataset.preset].font })));
     document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ frame: button.dataset.frame })));
+    document.querySelectorAll('[data-illustration]').forEach(button => button.addEventListener('click', () => updateState({ illustration: button.dataset.illustration })));
+    document.querySelectorAll('[data-accent]').forEach(button => button.addEventListener('click', () => updateState({ accent: button.dataset.accent })));
+    document.querySelectorAll('[data-text-style]').forEach(button => button.addEventListener('click', () => updateState({ textStyle: button.dataset.textStyle })));
+    document.querySelectorAll('[data-background]').forEach(button => button.addEventListener('click', () => updateState({ background: button.dataset.background })));
     document.querySelectorAll('[data-inside-left]').forEach(button => button.addEventListener('click', () => updateState({ insideLeftMode: button.dataset.insideLeft })));
     document.querySelectorAll('[data-inside-paper]').forEach(button => button.addEventListener('click', () => updateState({ insidePaper: button.dataset.insidePaper })));
     document.querySelectorAll('[data-panel]').forEach(button => button.addEventListener('click', () => updateState({ activePanel: button.dataset.panel })));
-    document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front' })));
+    document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front', reviewed: false })));
     document.querySelectorAll('[data-single-print-size]').forEach(button => button.addEventListener('click', () => updateState({ singlePrintSize: button.dataset.singlePrintSize })));
     document.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => updateState({ size: button.dataset.size })));
     document.querySelectorAll('[data-paper]').forEach(button => button.addEventListener('click', () => updateState({ printPaper: button.dataset.paper })));
@@ -1042,7 +1437,85 @@
       }
     });
     document.getElementById('photoInput')?.addEventListener('change', event => loadPhoto(event.target.files?.[0]));
-    document.getElementById('removePhoto')?.addEventListener('click', () => { photoImage = null; updateState({ photoData: '' }); });
+    document.getElementById('removePhoto')?.addEventListener('click', () => {
+      photoImage = null;
+      const input = document.getElementById('photoInput');
+      if (input) input.value = '';
+      updateState({ photoData: '', photoX: 0.5, photoY: 0.5, photoZoom: 1.08 });
+      announce('Photo removed.');
+    });
+    document.getElementById('photoZoom')?.addEventListener('input', event => updateState({ photoZoom: Number(event.target.value) }, { persist: false }));
+    document.getElementById('photoZoom')?.addEventListener('change', event => { state.photoZoom = Number(event.target.value); persist(); queueRender(); });
+    document.getElementById('centrePhoto')?.addEventListener('click', () => {
+      updateState({ photoX: 0.5, photoY: 0.5, photoZoom: 1.08 });
+      announce('Photo centred.');
+    });
+    const nudgePhoto = (direction, amount = 0.04) => {
+      if (!photoImage) return;
+      const patch = {};
+      if (direction === 'left') patch.photoX = clamp((Number(state.photoX) || 0.5) - amount, 0, 1);
+      if (direction === 'right') patch.photoX = clamp((Number(state.photoX) || 0.5) + amount, 0, 1);
+      if (direction === 'up') patch.photoY = clamp((Number(state.photoY) || 0.5) - amount, 0, 1);
+      if (direction === 'down') patch.photoY = clamp((Number(state.photoY) || 0.5) + amount, 0, 1);
+      updateState(patch);
+      announce(`Photo moved ${direction}.`);
+    };
+    document.querySelectorAll('[data-photo-nudge]').forEach(button => button.addEventListener('click', () => nudgePhoto(button.dataset.photoNudge)));
+
+    let photoDrag = null;
+    const canvasPoint = event => {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (event.clientX - rect.left) * canvas.width / Math.max(1, rect.width),
+        y: (event.clientY - rect.top) * canvas.height / Math.max(1, rect.height)
+      };
+    };
+    canvas.addEventListener('pointerdown', event => {
+      const region = currentPhotoRegion();
+      if (!region) return;
+      const point = canvasPoint(event);
+      if (point.x < region.x || point.x > region.x + region.width || point.y < region.y || point.y > region.y + region.height) return;
+      event.preventDefault();
+      canvas.setPointerCapture?.(event.pointerId);
+      photoDrag = { pointerId: event.pointerId, point, region };
+      canvas.classList.add('is-dragging-photo');
+      announce('Move the photo, then release to keep its position.');
+    });
+    canvas.addEventListener('pointermove', event => {
+      if (!photoDrag || photoDrag.pointerId !== event.pointerId || !photoImage) return;
+      event.preventDefault();
+      const point = canvasPoint(event);
+      const dx = point.x - photoDrag.point.x;
+      const dy = point.y - photoDrag.point.y;
+      const metrics = positionedImageMetrics(photoImage, photoDrag.region.width, photoDrag.region.height, state);
+      if (metrics.overflowX > 0.5) state.photoX = clamp((Number(state.photoX) || 0.5) - dx / metrics.overflowX, 0, 1);
+      if (metrics.overflowY > 0.5) state.photoY = clamp((Number(state.photoY) || 0.5) - dy / metrics.overflowY, 0, 1);
+      state.reviewed = false;
+      photoDrag.point = point;
+      queueRender();
+    });
+    const finishPhotoDrag = event => {
+      if (!photoDrag || (event.pointerId != null && photoDrag.pointerId !== event.pointerId)) return;
+      canvas.releasePointerCapture?.(photoDrag.pointerId);
+      photoDrag = null;
+      canvas.classList.remove('is-dragging-photo');
+      persist();
+      announce('Photo position saved.');
+    };
+    canvas.addEventListener('pointerup', finishPhotoDrag);
+    canvas.addEventListener('pointercancel', finishPhotoDrag);
+    canvas.addEventListener('dblclick', () => {
+      if (!currentPhotoRegion()) return;
+      updateState({ photoX: 0.5, photoY: 0.5, photoZoom: 1.08 });
+      announce('Photo centred.');
+    });
+    canvas.addEventListener('keydown', event => {
+      if (!currentPhotoRegion()) return;
+      const direction = ({ ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' })[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      nudgePhoto(direction, event.shiftKey ? 0.1 : 0.025);
+    });
     document.getElementById('surpriseDesign')?.addEventListener('click', surprise);
     document.getElementById('downloadPng')?.addEventListener('click', () => withUsageGate(() => openImage('image/png')).catch(handleError));
     document.getElementById('downloadJpg')?.addEventListener('click', () => withUsageGate(() => openImage('image/jpeg')).catch(handleError));
@@ -1052,10 +1525,12 @@
     document.getElementById('shareLink')?.addEventListener('click', () => shareLink().catch(handleError));
     document.getElementById('copyImage')?.addEventListener('click', () => copyImage().catch(handleError));
     document.getElementById('copyMessage')?.addEventListener('click', () => copyMessage().catch(handleError));
-    document.getElementById('whatsappShare')?.addEventListener('click', () => {
-      const text = encodeURIComponent(`${state.mainMessage}\n\nCreate a card: ${location.origin}${location.pathname}`);
-      window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
-    });
+    document.getElementById('whatsappShare')?.addEventListener('click', () => openSocialLink('whatsapp'));
+    document.getElementById('facebookShare')?.addEventListener('click', () => openSocialLink('facebook'));
+    document.getElementById('linkedinShare')?.addEventListener('click', () => openSocialLink('linkedin'));
+    document.getElementById('xShare')?.addEventListener('click', () => openSocialLink('x'));
+    document.getElementById('pinterestShare')?.addEventListener('click', () => openSocialLink('pinterest'));
+    document.getElementById('emailShare')?.addEventListener('click', () => openSocialLink('email'));
     const resetCard = () => {
       if (!confirm('Start again and clear the current card?')) return;
       state = { ...defaultState };
@@ -1064,10 +1539,10 @@
     };
     document.getElementById('startAgain')?.addEventListener('click', resetCard);
     document.getElementById('startAgainBottom')?.addEventListener('click', resetCard);
-    document.getElementById('reviewCard')?.addEventListener('click', openReview);
+    document.getElementById('reviewCard')?.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); openReview(); });
     document.getElementById('closeReview')?.addEventListener('click', closeReview);
-    document.getElementById('editFromReview')?.addEventListener('click', () => { updateState({ reviewed: false }); closeReview(); });
-    document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true }); closeReview(); document.getElementById('downloadWorkspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    document.getElementById('editFromReview')?.addEventListener('click', () => { updateState({ reviewed: false }); closeReview(); scrollToWorkspace(); });
+    document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true }); closeReview(); window.setTimeout(() => document.getElementById('downloadWorkspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
     document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
     document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
@@ -1079,6 +1554,8 @@
   }
 
   function init() {
+    if (legacySizeMap[state.size]) state.size = legacySizeMap[state.size];
+    if (!sizes[state.size]) state.size = 'instagram-square';
     queryDefaults();
     initControls();
     restorePhoto();
@@ -1091,6 +1568,7 @@
     generateMessages(false);
     syncControls();
     queueRender();
+    initFloatingPreview();
     window.setInterval(persist, 5000);
     window.addEventListener('pagehide', persist);
     window.addEventListener('resize', () => requestAnimationFrame(fitPreviewCanvas), { passive: true });

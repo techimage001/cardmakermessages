@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/bootstrap.php';
 $email = strtolower(trim((string)($_GET['email'] ?? '')));
 $token = trim((string)($_GET['token'] ?? ''));
 $message = 'The unsubscribe link is not valid.';
 try {
-    $dbPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cmm_private' . DIRECTORY_SEPARATOR . 'leads.sqlite';
-    if (filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/^[a-f0-9]{48}$/', $token) && is_file($dbPath)) {
-        $db = new PDO('sqlite:' . $dbPath);
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt = $db->prepare('DELETE FROM subscribers WHERE email = ? AND token = ?');
-        $stmt->execute([$email, $token]);
-        $message = $stmt->rowCount() ? 'You have been unsubscribed.' : 'This address was already removed or the link is no longer active.';
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/^[a-f0-9]{64}$/', $token)) {
+        $db = cmm_db();
+        $stmt = $db->prepare('DELETE FROM subscribers WHERE email = ? AND unsubscribe_token = ?');
+        $stmt->execute([$email, cmm_hash($token)]);
+        $db->prepare('DELETE FROM access_sessions WHERE email = ?')->execute([$email]);
+        $message = $stmt->rowCount() ? 'Your email and access sessions have been deleted.' : 'This address was already removed or the link is no longer active.';
     }
 } catch (Throwable $error) {
     $message = 'We could not process the request. Please email info@cardmakermessages.com.';

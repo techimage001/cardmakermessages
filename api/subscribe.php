@@ -1,78 +1,110 @@
 <?php
 declare(strict_types=1);
-header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/bootstrap.php';
 header('Cache-Control: no-store');
+header('X-Robots-Tag: noindex');
 
-function respond(int $status, array $payload): never {
-    http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_SLASHES);
-    exit;
+if (($_GET['config'] ?? '') === '1') {
+    cmm_json(200, [
+        'ok' => true,
+        'salt' => CMM_SITE_SALT,
+        'freeUses' => CMM_FREE_USES,
+        'minSeconds' => CMM_MIN_SUBMIT_SECONDS,
+        'configured' => CMM_SECRETS_PRESENT,
+    ]);
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(405, ['ok' => false, 'message' => 'Method not allowed.']);
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') cmm_json(405, ['ok' => false, 'message' => 'Method not allowed.']);
+$origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
+if ($origin !== '' && !in_array($origin, [CMM_SITE_URL, 'https://www.cardmakermessages.com'], true)) {
+    cmm_json(403, ['ok' => false, 'message' => 'This sign-up request was not accepted.']);
+}
+if (!CMM_SECRETS_PRESENT) {
+    cmm_json(503, ['ok' => false, 'message' => 'Email verification is not configured yet. Add the private Hostinger SMTP settings, then try again.']);
 }
 
-$email = strtolower(trim((string)($_POST['email'] ?? '')));
-$honeypot = trim((string)($_POST['company'] ?? ''));
-$started = (int)($_POST['started'] ?? 0);
-$page = substr(trim((string)($_POST['page'] ?? '')), 0, 180);
+$contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
+if (str_contains($contentType, 'application/json')) {
+    $data = json_decode((string)file_get_contents('php://input'), true);
+    if (!is_array($data)) cmm_json(400, ['ok' => false, 'message' => 'Please try again.']);
+} else {
+    $data = $_POST;
+}
 
-if ($honeypot !== '') respond(200, ['ok' => true]);
-if ($started > 0 && (int)(microtime(true) * 1000) - $started < 1200) respond(429, ['ok' => false, 'message' => 'Please wait a moment and try again.']);
-if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) respond(422, ['ok' => false, 'message' => 'Please enter a valid email address.']);
+$email = strtolower(trim((string)($data['email'] ?? '')));
+$honeypot = trim((string)($data['website'] ?? $data['company'] ?? ''));
+$timestampMs = (int)($data['ts'] ?? $data['started'] ?? 0);
+$browserToken = trim((string)($data['token'] ?? ''));
+$page = substr(trim((string)($data['page'] ?? '')), 0, 180);
+
+/* Bots frequently fill hidden fields. Return a convincing fake success. */
+if ($honeypot !== '') cmm_json(200, ['ok' => true, 'pending' => true]);
+
+$elapsedMs = (int)(microtime(true) * 1000) - $timestampMs;
+if ($timestampMs <= 0 || $elapsedMs < CMM_MIN_SUBMIT_SECONDS * 1000) {
+    cmm_json(429, ['ok' => false, 'message' => 'Please take a moment, then try again.']);
+}
+$expected = cmm_hash($email . '|' . $timestampMs . '|' . CMM_SITE_SALT);
+if ($browserToken === '' || !hash_equals($expected, $browserToken)) {
+    cmm_json(400, ['ok' => false, 'message' => 'Please refresh the page and try again.']);
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
+    cmm_json(422, ['ok' => false, 'message' => 'Please enter a valid email address.']);
+}
+
+$domain = substr(strrchr($email, '@') ?: '', 1);
+$blocked = [
+    'mailinator.com','guerrillamail.com','10minutemail.com','tempmail.com','temp-mail.org','yopmail.com',
+    'trashmail.com','sharklasers.com','getnada.com','dispostable.com','maildrop.cc','fakeinbox.com',
+    'mintemail.com','throwawaymail.com','mailnesia.com','emailondeck.com','tempinbox.com'
+];
+if (in_array($domain, $blocked, true)) {
+    cmm_json(422, ['ok' => false, 'message' => 'Please use a regular email address so you can open the verification link.']);
+}
+if (function_exists('checkdnsrr') && !checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
+    cmm_json(422, ['ok' => false, 'message' => 'That email domain does not appear to exist. Please check it.']);
+}
 
 try {
-    $privateDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cmm_private';
-    if (!is_dir($privateDir) && !mkdir($privateDir, 0700, true) && !is_dir($privateDir)) {
-        throw new RuntimeException('Could not create private storage.');
-    }
-    $db = new PDO('sqlite:' . $privateDir . DIRECTORY_SEPARATOR . 'leads.sqlite');
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $db->exec('CREATE TABLE IF NOT EXISTS subscribers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT NOT NULL UNIQUE,
-        token TEXT NOT NULL,
-        page TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        ip_hash TEXT
-    )');
-    $db->exec('CREATE TABLE IF NOT EXISTS attempts (ip_hash TEXT PRIMARY KEY, count INTEGER NOT NULL, window_start INTEGER NOT NULL)');
-
-    $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-    $ipHash = hash('sha256', $ip . '|' . __FILE__);
+    $db = cmm_db();
+    $ipHash = cmm_ip_hash();
     $now = time();
-    $row = $db->prepare('SELECT count, window_start FROM attempts WHERE ip_hash = ?');
-    $row->execute([$ipHash]);
-    $attempt = $row->fetch(PDO::FETCH_ASSOC);
-    if ($attempt && $now - (int)$attempt['window_start'] < 3600 && (int)$attempt['count'] >= 12) {
-        respond(429, ['ok' => false, 'message' => 'Too many attempts. Please try again later.']);
+    $attemptQuery = $db->prepare('SELECT count, window_start FROM attempts WHERE ip_hash = ?');
+    $attemptQuery->execute([$ipHash]);
+    $attempt = $attemptQuery->fetch(PDO::FETCH_ASSOC);
+    if ($attempt && $now - (int)$attempt['window_start'] < 3600 && (int)$attempt['count'] >= CMM_RATE_LIMIT_PER_HOUR) {
+        cmm_json(429, ['ok' => false, 'message' => 'Too many verification requests from this connection. Please try again later.']);
     }
     if (!$attempt || $now - (int)$attempt['window_start'] >= 3600) {
-        $stmt = $db->prepare('INSERT OR REPLACE INTO attempts(ip_hash,count,window_start) VALUES(?,?,?)');
-        $stmt->execute([$ipHash, 1, $now]);
+        $db->prepare('INSERT OR REPLACE INTO attempts(ip_hash,count,window_start) VALUES(?,?,?)')->execute([$ipHash, 1, $now]);
     } else {
-        $stmt = $db->prepare('UPDATE attempts SET count = count + 1 WHERE ip_hash = ?');
-        $stmt->execute([$ipHash]);
+        $db->prepare('UPDATE attempts SET count = count + 1 WHERE ip_hash = ?')->execute([$ipHash]);
     }
 
-    $token = bin2hex(random_bytes(24));
-    $timestamp = gmdate('c');
-    $stmt = $db->prepare('INSERT INTO subscribers(email,token,page,created_at,updated_at,ip_hash) VALUES(?,?,?,?,?,?)
-        ON CONFLICT(email) DO UPDATE SET token=excluded.token, page=excluded.page, updated_at=excluded.updated_at, ip_hash=excluded.ip_hash');
-    $stmt->execute([$email, $token, $page, $timestamp, $timestamp, $ipHash]);
+    $verificationRaw = bin2hex(random_bytes(32));
+    $unsubscribeRaw = bin2hex(random_bytes(32));
+    $expires = $now + CMM_VERIFY_HOURS * 3600;
+    $iso = gmdate('c');
+    $statement = $db->prepare('INSERT INTO subscribers(email,token,page,created_at,updated_at,ip_hash,verified_at,token_expires_at,unsubscribe_token)
+        VALUES(?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(email) DO UPDATE SET token=excluded.token,page=excluded.page,updated_at=excluded.updated_at,ip_hash=excluded.ip_hash,token_expires_at=excluded.token_expires_at,unsubscribe_token=excluded.unsubscribe_token');
+    $statement->execute([$email, cmm_hash($verificationRaw), $page, $iso, $iso, $ipHash, null, $expires, cmm_hash($unsubscribeRaw)]);
 
-    $host = preg_replace('/[^a-z0-9.-]/i', '', (string)($_SERVER['HTTP_HOST'] ?? 'cardmakermessages.com'));
-    $unsubscribe = 'https://' . $host . '/api/unsubscribe.php?email=' . rawurlencode($email) . '&token=' . rawurlencode($token);
-    $headers = "From: Card Maker Messages <info@cardmakermessages.com>\r\n";
-    $headers .= "Reply-To: info@cardmakermessages.com\r\n";
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    @mail($email, 'Your Card Maker Messages access is unlocked', "Thank you for signing up. Unlimited use is now unlocked on this device.\n\nUnsubscribe: {$unsubscribe}\n", $headers);
-    @mail('info@cardmakermessages.com', 'New Card Maker Messages signup', "Email: {$email}\nPage: {$page}\nTime: {$timestamp}\n", $headers);
-
-    respond(200, ['ok' => true, 'message' => 'Access unlocked.']);
+    $verifyUrl = cmm_https_url('/api/verify.php?t=' . rawurlencode($verificationRaw));
+    $unsubscribeUrl = cmm_https_url('/api/unsubscribe.php?email=' . rawurlencode($email) . '&token=' . rawurlencode($unsubscribeRaw));
+    $subject = 'Confirm your email address';
+    $body = "Hello,\n\n"
+        . "Open the private link below to confirm your email and unlock unlimited Card Maker Messages use on this browser:\n\n"
+        . $verifyUrl . "\n\n"
+        . "The link works for " . CMM_VERIFY_HOURS . " hours. Nothing is charged and no payment-card details are requested.\n\n"
+        . "If you did not request this email, ignore it and nothing will happen.\n\n"
+        . "Delete this address from our records:\n" . $unsubscribeUrl . "\n\n"
+        . "Card Maker Messages\n" . CMM_SITE_URL . "\n";
+    if (!cmm_send_mail($email, $subject, $body)) {
+        cmm_json(503, ['ok' => false, 'message' => 'The verification email could not be sent. Please check the private Hostinger SMTP settings and try again.']);
+    }
+    cmm_json(200, ['ok' => true, 'pending' => true, 'message' => 'Check your inbox and open the verification link. Unlimited access unlocks only after verification.']);
 } catch (Throwable $error) {
     error_log('Card Maker Messages signup error: ' . $error->getMessage());
-    respond(500, ['ok' => false, 'message' => 'The sign-up service is temporarily unavailable. Please try again shortly.']);
+    cmm_json(500, ['ok' => false, 'message' => 'The sign-up service is temporarily unavailable. Please try again shortly.']);
 }

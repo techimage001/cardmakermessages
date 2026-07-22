@@ -81,6 +81,8 @@
       A5P: { widthPt: 419.53, heightPt: 595.28 },
       A6P: { widthPt: 297.64, heightPt: 419.53 },
       '5X7': { widthPt: 360, heightPt: 504 },
+      '4X6': { widthPt: 288, heightPt: 432 },
+      SQUARE: { widthPt: 432, heightPt: 432 },
       LETTERP: { widthPt: 612, heightPt: 792 }
     };
     const key = String(pageSize || 'A4').toUpperCase();

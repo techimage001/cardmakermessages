@@ -106,6 +106,30 @@
     const openers = [...document.querySelectorAll('[data-signup-open]')];
     const accountMenu = document.querySelector('[data-account-menu]');
     const accountEmail = document.querySelector('[data-account-email]');
+    let signupConfig = null;
+    let signupConfigPromise = null;
+
+    const loadSignupConfig = async () => {
+      if (signupConfig) return signupConfig;
+      if (!signupConfigPromise) {
+        signupConfigPromise = fetch('/api/subscribe.php?config=1', {
+          headers: { Accept: 'application/json' },
+          credentials: 'same-origin',
+          cache: 'no-store'
+        }).then(async response => {
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok === false) throw new Error('Email verification is temporarily unavailable.');
+          signupConfig = payload;
+          return payload;
+        }).finally(() => { signupConfigPromise = null; });
+      }
+      return signupConfigPromise;
+    };
+    const sha256 = async value => {
+      if (!window.crypto?.subtle || !window.TextEncoder) throw new Error('This browser cannot securely prepare the verification request.');
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+      return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+    };
 
     const closeModal = () => {
       if (!modal) return;
@@ -125,8 +149,8 @@
             button.textContent = data.email.slice(0, 1).toUpperCase();
             button.classList.add('account-initial');
           }
-          button.title = `Signed in as ${data.email}`;
-          button.setAttribute('aria-label', `Open account for ${data.email}`);
+          button.title = `Verified as ${data.email}`;
+          button.setAttribute('aria-label', `Open verified account for ${data.email}`);
           button.setAttribute('aria-haspopup', 'menu');
         } else {
           button.textContent = button.classList.contains('mobile-signup') ? 'Sign up free' : 'Sign up';
@@ -144,16 +168,33 @@
       document.body.classList.add('modal-open');
       if (status) status.textContent = message;
       if (startedInput) startedInput.value = String(Date.now());
+      loadSignupConfig().then(config => {
+        if (!config.configured && status) status.textContent = 'Email verification needs the private Hostinger SMTP settings before it can send links.';
+      }).catch(() => { /* The form displays a clear error if submission is attempted. */ });
       window.setTimeout(() => emailInput?.focus(), 40);
     };
     const toggleAccount = () => {
       if (!accountMenu) return;
       accountMenu.hidden = !accountMenu.hidden;
     };
+    const readVerifiedAccess = async ({ showSuccess = false } = {}) => {
+      try {
+        const response = await fetch('/api/status.php', { headers: { Accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload.verified && payload.email) {
+          Store.save({ unlocked: true, email: payload.email, usageCount: 3 });
+          refresh();
+          if (showSuccess) openModal('Email verified. Unlimited card creation is now unlocked on this browser.');
+          return true;
+        }
+      } catch { /* Static previews and temporarily unavailable PHP should not break the card maker. */ }
+      return false;
+    };
 
     window.CardMakerSignup = {
       open: openModal,
-      isUnlocked: () => Boolean(Store.load().unlocked)
+      isUnlocked: () => Boolean(Store.load().unlocked),
+      refresh: readVerifiedAccess
     };
 
     openers.forEach(button => button.addEventListener('click', event => {
@@ -164,7 +205,8 @@
     }));
     document.querySelectorAll('[data-signup-close]').forEach(button => button.addEventListener('click', closeModal));
     modal?.addEventListener('click', event => { if (event.target === modal) closeModal(); });
-    document.querySelector('[data-signout]')?.addEventListener('click', () => {
+    document.querySelector('[data-signout]')?.addEventListener('click', async () => {
+      try { await fetch('/api/logout.php', { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' } }); } catch { /* Local sign-out still continues. */ }
       Store.save({ unlocked: false, email: '', usageCount: 0 });
       closeAccount();
       refresh();
@@ -182,32 +224,72 @@
         return;
       }
       const button = form.querySelector('button[type="submit"]');
-      if (button) { button.disabled = true; button.textContent = 'Signing you up…'; }
-      if (status) status.textContent = 'Saving your free access…';
+      if (button) { button.disabled = true; button.textContent = 'Sending verification link…'; }
+      if (status) status.textContent = 'Sending a private verification link…';
       try {
-        const data = new FormData(form);
-        data.set('email', email);
-        data.set('page', location.pathname);
-        const response = await fetch('/api/subscribe.php', { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
+        const config = await loadSignupConfig();
+        if (!config.configured) throw new Error('Email verification is not configured yet. Add the private Hostinger SMTP settings first.');
+        const timestamp = Number(startedInput?.value || Date.now());
+        const honeypot = form.querySelector('[name="company"]')?.value || '';
+        const token = await sha256(`${email}|${timestamp}|${config.salt}`);
+        const response = await fetch('/api/subscribe.php', {
+          method: 'POST',
+          body: JSON.stringify({ email, ts: timestamp, token, website: honeypot, page: location.pathname }),
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          cache: 'no-store'
+        });
         const payload = await response.json().catch(() => ({}));
-        if (!response.ok || payload.ok === false) throw new Error(payload.message || 'The sign-up could not be completed.');
-        Store.save({ unlocked: true, email, usageCount: 3 });
-        if (status) status.textContent = 'Thank you. Unlimited card creation is now unlocked on this device.';
-        refresh();
-        window.setTimeout(closeModal, 900);
+        if (!response.ok || payload.ok === false) throw new Error(payload.message || 'The verification email could not be sent.');
+        if (status) status.textContent = payload.message || 'Check your inbox and open the verification link. Access unlocks only after verification.';
+        if (button) button.textContent = 'Send another verification link';
+        if (startedInput) startedInput.value = String(Date.now());
       } catch (error) {
         if (status) status.textContent = error.message || 'Please try again.';
       } finally {
-        if (button) { button.disabled = false; button.textContent = 'Sign up and continue'; }
+        if (button) {
+          button.disabled = false;
+          if (button.textContent === 'Sending verification link…') button.textContent = 'Email my verification link';
+        }
       }
     });
+
+    loadSignupConfig().catch(() => { /* Static preview or PHP not ready yet. */ });
     refresh();
+    const params = new URLSearchParams(location.search);
+    const returnedFromVerification = params.get('verified') === '1';
+    readVerifiedAccess({ showSuccess: returnedFromVerification }).then(verified => {
+      if (returnedFromVerification) {
+        params.delete('verified');
+        const query = params.toString();
+        history.replaceState(null, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
+        if (!verified) openModal('The verification could not be confirmed on this browser. Please request a new link.');
+      }
+    });
   }
 
-  function initServiceWorker() {
-    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
-    }
+  async function initFreshness() {
+    // Earlier releases used an offline cache-first service worker. That made live updates
+    // appear stale after deployment. Remove old registrations and versioned caches so the
+    // browser always requests the current HTML, CSS and JavaScript from the server.
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        const hadController = Boolean(navigator.serviceWorker.controller);
+        await Promise.all(registrations.map(async registration => {
+          try { await registration.update(); } catch { /* Continue with removal. */ }
+          try { await registration.unregister(); } catch { /* A browser may deny removal. */ }
+        }));
+        if (hadController && !sessionStorage.getItem('cmm-cache-refresh-complete')) {
+          sessionStorage.setItem('cmm-cache-refresh-complete', '1');
+          window.setTimeout(() => location.reload(), 80);
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter(key => key.startsWith('card-maker-messages-v')).map(key => caches.delete(key)));
+      }
+    } catch { /* Cache cleanup must never block the card maker. */ }
   }
 
   function markCurrentPage() {
@@ -220,7 +302,7 @@
     initResumeCard();
     initSignup();
     initCopyButtons();
-    initServiceWorker();
+    initFreshness();
     markCurrentPage();
   });
 })();
