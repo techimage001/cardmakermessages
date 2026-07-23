@@ -1,0 +1,8 @@
+Card Maker Messages GPTV17
+
+Focused verification UX correction:
+- Successful email verification no longer reopens the signup form.
+- The signup modal closes automatically.
+- The shared header updates to the verified account state.
+- A small non-blocking success notice appears for six seconds.
+- All other card-maker and email behaviour remains unchanged.

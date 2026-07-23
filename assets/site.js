@@ -178,7 +178,34 @@
         if (response.ok && payload.verified && payload.email) {
           Store.save({ unlocked: true, email: payload.email, usageCount: 3 });
           refresh();
-          if (showSuccess) openModal('Email verified. Unlimited card creation is now unlocked on this browser.');
+          if (showSuccess) {
+            closeModal();
+            const existing = document.querySelector('[data-verification-success]');
+            existing?.remove();
+            const notice = document.createElement('div');
+            notice.dataset.verificationSuccess = 'true';
+            notice.setAttribute('role', 'status');
+            notice.setAttribute('aria-live', 'polite');
+            notice.textContent = 'Email verified. Unlimited card creation is now unlocked on this browser.';
+            Object.assign(notice.style, {
+              position: 'fixed',
+              top: '18px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: '10000',
+              width: 'min(92vw, 620px)',
+              padding: '14px 18px',
+              borderRadius: '14px',
+              background: '#e8f3ea',
+              color: '#173d25',
+              border: '1px solid #b8d8c0',
+              boxShadow: '0 14px 34px rgba(0,0,0,.16)',
+              fontWeight: '800',
+              textAlign: 'center'
+            });
+            document.body.appendChild(notice);
+            window.setTimeout(() => notice.remove(), 6000);
+          }
           return true;
         }
       } catch { /* Static previews and temporarily unavailable PHP should not break the card maker. */ }
