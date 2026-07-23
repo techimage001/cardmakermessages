@@ -1,0 +1,12 @@
+Card Maker Messages GPTV15
+
+Focused changes:
+- Removed the redundant Selected format banner from the Size step.
+- Added friendly sequential stage validation.
+- Message must contain a title or message before Size.
+- An exact size must be selected before Design.
+- Design must be visited before Review.
+- Review must be confirmed before Download.
+- Each prompt explains what is missing and includes a direct button to the required step.
+- All other GPTV14 behaviour and layout are preserved.
+- Asset version: 15.
