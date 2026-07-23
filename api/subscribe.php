@@ -7,7 +7,6 @@ header('X-Robots-Tag: noindex');
 if (($_GET['config'] ?? '') === '1') {
     cmm_json(200, [
         'ok' => true,
-        'salt' => CMM_SITE_SALT,
         'freeUses' => CMM_FREE_USES,
         'minSeconds' => CMM_MIN_SUBMIT_SECONDS,
         'configured' => CMM_SECRETS_PRESENT,
@@ -34,7 +33,6 @@ if (str_contains($contentType, 'application/json')) {
 $email = strtolower(trim((string)($data['email'] ?? '')));
 $honeypot = trim((string)($data['website'] ?? $data['company'] ?? ''));
 $timestampMs = (int)($data['ts'] ?? $data['started'] ?? 0);
-$browserToken = trim((string)($data['token'] ?? ''));
 $page = substr(trim((string)($data['page'] ?? '')), 0, 180);
 
 /* Bots frequently fill hidden fields. Return a convincing fake success. */
@@ -44,23 +42,11 @@ $elapsedMs = (int)(microtime(true) * 1000) - $timestampMs;
 if ($timestampMs <= 0 || $elapsedMs < CMM_MIN_SUBMIT_SECONDS * 1000) {
     cmm_json(429, ['ok' => false, 'message' => 'Please take a moment, then try again.']);
 }
-$expected = cmm_hash($email . '|' . $timestampMs . '|' . CMM_SITE_SALT);
-if ($browserToken === '' || !hash_equals($expected, $browserToken)) {
-    cmm_json(400, ['ok' => false, 'message' => 'Please refresh the page and try again.']);
-}
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
     cmm_json(422, ['ok' => false, 'message' => 'Please enter a valid email address.']);
 }
 
 $domain = substr(strrchr($email, '@') ?: '', 1);
-$blocked = [
-    'mailinator.com','guerrillamail.com','10minutemail.com','tempmail.com','temp-mail.org','yopmail.com',
-    'trashmail.com','sharklasers.com','getnada.com','dispostable.com','maildrop.cc','fakeinbox.com',
-    'mintemail.com','throwawaymail.com','mailnesia.com','emailondeck.com','tempinbox.com'
-];
-if (in_array($domain, $blocked, true)) {
-    cmm_json(422, ['ok' => false, 'message' => 'Please use a regular email address so you can open the verification link.']);
-}
 if (function_exists('checkdnsrr') && !checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
     cmm_json(422, ['ok' => false, 'message' => 'That email domain does not appear to exist. Please check it.']);
 }

@@ -163,7 +163,8 @@ for (const file of ['api/bootstrap.php','api/verify.php','api/status.php','api/l
 const subscribeSource = fs.readFileSync(path.join(ROOT, 'api/subscribe.php'), 'utf8');
 const verifySource = fs.readFileSync(path.join(ROOT, 'api/verify.php'), 'utf8');
 check(subscribeSource.includes('verification link') && subscribeSource.includes('honeypot'), 'Signup must use email verification and bot protection');
-check(subscribeSource.includes("hash_equals($expected") && subscribeSource.includes('checkdnsrr') && subscribeSource.includes('CMM_MIN_SUBMIT_SECONDS'), 'Signup must use the browser token, mail-domain checks and timing protection');
+check(!subscribeSource.includes('hash_equals($expected') && subscribeSource.includes('checkdnsrr') && subscribeSource.includes('CMM_MIN_SUBMIT_SECONDS'), 'Signup must omit the browser token while retaining mail-domain and timing checks');
+check(!subscribeSource.includes('mailinator.com') && !subscribeSource.includes('disposable-address'), 'Signup must not block disposable email domains');
 check(verifySource.includes('cmm_set_session_cookie') && verifySource.includes('verified_at'), 'Verification endpoint must unlock only a verified email session');
 const bootstrapSource = fs.readFileSync(path.join(ROOT, 'api/bootstrap.php'), 'utf8');
 const smtpSource = fs.readFileSync(path.join(ROOT, 'api/smtp_mailer.php'), 'utf8');

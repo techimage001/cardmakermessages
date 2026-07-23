@@ -1,13 +1,11 @@
 # Email verification setup
 
-Card Maker Messages uses verified email access after three free exports. The verification flow follows the same layered approach used in the supplied Strong Mom Quotes build:
+Card Maker Messages uses verified email access after three free exports. The verification flow keeps only lightweight, invisible abuse controls:
 
 - hidden honeypot field
 - minimum form-completion time
-- browser-generated SHA-256 request token
 - IP-hash rate limiting
 - email-format and mail-domain checks
-- disposable-address blocking
 - time-limited one-click verification link
 - authenticated Hostinger SMTP
 - verified session cookie only after the link is opened

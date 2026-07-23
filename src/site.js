@@ -125,12 +125,6 @@
       }
       return signupConfigPromise;
     };
-    const sha256 = async value => {
-      if (!window.crypto?.subtle || !window.TextEncoder) throw new Error('This browser cannot securely prepare the verification request.');
-      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-      return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
-    };
-
     const closeModal = () => {
       if (!modal) return;
       modal.hidden = true;
@@ -231,10 +225,9 @@
         if (!config.configured) throw new Error('Email verification is not configured yet. Add the private Hostinger SMTP settings first.');
         const timestamp = Number(startedInput?.value || Date.now());
         const honeypot = form.querySelector('[name="company"]')?.value || '';
-        const token = await sha256(`${email}|${timestamp}|${config.salt}`);
         const response = await fetch('/api/subscribe.php', {
           method: 'POST',
-          body: JSON.stringify({ email, ts: timestamp, token, website: honeypot, page: location.pathname }),
+          body: JSON.stringify({ email, ts: timestamp, website: honeypot, page: location.pathname }),
           headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
           credentials: 'same-origin',
           cache: 'no-store'
