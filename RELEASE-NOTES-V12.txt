@@ -1,0 +1,11 @@
+CARD MAKER MESSAGES V12
+
+- Front heading renamed to Front heading title.
+- New Front message field added below it.
+- Your final message renamed to Inner message and placed third.
+- All other wording fields remain.
+- Front heading title and Front message render on the front cover.
+- Inner message renders on the inside-right panel.
+- Placeholders are guidance only and never print.
+- Removed the small fixed bottom-left card preview.
+- All other approved V11 functionality remains unchanged.

@@ -1,0 +1,11 @@
+Card Maker Messages V11
+
+Focused update only. Existing approved layout and workflow remain unchanged.
+
+Changes:
+- Folded review now shows two print-ready sheets in the correct order: Outside = Back | Front; Inside = Inside left | Inside right.
+- Each sheet includes a dashed centre fold line, labels and practical print guidance.
+- Review without a chosen size now shows a clear message and a Choose a size button to Step 2.
+- Added ten coordinated, copyright-safe one-tap looks, bringing the total to twenty.
+- Compact design tiles use less space on desktop, tablet and mobile.
+- Size and occasion deep-link handling is covered by QA.
