@@ -959,13 +959,6 @@
         weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
       });
 
-      if (!folded && renderState.recipientName) {
-        context.fillStyle = p.accent;
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.font = `700 ${Math.max(18, width * .026)}px Arial, Helvetica, sans-serif`;
-        context.fillText(`FOR ${renderState.recipientName.toUpperCase()}`, x + width / 2, y + height * (hasPhoto ? .392 : .222), width * .72);
-      }
 
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;

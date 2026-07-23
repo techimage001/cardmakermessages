@@ -230,8 +230,10 @@ assert(newBabyPage.includes('/app.html?occasion=new-baby'), 'New baby CTA must d
 
 
 check(app.includes('for="recipientName">Recipient name'), 'recipient name label missing');
-check(app.includes('for="coverMessage">Short best wishes'), 'short best wishes label missing');
+check(app.includes('for="senderName">Sender or signature'), 'sender or signature label missing');
+check(app.includes('for="coverMessage">Sender short best wishes'), 'sender short best wishes label missing');
 check(!app.includes('Personal detail, optional'), 'personal detail field should be removed');
 check(!appJs.includes('With warm wishes'), 'hardcoded warm wishes remains in app.js');
+check(!appJs.includes('FOR ${renderState.recipientName.toUpperCase()}'), 'automatic FOR recipient subtitle remains');
 check(appJs.includes("const closing = [renderState.coverMessage, renderState.senderName]"), 'folded closing is not field-driven');
 check(appJs.includes("const lower = folded ? ''"), 'folded front still receives single-page closing fields');
