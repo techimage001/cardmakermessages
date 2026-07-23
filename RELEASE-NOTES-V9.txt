@@ -1,0 +1,9 @@
+Card Maker Messages V9
+
+- New five-stage flow: Message, Size, Design, Review, Download.
+- Selected card dimensions and format are shown during review.
+- Added quick Edit words, Change size and Change design buttons beneath the main and floating previews.
+- Review modal includes direct paths back to wording, size and design.
+- All customer-facing Open labels changed to Download.
+- PNG, JPG, one-page PDF and folded PDF actions now download files directly.
+- Asset version increased to 9.

@@ -1,0 +1,13 @@
+CARD MAKER MESSAGES V8
+
+FOCUSED USER-EXPERIENCE AND SHARING UPDATE
+
+1. Added a short three-step How it works guide directly inside the homepage hero.
+2. Removed the lower repeated homepage process section.
+3. Added the same short How it works guide immediately below the card-maker title.
+4. Enlarged the main message-writing box on desktop and mobile.
+5. Social share buttons now always use the permanent https://cardmakermessages.com/app.html address with the selected occasion and tone.
+6. Native image sharing includes the permanent app address and copies it to the clipboard as a fallback.
+7. Temporary blob image-tab addresses are no longer used as the app share link.
+8. Increased the shared asset version to 8 so Hostinger and browsers fetch the update.
+9. Preserved V7 photo positioning, verified email sign-up, design controls, print formats and copyright-safe artwork.
