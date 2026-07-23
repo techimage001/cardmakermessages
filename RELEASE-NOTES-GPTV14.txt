@@ -1,0 +1,8 @@
+Card Maker Messages GPTV14
+
+Focused usability update:
+- Removed the automatic “FOR [recipient name]” subtitle from every card front.
+- Renamed “Short best wishes” to “Sender short best wishes”.
+- Renamed “From or signature” to “Sender or signature”.
+- Kept all other GPTV13 functionality and layouts unchanged.
+- Asset version increased to 14.
