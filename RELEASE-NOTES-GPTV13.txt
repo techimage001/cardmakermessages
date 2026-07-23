@@ -1,0 +1,12 @@
+Card Maker Messages GPTV13
+
+Focused wording and panel-placement update:
+- Recipient name replaces Name, optional.
+- Personal detail field removed.
+- Short cover line renamed Short best wishes.
+- Inner message to recipient is folded-card-only.
+- Recipient name, short best wishes and signature appear on single-page fronts.
+- Recipient name, inner message, short best wishes and signature appear on folded inside-right panels.
+- Back-cover note appears only on folded back panels.
+- Hardcoded With warm wishes text removed.
+- All other approved functionality retained.

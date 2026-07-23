@@ -123,3 +123,11 @@ Never hand-edit generated HTML files at the repository root. Edit the source fil
 ## V7 photo positioning, email verification and deployment freshness
 
 V7 keeps the former cache-first service worker removed. HTML, CSS and JavaScript are served with no-cache headers, every asset uses version `7`, and the shared script removes old Card Maker Messages service-worker registrations and caches. After deploying the complete package, open the site once and reload if an older tab was already open.
+## GPTV13 wording and placement update
+
+- Single-page cards show the recipient name, short best wishes and signature on the front.
+- Folded cards keep the front concise and place the recipient name, inner message, short best wishes and signature on the inside-right panel.
+- Back-cover notes appear only on folded-card backs.
+- Folded-only fields and panel tabs are hidden after a single-page or digital size is selected.
+- The hidden hardcoded “With warm wishes” closing has been removed.
+
