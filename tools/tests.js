@@ -159,7 +159,7 @@ check(htaccess.includes('no-cache, no-store, must-revalidate, max-age=0'), '.hta
 check(css.includes('.design-options-visible { display: block !important; }'), 'CSS must keep full design controls visible');
 check(css.includes('.mock-controls .mock-design-link') && css.includes('pointer-events: auto'), 'Choose design link needs an interactive CSS layer');
 check(css.includes('.floating-preview-dock'), 'CSS missing persistent footer preview');
-for (const file of ['api/bootstrap.php','api/verify.php','api/status.php','api/logout.php','api/smtp_mailer.php']) check(fs.existsSync(path.join(ROOT,file)), `Missing verified-email access file: ${file}`);
+for (const file of ['api/bootstrap.php','api/verify.php','api/status.php','api/logout.php','api/smtp_mailer.php','api/leads.php']) check(fs.existsSync(path.join(ROOT,file)), `Missing verified-email access file: ${file}`);
 const subscribeSource = fs.readFileSync(path.join(ROOT, 'api/subscribe.php'), 'utf8');
 const verifySource = fs.readFileSync(path.join(ROOT, 'api/verify.php'), 'utf8');
 check(subscribeSource.includes('verification link') && subscribeSource.includes('honeypot'), 'Signup must use email verification and bot protection');
@@ -243,3 +243,8 @@ check(!app.includes('id="selectedFormatSummary"'), 'Redundant selected format ba
 check(app.includes('id="stageGuardPrompt"'), 'Stage guard prompt is present');
 check(appJs.includes('Please select a size'), 'Missing-size stage validation is present');
 check(appJs.includes('Review your card first'), 'Review-before-download validation is present');
+
+const leadsSource = fs.readFileSync(path.join(ROOT, 'api/leads.php'), 'utf8');
+check(leadsSource.includes('download=verified-csv'), 'Missing verified-only CSV export');
+check(leadsSource.includes('admin_password'), 'Missing private admin password support');
+check(leadsSource.includes('DELETE FROM subscribers'), 'Missing GDPR subscriber deletion');
