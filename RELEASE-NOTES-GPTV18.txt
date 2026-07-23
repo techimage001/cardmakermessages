@@ -1,0 +1,19 @@
+Card Maker Messages GPTV18
+
+Focused admin-dashboard release.
+
+Added:
+- Password-protected subscriber dashboard at /api/leads.php
+- Verified, pending, total and verified-today counts
+- Verified-only CSV export
+- Source-page and UTC date display
+- Permanent GDPR subscriber deletion
+- Safe lockout when admin_password or private secrets are missing
+- CSRF protection for deletion
+- Secure admin session cookie
+
+Unchanged:
+- Card maker, templates, five-stage workflow, email verification, SMTP, exports, SEO pages and all other GPTV17 functionality.
+
+Required private setting:
+'admin_password' => 'YOUR_STRONG_ADMIN_PASSWORD'
