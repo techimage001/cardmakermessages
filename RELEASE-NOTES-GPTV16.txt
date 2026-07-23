@@ -1,0 +1,21 @@
+Card Maker Messages GPTV16
+
+Focused email-system update only.
+
+Removed:
+- Browser-generated JavaScript SHA-256 signup token
+- Disposable-email domain blocklist
+
+Retained unchanged:
+- Three free uses before signup
+- Email verification and verified-only access
+- Honeypot
+- Minimum completion-time check
+- IP rate limiting
+- Email-format and mail-domain checks
+- Authenticated SMTP
+- Expiring, one-time verification links stored securely
+- Unsubscribe endpoint
+- Private SQLite and secrets outside public_html
+
+All card-maker, design, export, SEO, mobile and desktop functionality remains unchanged.

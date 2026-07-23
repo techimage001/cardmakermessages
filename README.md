@@ -36,7 +36,7 @@ Do not change the IndexNow key after the website goes live.
 - Mobile sticky card preview with the editing controls kept visible below it
 - Autosave and resume on the same device
 - Light and dark themes
-- Verified-email sign-up with authenticated Hostinger SMTP, time-limited links, a browser SHA-256 token, honeypot, timing checks, rate limiting, mail-domain validation and disposable-address blocking
+- Verified-email sign-up with authenticated Hostinger SMTP, time-limited links, honeypot, timing checks, IP rate limiting and mail-domain validation
 - Fresh-deployment cache controls that remove the previous stale cache-first behaviour
 - **50 generated HTML pages: 49 indexable pages plus a real 404**
 - Unique page-specific FAQs, contextual internal links and topical hubs
