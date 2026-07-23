@@ -1216,3 +1216,7 @@ textarea { min-height:118px; }
 
 /* V12: removed the small fixed bottom-left preview. */
 .floating-preview-dock { display: none !important; }
+
+/* V13 wording guidance */
+.field-note{display:block;margin-top:.35rem;color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:.02em}
+.field[hidden]{display:none!important}

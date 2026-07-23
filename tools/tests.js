@@ -124,6 +124,7 @@ check(!/html[^}]*overflow-x:\s*hidden/i.test(css), 'Sticky-breaking overflow hid
 check(css.includes('min-height: 44px'), 'CSS missing 44px tap targets');
 
 const app = fs.readFileSync(path.join(ROOT, 'app.html'), 'utf8');
+const appJs = fs.readFileSync(path.join(ROOT, 'assets', 'app.js'), 'utf8');
 for (const id of ['cardCanvas','messageOptions','messageOptionsPanel','downloadPng','downloadPdf','reviewCard','photoInput','photoPositionControls','photoZoom','centrePhoto','backgroundPicker','mainMessage','frontHeading','backMessage','customOccasion','eventTitle','eventDate','eventVenue','eventRsvp','downloadSinglePdf','downloadWorkspace','signupForm']) {
   check(app.includes(`id="${id}"`), `app.html missing #${id}`);
 }
@@ -147,7 +148,7 @@ for (const selectorText of ['data-frame="wreath"','data-frame="lily"','data-fram
   check(app.includes(selectorText), `app.html missing robust design control ${selectorText}`);
 }
 check(!app.includes('id="floatingPreviewDock"') && !app.includes('id="floatingCardCanvas"'), 'app.html still contains the removed tiny floating preview');
-check(app.includes('for="frontHeading">Front heading title') && app.includes('id="frontMessage"') && app.includes('for="mainMessage">Inner message'), 'app.html missing the V12 front and inner message fields');
+check(app.includes('for="frontHeading">Front heading title') && app.includes('id="frontMessage"') && app.includes('for="mainMessage">Inner message to recipient'), 'app.html missing the V13 front and inner message fields');
 const invitationTemplates = fs.readFileSync(path.join(ROOT, 'invitation-templates.html'), 'utf8');
 check(/class="mock-design-link" href="\/app\.html/.test(invitationTemplates), 'Invitation template Choose design control must be a real app link');
 const serviceWorker = fs.readFileSync(path.join(ROOT, 'service-worker.js'), 'utf8');
@@ -226,3 +227,11 @@ for (const text of ['No size selected','Choose a size','Outside sheet','Back cov
 const newBabyPage = fs.readFileSync(path.join(ROOT, 'new-baby-card-messages.html'), 'utf8');
 assert(newBabyPage.includes('/app.html?occasion=new-baby'), 'New baby CTA must deep-link to the new-baby occasion.');
 
+
+
+check(app.includes('for="recipientName">Recipient name'), 'recipient name label missing');
+check(app.includes('for="coverMessage">Short best wishes'), 'short best wishes label missing');
+check(!app.includes('Personal detail, optional'), 'personal detail field should be removed');
+check(!appJs.includes('With warm wishes'), 'hardcoded warm wishes remains in app.js');
+check(appJs.includes("const closing = [renderState.coverMessage, renderState.senderName]"), 'folded closing is not field-driven');
+check(appJs.includes("const lower = folded ? ''"), 'folded front still receives single-page closing fields');

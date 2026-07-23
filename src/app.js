@@ -368,7 +368,6 @@
       customOccasion: state.customOccasion,
       recipientName: state.recipientName,
       senderName: state.senderName,
-      personalNote: state.personalNote,
       eventTitle: state.eventTitle,
       eventDate: state.eventDate,
       eventTime: state.eventTime,
@@ -406,7 +405,16 @@
     const slot = document.querySelector(`[data-editor-slot="${state.step}"]`);
     if (editor && slot && editor.parentElement !== slot) slot.appendChild(editor);
     const mainLabel = document.querySelector('label[for="mainMessage"]');
-    if (mainLabel) mainLabel.textContent = state.creationType === 'invitation' ? 'Invitation wording' : state.creationType === 'postcard' ? 'Postcard message' : 'Your final message';
+    if (mainLabel) mainLabel.textContent = state.creationType === 'invitation' ? 'Invitation wording' : state.creationType === 'postcard' ? 'Postcard message' : 'Inner message to recipient';
+    const foldedOnlyVisible = state.creationType === 'card' && (!state.sizeSelected || state.outputMode === 'folded');
+    document.querySelectorAll('[data-folded-wording]').forEach(field => { field.hidden = state.creationType === 'card' ? !foldedOnlyVisible : false; });
+    document.querySelectorAll('[data-back-wording]').forEach(field => { field.hidden = !foldedOnlyVisible; });
+    document.querySelectorAll('[data-folded-note]').forEach(note => { note.hidden = state.sizeSelected && state.outputMode === 'folded'; });
+    const foldedPanelsAvailable = state.creationType === 'card' && (!state.sizeSelected || state.outputMode === 'folded');
+    document.querySelectorAll('[data-panel]').forEach(button => {
+      if (button.dataset.panel !== 'front') button.hidden = !foldedPanelsAvailable;
+    });
+    if (!foldedPanelsAvailable && state.activePanel !== 'front') state.activePanel = 'front';
     const website = document.getElementById('showWebsite');
     const marks = document.getElementById('showFoldMarks');
     if (website) website.checked = state.showWebsite;
@@ -951,6 +959,14 @@
         weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
       });
 
+      if (!folded && renderState.recipientName) {
+        context.fillStyle = p.accent;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.font = `700 ${Math.max(18, width * .026)}px Arial, Helvetica, sans-serif`;
+        context.fillText(`FOR ${renderState.recipientName.toUpperCase()}`, x + width / 2, y + height * (hasPhoto ? .392 : .222), width * .72);
+      }
+
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
       drawTextBlock(context, frontCopy, {
@@ -960,9 +976,7 @@
         weight: 500, lineHeight: 1.32, maxLines: 6
       });
 
-      const lower = digital
-        ? [renderState.coverMessage, renderState.senderName ? `WITH LOVE, ${renderState.senderName}` : renderState.recipientName ? `FOR ${renderState.recipientName.toUpperCase()}` : ''].filter(Boolean).join('\n')
-        : (renderState.recipientName ? `${renderState.coverMessage}\n${renderState.recipientName}` : renderState.coverMessage);
+      const lower = folded ? '' : [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
       if (lower) {
         drawTextBlock(context, lower, {
           x: x + pad, y: y + height * (hasPhoto ? .78 : .70), width: width - pad * 2, height: height * (hasPhoto ? .13 : .15)
@@ -1007,14 +1021,16 @@
       drawTextBlock(context, renderState.mainMessage, {
         x: x + pad, y: y + height * (greeting ? .23 : .15), width: width - pad * 2, height: height * .47
       }, { colour: p.ink, family, startSize: width * .048, minSize: width * .027, weight: 500, lineHeight: 1.42, maxLines: 11, align: 'left' });
-      const sign = renderState.senderName ? `With warm wishes,\n${renderState.senderName}` : 'With warm wishes';
-      drawTextBlock(context, sign, {
-        x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * .14
-      }, { colour: p.ink, family, startSize: width * .038, minSize: width * .026, weight: 600, lineHeight: 1.35, maxLines: 3, align: 'left' });
+      const closing = [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
+      if (closing) {
+        drawTextBlock(context, closing, {
+          x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * .14
+        }, { colour: p.ink, family, startSize: width * .038, minSize: width * .026, weight: 600, lineHeight: 1.35, maxLines: 3, align: 'left' });
+      }
     } else if (panel === 'back') {
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038}px ${family}`;
-      context.fillText(renderState.backMessage || (renderState.recipientName ? `Created especially for ${renderState.recipientName}` : 'Created especially for someone special'), x + width / 2, y + height * .44, width * .7);
+      if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
       if (renderState.showWebsite) {
         context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
         context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
@@ -1517,7 +1533,7 @@ Create your own card: ${cleanUrl}`);
     }));
 
     const bindings = {
-      recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName', personalNote: 'personalNote',
+      recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
       eventTitle: 'eventTitle', eventDate: 'eventDate', eventTime: 'eventTime', eventVenue: 'eventVenue', eventRsvp: 'eventRsvp', eventHost: 'eventHost',
       mainMessage: 'mainMessage', frontHeading: 'frontHeading', frontMessage: 'frontMessage', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
       backgroundPicker: 'background', textColourPicker: 'textColour'
