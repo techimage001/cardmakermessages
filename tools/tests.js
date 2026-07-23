@@ -237,3 +237,8 @@ check(!appJs.includes('With warm wishes'), 'hardcoded warm wishes remains in app
 check(!appJs.includes('FOR ${renderState.recipientName.toUpperCase()}'), 'automatic FOR recipient subtitle remains');
 check(appJs.includes("const closing = [renderState.coverMessage, renderState.senderName]"), 'folded closing is not field-driven');
 check(appJs.includes("const lower = folded ? ''"), 'folded front still receives single-page closing fields');
+
+check(!app.includes('id="selectedFormatSummary"'), 'Redundant selected format banner is removed from Size step');
+check(app.includes('id="stageGuardPrompt"'), 'Stage guard prompt is present');
+check(appJs.includes('Please select a size'), 'Missing-size stage validation is present');
+check(appJs.includes('Review your card first'), 'Review-before-download validation is present');

@@ -107,7 +107,8 @@
     showWebsite: true,
     reviewed: false,
     savedAt: 0,
-    sizeSelected: false
+    sizeSelected: false,
+    designVisited: false
   };
 
   const storedAppState = Store.load().app || {};
@@ -422,11 +423,9 @@
     const selectedOccasion = DATA.occasions[state.occasion];
     state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
     const format = selectedFormat();
-    const formatSummary = document.getElementById('selectedFormatSummary');
     const reviewButton = document.getElementById('reviewCard');
     const downloadSummary = document.getElementById('downloadSummary');
     const reviewStepSummary = document.getElementById('reviewStepSummary');
-    if (formatSummary) formatSummary.textContent = `${format.label} · ${format.detail}`;
     const summaryText = state.sizeSelected ? `${format.label} · ${format.detail}` : 'No size selected';
     if (reviewButton) reviewButton.textContent = state.sizeSelected ? `Review ${format.shortLabel}` : 'Choose a size before review';
     if (downloadSummary) downloadSummary.textContent = summaryText;
@@ -1409,16 +1408,68 @@
     });
   }
 
+  function messageStepReady() {
+    if (state.creationType === 'invitation') return Boolean(state.eventTitle.trim() || state.frontHeading.trim() || state.frontMessage.trim());
+    return Boolean(state.frontHeading.trim() || state.frontMessage.trim() || state.mainMessage.trim());
+  }
+
+  function hideStageGuard() {
+    const prompt = document.getElementById('stageGuardPrompt');
+    if (prompt) prompt.hidden = true;
+  }
+
+  function showStageGuard(title, message, actionLabel, destinationStep) {
+    const prompt = document.getElementById('stageGuardPrompt');
+    const heading = document.getElementById('stageGuardTitle');
+    const body = document.getElementById('stageGuardMessage');
+    const action = document.getElementById('stageGuardAction');
+    if (!prompt || !heading || !body || !action) return;
+    heading.textContent = title;
+    body.textContent = message;
+    action.textContent = actionLabel;
+    action.dataset.destinationStep = String(destinationStep);
+    prompt.hidden = false;
+    window.requestAnimationFrame(() => {
+      prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      action.focus({ preventScroll: true });
+    });
+  }
+
   function goToStep(step) {
     const target = Math.max(1, Math.min(5, Number(step) || 1));
-    if (target > 2 && !state.sizeSelected) {
-      updateState({ step: 2, reviewed: false });
-      announce('Please select a size before continuing.');
-      scrollToWorkspace();
-      window.setTimeout(() => document.getElementById('selectedFormatSummary')?.focus?.(), 80);
+    hideStageGuard();
+
+    if (target >= 2 && !messageStepReady()) {
+      updateState({ step: 1, reviewed: false });
+      showStageGuard('Add your message first', 'Please enter a card title or message before choosing a size.', 'Go to Message', 1);
+      announce('Please enter a message before continuing.');
       return;
     }
-    updateState({ step: target });
+
+    if (target >= 3 && !state.sizeSelected) {
+      updateState({ step: 2, reviewed: false });
+      showStageGuard('Please select a size', 'Choose where you will use the card and select an exact size before moving to Design.', 'Go to Size', 2);
+      announce('Please select a size before continuing.');
+      return;
+    }
+
+    if (target >= 4 && !state.designVisited) {
+      updateState({ step: 3, reviewed: false });
+      showStageGuard('Check the design first', 'Please review or choose a design before moving to Review.', 'Go to Design', 3);
+      announce('Please review the design before continuing.');
+      return;
+    }
+
+    if (target >= 5 && !state.reviewed) {
+      updateState({ step: 4, reviewed: false });
+      showStageGuard('Review your card first', 'Please review and confirm the finished card before downloading.', 'Go to Review', 4);
+      announce('Please review the card before downloading.');
+      return;
+    }
+
+    const patch = { step: target };
+    if (target === 3) patch.designVisited = true;
+    updateState(patch);
     scrollToWorkspace();
   }
 
@@ -1476,6 +1527,7 @@ Create your own card: ${cleanUrl}`);
 
     document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
     document.querySelectorAll('[data-jump-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.jumpStep))));
+    document.getElementById('stageGuardAction')?.addEventListener('click', () => goToStep(Number(document.getElementById('stageGuardAction')?.dataset.destinationStep || 1)));
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };
@@ -1506,23 +1558,23 @@ Create your own card: ${cleanUrl}`);
       generateMessages(); syncControls();
     }));
     document.querySelectorAll('[data-tone]').forEach(button => button.addEventListener('click', () => { state.tone = button.dataset.tone; generateMessages(); syncControls(); }));
-    document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => { const chosen = presets[button.dataset.preset] || presets.floral; updateState({ preset: button.dataset.preset, background: '', textColour: '', font: chosen.font, frame: chosen.frame || state.frame, illustration: chosen.illustration || 'none', accent: chosen.accentChoice || state.accent, textStyle: chosen.textStyle || state.textStyle }); }));
-    document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ frame: button.dataset.frame })));
-    document.querySelectorAll('[data-illustration]').forEach(button => button.addEventListener('click', () => updateState({ illustration: button.dataset.illustration })));
-    document.querySelectorAll('[data-accent]').forEach(button => button.addEventListener('click', () => updateState({ accent: button.dataset.accent })));
-    document.querySelectorAll('[data-text-style]').forEach(button => button.addEventListener('click', () => updateState({ textStyle: button.dataset.textStyle })));
+    document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => { const chosen = presets[button.dataset.preset] || presets.floral; updateState({ designVisited: true, preset: button.dataset.preset, background: '', textColour: '', font: chosen.font, frame: chosen.frame || state.frame, illustration: chosen.illustration || 'none', accent: chosen.accentChoice || state.accent, textStyle: chosen.textStyle || state.textStyle }); }));
+    document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ designVisited: true, frame: button.dataset.frame })));
+    document.querySelectorAll('[data-illustration]').forEach(button => button.addEventListener('click', () => updateState({ designVisited: true, illustration: button.dataset.illustration })));
+    document.querySelectorAll('[data-accent]').forEach(button => button.addEventListener('click', () => updateState({ designVisited: true, accent: button.dataset.accent })));
+    document.querySelectorAll('[data-text-style]').forEach(button => button.addEventListener('click', () => updateState({ designVisited: true, textStyle: button.dataset.textStyle })));
     document.querySelectorAll('[data-background]').forEach(button => button.addEventListener('click', () => updateState({ background: button.dataset.background })));
     document.querySelectorAll('[data-inside-left]').forEach(button => button.addEventListener('click', () => updateState({ insideLeftMode: button.dataset.insideLeft })));
     document.querySelectorAll('[data-inside-paper]').forEach(button => button.addEventListener('click', () => updateState({ insidePaper: button.dataset.insidePaper })));
     document.querySelectorAll('[data-panel]').forEach(button => button.addEventListener('click', () => updateState({ activePanel: button.dataset.panel })));
-    document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front', reviewed: false, sizeSelected: false })));
+    document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front', reviewed: false, sizeSelected: false, designVisited: false })));
     document.querySelectorAll('[data-single-print-size]').forEach(button => button.addEventListener('click', () => updateState({ singlePrintSize: button.dataset.singlePrintSize, sizeSelected: true })));
     document.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => updateState({ size: button.dataset.size, sizeSelected: true })));
     document.querySelectorAll('[data-paper]').forEach(button => button.addEventListener('click', () => updateState({ printPaper: button.dataset.paper, sizeSelected: true })));
     document.querySelectorAll('[data-print-quality]').forEach(button => button.addEventListener('click', () => updateState({ printQuality: button.dataset.printQuality })));
     document.querySelectorAll('[data-font]').forEach(button => button.addEventListener('click', () => {
       document.querySelectorAll('[data-font]').forEach(item => item.classList.remove('active'));
-      button.classList.add('active'); updateState({ font: button.dataset.font });
+      button.classList.add('active'); updateState({ designVisited: true, font: button.dataset.font });
     }));
 
     const bindings = {

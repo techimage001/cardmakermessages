@@ -1220,3 +1220,8 @@ textarea { min-height:118px; }
 /* V13 wording guidance */
 .field-note{display:block;margin-top:.35rem;color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:.02em}
 .field[hidden]{display:none!important}
+
+.stage-guard-prompt { margin: 0 0 18px; padding: 16px 18px; border: 1px solid #d8b8c5; border-left: 5px solid #7b304f; border-radius: 16px; background: #fff7fa; box-shadow: 0 10px 26px rgba(40,22,30,.08); }
+.stage-guard-prompt strong { display:block; margin-bottom:4px; color:#4f1f34; font-size:1.05rem; }
+.stage-guard-prompt p { margin:0 0 12px; color:#4d4650; }
+.stage-guard-prompt .button { min-width:140px; }
