@@ -1178,3 +1178,41 @@ textarea { min-height:118px; }
     padding: 32px 27px;
   }
 }
+
+
+/* V11: compact one-tap design collection and folded-sheet review */
+.preset-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.preset { min-height: 0; padding: 6px; border-radius: 13px; font-size: .82rem; line-height: 1.18; }
+.preset-preview { aspect-ratio: 16 / 9; min-height: 54px; max-height: 70px; margin-bottom: 5px; border-radius: 8px; }
+.preset-label { display: block; }
+.preset-ocean { background: linear-gradient(135deg, #083f62, #45b9ce); }
+.preset-royal { background: linear-gradient(135deg, #172d78, #e2bb55); }
+.preset-sky { background: linear-gradient(135deg, #cce9fb, #ffffff); }
+.preset-teal { background: linear-gradient(135deg, #0f6065, #d5b878); }
+.preset-lavender { background: linear-gradient(135deg, #eee8f7, #8e72b4); }
+.preset-plum { background: linear-gradient(135deg, #3d1f42, #d39bb9); }
+.preset-emerald { background: linear-gradient(135deg, #0c4534, #d3b45f); }
+.preset-terracotta { background: linear-gradient(135deg, #a94f3d, #efbd83); }
+.preset-mono { background: linear-gradient(135deg, #f2f0eb, #292929); }
+.preset-champagne { background: linear-gradient(135deg, #f5e5de, #c79861); }
+.no-size-review { border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line)); background: var(--brand-soft); padding: 18px; border-radius: 16px; margin: 14px 0; }
+.no-size-review strong { display: block; font-size: 1.08rem; margin-bottom: 4px; }
+.no-size-review p { margin: 0 0 12px; }
+.review-folded-sheets { display: grid; gap: 22px; }
+.review-folded-sheets figure { margin: 0; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.review-folded-sheets h3 { margin-bottom: 10px; }
+.review-folded-sheets canvas { width: 100%; display: block; border: 1px solid var(--line); background: #fff; }
+.review-folded-sheets figcaption { display: grid; gap: 2px; margin-top: 10px; color: var(--muted); }
+.review-folded-sheets figcaption strong { color: var(--ink); }
+.folded-print-help { margin: 0; padding: 14px 16px; border-left: 4px solid var(--gold); background: var(--surface-2); border-radius: 0 12px 12px 0; }
+@media (max-width: 920px) {
+  .preset-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .preset-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; gap: 8px; }
+  .preset { min-width: 0; flex: none; }
+  .preset-preview { min-height: 58px; max-height: 68px; }
+}
+
+/* V12: removed the small fixed bottom-left preview. */
+.floating-preview-dock { display: none !important; }

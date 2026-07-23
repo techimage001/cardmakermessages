@@ -18,7 +18,17 @@
     festive: { label: 'Traditional festive', bg: '#174a3a', ink: '#fffaf0', accent: '#d54545', soft: '#d7b66d', font: 'serif' },
     peaceful: { label: 'Peaceful light', bg: '#edf4f4', ink: '#334f55', accent: '#c99b66', soft: '#b9d1cf', font: 'serif' },
     botanical: { label: 'Rustic botanical', bg: '#dfe6d6', ink: '#33412e', accent: '#8b5f46', soft: '#93a485', font: 'serif' },
-    cute: { label: 'Cute illustrated', bg: '#ffe8e2', ink: '#5b3851', accent: '#e88975', soft: '#f8bf9e', font: 'sans' }
+    cute: { label: 'Cute illustrated', bg: '#ffe8e2', ink: '#5b3851', accent: '#e88975', soft: '#f8bf9e', font: 'sans', motif: 'cute', frame: 'arch', illustration: 'none', accentChoice: 'heart', textStyle: 'clean' },
+    ocean: { label: 'Ocean blue', bg: '#0e4f6f', ink: '#f6fbff', accent: '#54c2d4', soft: '#9fd9e5', font: 'sans', motif: 'minimal', frame: 'inset', illustration: 'waves', accentChoice: 'sparkles', textStyle: 'statement' },
+    royal: { label: 'Royal blue', bg: '#233a84', ink: '#fffdf5', accent: '#e4bd58', soft: '#7185c7', font: 'serif', motif: 'luxury', frame: 'gold-deco', illustration: 'none', accentChoice: 'star', textStyle: 'clean' },
+    sky: { label: 'Sky and cloud', bg: '#dceffc', ink: '#24445f', accent: '#75a9d1', soft: '#ffffff', font: 'sans', motif: 'peaceful', frame: 'arch', illustration: 'sunrise', accentChoice: 'sun', textStyle: 'clean' },
+    teal: { label: 'Teal elegance', bg: '#146b6f', ink: '#f8fffd', accent: '#d6b978', soft: '#6eaaa5', font: 'serif', motif: 'botanical', frame: 'classic', illustration: 'botanical', accentChoice: 'leaf', textStyle: 'clean' },
+    lavender: { label: 'Lavender grace', bg: '#eee8f7', ink: '#49355f', accent: '#8f73b5', soft: '#d2c3e8', font: 'serif', motif: 'floral', frame: 'lily', illustration: 'none', accentChoice: 'flower', textStyle: 'clean' },
+    plum: { label: 'Plum evening', bg: '#4b254b', ink: '#fff7f2', accent: '#d9a6bf', soft: '#8a5c83', font: 'serif', motif: 'luxury', frame: 'deco-corners', illustration: 'none', accentChoice: 'sparkles', textStyle: 'statement' },
+    emerald: { label: 'Emerald luxe', bg: '#114d3b', ink: '#fffaf0', accent: '#d7b766', soft: '#547b6b', font: 'serif', motif: 'luxury', frame: 'gold-deco', illustration: 'botanical', accentChoice: 'leaf', textStyle: 'clean' },
+    terracotta: { label: 'Terracotta warmth', bg: '#b85f49', ink: '#fff7ed', accent: '#f0c087', soft: '#d9977f', font: 'serif', motif: 'bold', frame: 'arch', illustration: 'sunrise', accentChoice: 'sun', textStyle: 'clean' },
+    mono: { label: 'Monochrome editorial', bg: '#f3f1ed', ink: '#1d1d1d', accent: '#777777', soft: '#d5d2cc', font: 'sans', motif: 'minimal', frame: 'inset', illustration: 'none', accentChoice: 'none', textStyle: 'statement' },
+    champagne: { label: 'Champagne blush', bg: '#f5e6df', ink: '#5a3441', accent: '#c99a62', soft: '#e8c9c4', font: 'serif', motif: 'floral', frame: 'classic', illustration: 'none', accentChoice: 'flower', textStyle: 'clean' }
   };
 
   const sizes = {
@@ -69,6 +79,7 @@
     eventHost: '',
     mainMessage: '',
     frontHeading: 'Happy Birthday',
+    frontMessage: 'Wishing you a day filled with happiness and wonderful memories.',
     coverMessage: 'Wishing you a wonderful day',
     insideLeftMode: 'blank',
     insideLeftText: 'A little note, made especially for you.',
@@ -95,10 +106,12 @@
     showFoldMarks: true,
     showWebsite: true,
     reviewed: false,
-    savedAt: 0
+    savedAt: 0,
+    sizeSelected: false
   };
 
-  let state = { ...defaultState, ...(Store.load().app || {}) };
+  const storedAppState = Store.load().app || {};
+  let state = { ...defaultState, ...storedAppState, sizeSelected: storedAppState.sizeSelected === true };
   let photoImage = null;
   let messageOptions = [];
   let renderQueued = false;
@@ -141,12 +154,13 @@
     const size = params.get('size');
     const patch = {};
     if (['card','invitation','postcard'].includes(type)) patch.creationType = type;
-    if (sizes[size]) patch.size = size;
-    else if (legacySizeMap[size]) patch.size = legacySizeMap[size];
+    if (sizes[size]) { patch.size = size; patch.sizeSelected = true; }
+    else if (legacySizeMap[size]) { patch.size = legacySizeMap[size]; patch.sizeSelected = true; }
     if (occasion && DATA.occasions[occasion]) {
       patch.occasion = occasion;
       patch.occasionLabel = DATA.occasions[occasion].label;
       patch.coverMessage = defaultCover(occasion);
+      patch.frontMessage = defaultFrontMessage(occasion);
       patch.frontHeading = DATA.occasions[occasion].front || DATA.occasions[occasion].label;
     }
     if (tone && DATA.tones.some(item => item[0] === tone)) patch.tone = tone;
@@ -165,6 +179,23 @@
       'wedding-invitation': 'Together with joy', 'christmas-invitation': 'A festive invitation', postcard: 'A little note from me'
     };
     return cover[occasion] || 'Made especially for you';
+  }
+
+  function defaultFrontMessage(occasion) {
+    const messages = {
+      birthday: 'Wishing you a day filled with happiness and wonderful memories.', christmas: 'May your Christmas be filled with warmth, peace and joyful moments.',
+      wedding: 'Wishing you a lifetime of love, laughter and beautiful memories together.', anniversary: 'Celebrating the love, memories and life you have built together.',
+      easter: 'Wishing you hope, peace and happiness this Easter.', thanks: 'Your kindness has made a real difference. Thank you so much.',
+      congratulations: 'Congratulations on this wonderful and well-deserved achievement.', 'new-baby': 'Warmest wishes as you welcome this beautiful new addition to your family.',
+      retirement: 'Wishing you happiness, fulfilment and wonderful adventures in your next chapter.', 'get-well': 'Sending warm wishes for comfort, strength and a smooth recovery.',
+      valentine: 'You make every day brighter, warmer and more meaningful.', graduation: 'Congratulations on everything you have achieved and the future ahead.',
+      'mothers-day': 'Thank you for your love, strength and everything you do.', 'fathers-day': 'Thank you for your guidance, support and the difference you make.',
+      'child-naming': 'Celebrating a precious name and a beautiful new beginning.', 'job-promotion': 'Congratulations on a well-earned achievement and an exciting next step.',
+      custom: 'A special message created especially for this meaningful occasion.', 'birthday-invitation': 'Please join us to celebrate a very special birthday.',
+      'party-invitation': 'Come and celebrate with us for a joyful and memorable occasion.', 'wedding-invitation': 'Please join us as we celebrate love and begin our life together.',
+      'christmas-invitation': 'Please join us for a warm and joyful Christmas gathering.'
+    };
+    return messages[occasion] || 'A thoughtful message created especially for this occasion.';
   }
 
   function generateMessages(selectFirst = true) {
@@ -299,17 +330,17 @@
       button.setAttribute('aria-pressed', String(active));
     });
     document.querySelectorAll('[data-size]').forEach(button => {
-      const active = button.dataset.size === state.size;
+      const active = state.sizeSelected && button.dataset.size === state.size;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
     document.querySelectorAll('[data-paper]').forEach(button => {
-      const active = button.dataset.paper === state.printPaper;
+      const active = state.sizeSelected && button.dataset.paper === state.printPaper;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
     document.querySelectorAll('[data-single-print-size]').forEach(button => {
-      const active = button.dataset.singlePrintSize === state.singlePrintSize;
+      const active = state.sizeSelected && button.dataset.singlePrintSize === state.singlePrintSize;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
@@ -346,6 +377,7 @@
       eventHost: state.eventHost,
       mainMessage: state.mainMessage,
       frontHeading: state.frontHeading,
+      frontMessage: state.frontMessage,
       coverMessage: state.coverMessage,
       backMessage: state.backMessage,
       insideLeftText: state.insideLeftText,
@@ -387,9 +419,14 @@
     const downloadSummary = document.getElementById('downloadSummary');
     const reviewStepSummary = document.getElementById('reviewStepSummary');
     if (formatSummary) formatSummary.textContent = `${format.label} · ${format.detail}`;
-    if (reviewButton) reviewButton.textContent = `Review ${format.shortLabel}`;
-    if (downloadSummary) downloadSummary.textContent = `${format.label} · ${format.detail}`;
-    if (reviewStepSummary) reviewStepSummary.textContent = `${format.label} · ${format.detail}`;
+    const summaryText = state.sizeSelected ? `${format.label} · ${format.detail}` : 'No size selected';
+    if (reviewButton) reviewButton.textContent = state.sizeSelected ? `Review ${format.shortLabel}` : 'Choose a size before review';
+    if (downloadSummary) downloadSummary.textContent = summaryText;
+    if (reviewStepSummary) reviewStepSummary.textContent = summaryText;
+    const noSizeReviewState = document.getElementById('noSizeReviewState');
+    const reviewReadyState = document.getElementById('reviewReadyState');
+    if (noSizeReviewState) noSizeReviewState.hidden = state.sizeSelected;
+    if (reviewReadyState) reviewReadyState.hidden = !state.sizeSelected;
   }
 
   function roundedRect(context, x, y, width, height, radius) {
@@ -428,20 +465,21 @@
     context.rect(x, y, width, height);
     context.clip();
 
-    if (renderState.preset === 'floral') {
+    const motif = p.motif || renderState.preset;
+    if (motif === 'floral') {
       drawLeafSprig(context, x + width * .08, y + height * .1, width * .16, p.accent, -0.4);
       drawLeafSprig(context, x + width * .9, y + height * .88, width * .18, p.accent, 2.7);
       context.strokeStyle = hexToRgba(p.accent, .24);
       context.lineWidth = Math.max(3, width * .005);
       context.beginPath(); context.arc(x + width * .08, y + height * .08, width * .17, 0, Math.PI * 2); context.stroke();
-    } else if (renderState.preset === 'minimal') {
+    } else if (motif === 'minimal') {
       context.fillStyle = hexToRgba(p.accent, .16);
       context.fillRect(x, y, width, height * .035);
       context.fillRect(x, y + height * .965, width, height * .035);
       context.strokeStyle = p.accent;
       context.lineWidth = Math.max(2, width * .003);
       context.beginPath(); context.moveTo(x + width * .12, y + height * .2); context.lineTo(x + width * .88, y + height * .2); context.stroke();
-    } else if (renderState.preset === 'photo') {
+    } else if (motif === 'photo') {
       const grad = context.createLinearGradient(x, y, x + width, y + height);
       grad.addColorStop(0, p.bg); grad.addColorStop(1, '#71808b');
       context.fillStyle = grad; context.fillRect(x, y, width, height);
@@ -449,25 +487,25 @@
       for (let i = 0; i < 8; i += 1) {
         context.beginPath(); context.arc(x + width * (0.1 + i * .13), y + height * (.18 + (i % 3) * .25), width * .06, 0, Math.PI * 2); context.fill();
       }
-    } else if (renderState.preset === 'bold') {
+    } else if (motif === 'bold') {
       drawConfetti(context, x, y, width, height, p.accent, p.soft);
       context.fillStyle = 'rgba(255,255,255,.11)';
       context.beginPath(); context.arc(x + width * .12, y + height * .2, width * .18, 0, Math.PI * 2); context.fill();
       context.beginPath(); context.arc(x + width * .92, y + height * .82, width * .24, 0, Math.PI * 2); context.fill();
-    } else if (renderState.preset === 'luxury') {
+    } else if (motif === 'luxury') {
       const grad = context.createRadialGradient(x + width * .3, y + height * .2, 0, x + width * .5, y + height * .5, width);
       grad.addColorStop(0, '#303649'); grad.addColorStop(1, p.bg);
       context.fillStyle = grad; context.fillRect(x, y, width, height);
       context.strokeStyle = p.accent; context.lineWidth = Math.max(2, width * .003);
       context.strokeRect(x + width * .06, y + height * .045, width * .88, height * .91);
       context.strokeRect(x + width * .075, y + height * .06, width * .85, height * .88);
-    } else if (renderState.preset === 'playful') {
+    } else if (motif === 'playful') {
       const colours = [p.accent, p.soft, '#8da5e5', '#f7c45d'];
       [[.12,.12,.15],[.87,.16,.12],[.13,.86,.12],[.88,.84,.18]].forEach((item, index) => {
         context.fillStyle = hexToRgba(colours[index], .75);
         context.beginPath(); context.arc(x + width * item[0], y + height * item[1], width * item[2], 0, Math.PI * 2); context.fill();
       });
-    } else if (renderState.preset === 'festive') {
+    } else if (motif === 'festive') {
       drawPine(context, x + width * .08, y + height * .06, width * .38, p.soft);
       drawPine(context, x + width * .92, y + height * .93, width * .4, p.soft, Math.PI);
       context.fillStyle = 'rgba(255,255,255,.7)';
@@ -476,19 +514,19 @@
         const py = y + ((i * 151) % 991) / 991 * height;
         context.beginPath(); context.arc(px, py, Math.max(1.5, width * .0025), 0, Math.PI * 2); context.fill();
       }
-    } else if (renderState.preset === 'peaceful') {
+    } else if (motif === 'peaceful') {
       const grad = context.createLinearGradient(x, y, x, y + height);
       grad.addColorStop(0, '#dfecef'); grad.addColorStop(.55, p.bg); grad.addColorStop(1, '#f7efe3');
       context.fillStyle = grad; context.fillRect(x, y, width, height);
       context.strokeStyle = hexToRgba(p.accent, .35); context.lineWidth = width * .015;
       context.beginPath(); context.arc(x + width * .5, y + height * .15, width * .22, Math.PI, Math.PI * 2); context.stroke();
       context.fillStyle = hexToRgba(p.soft, .3); context.beginPath(); context.arc(x + width * .5, y + height * 1.02, width * .65, Math.PI, Math.PI * 2); context.fill();
-    } else if (renderState.preset === 'botanical') {
+    } else if (motif === 'botanical') {
       drawLeafSprig(context, x + width * .07, y + height * .15, width * .24, p.ink, -.2);
       drawLeafSprig(context, x + width * .93, y + height * .83, width * .28, p.ink, 2.9);
       context.fillStyle = hexToRgba(p.accent, .16); context.fillRect(x + width * .05, y + height * .05, width * .9, height * .9);
       context.fillStyle = p.bg; context.fillRect(x + width * .065, y + height * .065, width * .87, height * .87);
-    } else if (renderState.preset === 'cute') {
+    } else if (motif === 'cute') {
       drawStars(context, x, y, width, height, p.accent, p.soft);
       context.fillStyle = hexToRgba('#ffffff', .45);
       roundedRect(context, x + width * .08, y + height * .1, width * .84, height * .8, width * .06); context.fill();
@@ -904,25 +942,33 @@
       context.font = `700 ${Math.max(20, width * .03)}px Arial, Helvetica, sans-serif`;
       context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
 
-      let title = digital ? renderState.mainMessage : (renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You')));
-      if (renderState.textStyle === 'quotes' && digital) title = `“${title}”`;
+      let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
-        x: x + pad, y: y + height * (hasPhoto ? .405 : .25), width: width - pad * 2, height: height * (hasPhoto ? (digital ? .33 : .25) : (digital ? .37 : .28))
+        x: x + pad, y: y + height * (hasPhoto ? .405 : .245), width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
       }, {
-        colour: p.ink, family, startSize: width * (digital ? .07 : .095), minSize: width * .035,
-        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.2, maxLines: digital ? 7 : 4
+        colour: p.ink, family, startSize: width * .085, minSize: width * .038,
+        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
+      });
+
+      let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
+      if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
+      drawTextBlock(context, frontCopy, {
+        x: x + pad * 1.05, y: y + height * (hasPhoto ? .555 : .43), width: width - pad * 2.1, height: height * (hasPhoto ? .18 : .22)
+      }, {
+        colour: p.ink, family, startSize: width * .042, minSize: width * .025,
+        weight: 500, lineHeight: 1.32, maxLines: 6
       });
 
       const lower = digital
-        ? (renderState.senderName ? `WITH LOVE, ${renderState.senderName}` : renderState.recipientName ? `FOR ${renderState.recipientName.toUpperCase()}` : '')
+        ? [renderState.coverMessage, renderState.senderName ? `WITH LOVE, ${renderState.senderName}` : renderState.recipientName ? `FOR ${renderState.recipientName.toUpperCase()}` : ''].filter(Boolean).join('\n')
         : (renderState.recipientName ? `${renderState.coverMessage}\n${renderState.recipientName}` : renderState.coverMessage);
       if (lower) {
         drawTextBlock(context, lower, {
-          x: x + pad, y: y + height * (hasPhoto ? .76 : .67), width: width - pad * 2, height: height * (hasPhoto ? .15 : .18)
+          x: x + pad, y: y + height * (hasPhoto ? .78 : .70), width: width - pad * 2, height: height * (hasPhoto ? .13 : .15)
         }, {
-          colour: renderState.preset === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .034, minSize: width * .024,
-          weight: 600, lineHeight: 1.35, maxLines: 3
+          colour: (p.motif || renderState.preset) === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .032, minSize: width * .022,
+          weight: 600, lineHeight: 1.3, maxLines: 3
         });
       }
       if (renderState.textStyle === 'underline') {
@@ -1175,8 +1221,8 @@
     const keys = Object.keys(presets);
     const choices = keys.filter(key => key !== state.preset);
     const preset = choices[Math.floor(Math.random() * choices.length)];
-    const frames = ['none', 'classic', 'gold-deco', 'arch', 'botanical', 'ribbon', 'inset', 'deco-corners', 'wreath', 'lily', 'paw', 'rainbow'];
-    updateState({ preset, frame: frames[Math.floor(Math.random() * frames.length)], background: '', textColour: '' });
+    const chosen = presets[preset] || presets.floral;
+    updateState({ preset, frame: chosen.frame || 'classic', illustration: chosen.illustration || 'none', accent: chosen.accentChoice || 'sparkles', textStyle: chosen.textStyle || 'clean', font: chosen.font, background: '', textColour: '' });
     announce(`Applied ${presets[preset].label}.`);
   }
 
@@ -1242,13 +1288,38 @@
     if (format.kind === 'folded') {
       if (singleWrap) singleWrap.hidden = true;
       if (foldedWrap) foldedWrap.hidden = false;
-      const panelSize = { width: 700, height: 980 };
-      document.querySelectorAll('[data-review-panel]').forEach(canvasEl => {
-        const panel = canvasEl.dataset.reviewPanel;
-        canvasEl.width = panelSize.width;
-        canvasEl.height = panelSize.height;
-        canvasEl.style.aspectRatio = `${panelSize.width} / ${panelSize.height}`;
-        drawPanel(canvasEl.getContext('2d'), 0, 0, panelSize.width, panelSize.height, panel, state, true);
+      document.querySelectorAll('[data-review-sheet]').forEach(canvasEl => {
+        const sheet = canvasEl.dataset.reviewSheet;
+        const width = 1400;
+        const height = 980;
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.aspectRatio = `${width} / ${height}`;
+        const sheetCtx = canvasEl.getContext('2d');
+        sheetCtx.clearRect(0, 0, width, height);
+        if (sheet === 'outside') {
+          drawPanel(sheetCtx, 0, 0, width / 2, height, 'back', state, true);
+          drawPanel(sheetCtx, width / 2, 0, width / 2, height, 'front', state, true);
+        } else {
+          drawPanel(sheetCtx, 0, 0, width / 2, height, 'inside-left', state, true);
+          drawPanel(sheetCtx, width / 2, 0, width / 2, height, 'inside-right', state, true);
+        }
+        sheetCtx.save();
+        sheetCtx.setLineDash([18, 14]);
+        sheetCtx.strokeStyle = 'rgba(39, 48, 58, .62)';
+        sheetCtx.lineWidth = 4;
+        sheetCtx.beginPath();
+        sheetCtx.moveTo(width / 2, 0);
+        sheetCtx.lineTo(width / 2, height);
+        sheetCtx.stroke();
+        sheetCtx.setLineDash([]);
+        sheetCtx.fillStyle = 'rgba(255,255,255,.9)';
+        sheetCtx.fillRect(width / 2 - 72, 12, 144, 38);
+        sheetCtx.fillStyle = '#26313a';
+        sheetCtx.font = '700 22px Arial';
+        sheetCtx.textAlign = 'center';
+        sheetCtx.fillText('FOLD LINE', width / 2, 39);
+        sheetCtx.restore();
       });
     } else {
       if (singleWrap) singleWrap.hidden = false;
@@ -1269,6 +1340,12 @@
 
   function openReview() {
     // Review is a fixed overlay. It must never leave the user near the FAQ or footer.
+    if (!state.sizeSelected) {
+      updateState({ step: 4, reviewed: false }, { persist: false });
+      announce('Please go back and select a size before reviewing your card.');
+      window.setTimeout(scrollToWorkspace, 40);
+      return;
+    }
     state.step = 4;
     state.reviewed = false;
     syncControls();
@@ -1324,7 +1401,15 @@
   }
 
   function goToStep(step) {
-    updateState({ step: Math.max(1, Math.min(5, Number(step) || 1)) });
+    const target = Math.max(1, Math.min(5, Number(step) || 1));
+    if (target > 2 && !state.sizeSelected) {
+      updateState({ step: 2, reviewed: false });
+      announce('Please select a size before continuing.');
+      scrollToWorkspace();
+      window.setTimeout(() => document.getElementById('selectedFormatSummary')?.focus?.(), 80);
+      return;
+    }
+    updateState({ step: target });
     scrollToWorkspace();
   }
 
@@ -1371,7 +1456,6 @@ Create your own card: ${cleanUrl}`);
     };
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update, { passive: true });
-    document.getElementById('returnToEditor')?.addEventListener('click', () => scrollToWorkspace());
     update();
   }
 
@@ -1391,6 +1475,7 @@ Create your own card: ${cleanUrl}`);
       state.occasion = occasion;
       state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
+      state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || DATA.occasions[occasion]?.label || 'For You';
       state.reviewed = false;
       if (creationType === 'postcard') state.size = 'landscape';
@@ -1404,6 +1489,7 @@ Create your own card: ${cleanUrl}`);
       state.occasion = occasion;
       state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
+      state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || (occasion === 'custom' ? 'For Your Special Occasion' : DATA.occasions[occasion]?.label) || 'For You';
       state.reviewed = false;
       const eventTitles = { 'birthday-invitation': 'A Birthday Celebration', 'party-invitation': 'A Special Celebration', 'wedding-invitation': 'Our Wedding Celebration', 'christmas-invitation': 'A Christmas Gathering' };
@@ -1411,7 +1497,7 @@ Create your own card: ${cleanUrl}`);
       generateMessages(); syncControls();
     }));
     document.querySelectorAll('[data-tone]').forEach(button => button.addEventListener('click', () => { state.tone = button.dataset.tone; generateMessages(); syncControls(); }));
-    document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => updateState({ preset: button.dataset.preset, background: '', textColour: '', font: presets[button.dataset.preset].font })));
+    document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => { const chosen = presets[button.dataset.preset] || presets.floral; updateState({ preset: button.dataset.preset, background: '', textColour: '', font: chosen.font, frame: chosen.frame || state.frame, illustration: chosen.illustration || 'none', accent: chosen.accentChoice || state.accent, textStyle: chosen.textStyle || state.textStyle }); }));
     document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ frame: button.dataset.frame })));
     document.querySelectorAll('[data-illustration]').forEach(button => button.addEventListener('click', () => updateState({ illustration: button.dataset.illustration })));
     document.querySelectorAll('[data-accent]').forEach(button => button.addEventListener('click', () => updateState({ accent: button.dataset.accent })));
@@ -1420,10 +1506,10 @@ Create your own card: ${cleanUrl}`);
     document.querySelectorAll('[data-inside-left]').forEach(button => button.addEventListener('click', () => updateState({ insideLeftMode: button.dataset.insideLeft })));
     document.querySelectorAll('[data-inside-paper]').forEach(button => button.addEventListener('click', () => updateState({ insidePaper: button.dataset.insidePaper })));
     document.querySelectorAll('[data-panel]').forEach(button => button.addEventListener('click', () => updateState({ activePanel: button.dataset.panel })));
-    document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front', reviewed: false })));
-    document.querySelectorAll('[data-single-print-size]').forEach(button => button.addEventListener('click', () => updateState({ singlePrintSize: button.dataset.singlePrintSize })));
-    document.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => updateState({ size: button.dataset.size })));
-    document.querySelectorAll('[data-paper]').forEach(button => button.addEventListener('click', () => updateState({ printPaper: button.dataset.paper })));
+    document.querySelectorAll('[data-output-mode]').forEach(button => button.addEventListener('click', () => updateState({ outputMode: button.dataset.outputMode, activePanel: 'front', reviewed: false, sizeSelected: false })));
+    document.querySelectorAll('[data-single-print-size]').forEach(button => button.addEventListener('click', () => updateState({ singlePrintSize: button.dataset.singlePrintSize, sizeSelected: true })));
+    document.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => updateState({ size: button.dataset.size, sizeSelected: true })));
+    document.querySelectorAll('[data-paper]').forEach(button => button.addEventListener('click', () => updateState({ printPaper: button.dataset.paper, sizeSelected: true })));
     document.querySelectorAll('[data-print-quality]').forEach(button => button.addEventListener('click', () => updateState({ printQuality: button.dataset.printQuality })));
     document.querySelectorAll('[data-font]').forEach(button => button.addEventListener('click', () => {
       document.querySelectorAll('[data-font]').forEach(item => item.classList.remove('active'));
@@ -1433,7 +1519,7 @@ Create your own card: ${cleanUrl}`);
     const bindings = {
       recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName', personalNote: 'personalNote',
       eventTitle: 'eventTitle', eventDate: 'eventDate', eventTime: 'eventTime', eventVenue: 'eventVenue', eventRsvp: 'eventRsvp', eventHost: 'eventHost',
-      mainMessage: 'mainMessage', frontHeading: 'frontHeading', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
+      mainMessage: 'mainMessage', frontHeading: 'frontHeading', frontMessage: 'frontMessage', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
       backgroundPicker: 'background', textColourPicker: 'textColour'
     };
     Object.entries(bindings).forEach(([id, key]) => {
@@ -1442,6 +1528,7 @@ Create your own card: ${cleanUrl}`);
         if (key === 'customOccasion') {
           patch.occasionLabel = event.target.value.trim() || 'Custom Occasion';
           patch.coverMessage = event.target.value.trim() ? `Celebrating ${event.target.value.trim()}` : 'Made especially for this occasion';
+          patch.frontMessage = event.target.value.trim() ? `A special message for ${event.target.value.trim()}.` : defaultFrontMessage('custom');
           patch.frontHeading = event.target.value.trim() || 'For Your Special Occasion';
         }
         updateState(patch);
@@ -1565,6 +1652,7 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('startAgain')?.addEventListener('click', resetCard);
     document.getElementById('startAgainBottom')?.addEventListener('click', resetCard);
     document.getElementById('reviewCard')?.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); openReview(); });
+    document.getElementById('chooseSizeFromReview')?.addEventListener('click', () => { updateState({ step: 2, reviewed: false }); scrollToWorkspace(); });
     document.getElementById('closeReview')?.addEventListener('click', closeReview);
     document.getElementById('editFromReview')?.addEventListener('click', () => { updateState({ reviewed: false, step: 2 }); closeReview(); scrollToWorkspace(); });
     document.getElementById('reviewEditWords')?.addEventListener('click', () => { updateState({ reviewed: false, step: 1 }); closeReview(); scrollToWorkspace(); });
@@ -1593,6 +1681,7 @@ Create your own card: ${cleanUrl}`);
       if (notice) notice.hidden = false;
     }
     if (!state.frontHeading) state.frontHeading = DATA.occasions[state.occasion]?.front || state.occasionLabel || 'For You';
+    if (!state.frontMessage) state.frontMessage = defaultFrontMessage(state.occasion);
     generateMessages(false);
     syncControls();
     queueRender();

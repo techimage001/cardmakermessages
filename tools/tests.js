@@ -146,7 +146,8 @@ check(!app.includes('<details class="more-options"'), 'app.html must not hide de
 for (const selectorText of ['data-frame="wreath"','data-frame="lily"','data-frame="paw"','data-frame="rainbow"','data-illustration="heart"','data-illustration="dove"','data-illustration="rainbow"','data-illustration="paw"','data-accent="dove"','data-accent="paw"','data-text-style="quotes"','data-font="handwritten"']) {
   check(app.includes(selectorText), `app.html missing robust design control ${selectorText}`);
 }
-check(app.includes('id="floatingPreviewDock"') && app.includes('id="floatingCardCanvas"'), 'app.html missing persistent floating card preview');
+check(!app.includes('id="floatingPreviewDock"') && !app.includes('id="floatingCardCanvas"'), 'app.html still contains the removed tiny floating preview');
+check(app.includes('for="frontHeading">Front heading title') && app.includes('id="frontMessage"') && app.includes('for="mainMessage">Inner message'), 'app.html missing the V12 front and inner message fields');
 const invitationTemplates = fs.readFileSync(path.join(ROOT, 'invitation-templates.html'), 'utf8');
 check(/class="mock-design-link" href="\/app\.html/.test(invitationTemplates), 'Invitation template Choose design control must be a real app link');
 const serviceWorker = fs.readFileSync(path.join(ROOT, 'service-worker.js'), 'utf8');
@@ -212,3 +213,16 @@ for (const js of ['assets/site.js','assets/messages.js','assets/pdf.js','assets/
 }
 
 console.log(`QA passed: ${checks} assertions across ${htmlFiles.length} HTML pages. Highest keyword-page similarity: ${highestSimilarity.toFixed(3)} (${highestPair}).`);
+
+// V11 focused regression checks.
+const appHtmlV11 = fs.readFileSync(path.join(ROOT, 'app.html'), 'utf8');
+assert((appHtmlV11.match(/class="preset"/g) || []).length === 20, 'App must contain exactly 20 one-tap design presets.');
+for (const text of ['Ocean blue','Royal blue','Sky and cloud','Teal elegance','Lavender grace','Plum evening','Emerald luxe','Terracotta warmth','Monochrome editorial','Champagne blush']) {
+  assert(appHtmlV11.includes(text), `Missing V11 preset: ${text}`);
+}
+for (const text of ['No size selected','Choose a size','Outside sheet','Back cover | Front cover','Inside sheet','Inside left | Inside right','FOLD LINE']) {
+  assert(appHtmlV11.includes(text) || fs.readFileSync(path.join(ROOT, 'assets', 'app.js'), 'utf8').includes(text), `Missing V11 review text: ${text}`);
+}
+const newBabyPage = fs.readFileSync(path.join(ROOT, 'new-baby-card-messages.html'), 'utf8');
+assert(newBabyPage.includes('/app.html?occasion=new-baby'), 'New baby CTA must deep-link to the new-baby occasion.');
+
