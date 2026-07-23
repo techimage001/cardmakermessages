@@ -1,0 +1,9 @@
+CARD MAKER MESSAGES V10
+
+- Restored the approved two-column desktop maker layout.
+- Card preview remains sticky on the left for Message, Size, Design, Review and Download.
+- Every current-stage control panel remains on the right.
+- Removed the tiny floating preview on mobile.
+- Kept the main mobile card sticky and readable.
+- Compacted the homepage hero and restored both hero actions above How it works.
+- Preserved the five-stage workflow, design system and all V9 features.
