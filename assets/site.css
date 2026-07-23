@@ -981,3 +981,104 @@ textarea { min-height:118px; }
   .photo-position-controls { grid-template-columns: 1fr; }
   .photo-position-actions { justify-content: flex-start; }
 }
+
+
+/* V8: concise how-it-works guidance belongs at the point of decision. */
+.hero-how,
+.app-how {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(109, 41, 66, .18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 12px 34px rgba(35, 28, 31, .06);
+}
+.hero-how > strong,
+.app-how > strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--brand);
+  font-size: .78rem;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.hero-how ol,
+.app-how ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hero-how li,
+.app-how li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.hero-how li span,
+.app-how li span {
+  display: inline-grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: .82rem;
+}
+.app-intro { max-width: 980px; }
+.app-intro > p:not(.eyebrow) { max-width: 760px; }
+
+/* Make the main writing area feel like the primary task, not a small form field. */
+#mainMessage {
+  min-height: 190px;
+  padding: 18px 20px;
+  font-size: 1.08rem;
+  line-height: 1.62;
+  border-width: 2px;
+}
+#mainMessage:focus {
+  min-height: 220px;
+}
+
+@media (max-width: 760px) {
+  .hero-how ol,
+  .app-how ol { grid-template-columns: 1fr; }
+  .hero-how,
+  .app-how { padding: 14px; }
+  #mainMessage {
+    min-height: 180px;
+    font-size: 1rem;
+  }
+  #mainMessage:focus { min-height: 205px; }
+}
+
+
+/* V9 five-stage flow and quick-edit preview controls */
+.five-step-tabs { max-width: 980px; }
+.five-step-tabs .step-tab { min-width: 130px; white-space: nowrap; }
+.preview-edit-strip { border-top: 1px solid var(--line); padding: 14px 12px 4px; text-align: center; }
+.preview-edit-strip .preview-caption { display: block; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .11em; font-size: .76rem; }
+.preview-edit-actions, .floating-edit-actions, .review-change-actions, .review-modal-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.preview-edit-actions .button { min-height: 40px; }
+.review-selected-format { margin: 14px 0; }
+.review-modal-actions { margin-top: 18px; }
+.review-modal-actions .button-primary { flex: 1 1 250px; }
+.floating-preview-dock > p { margin: 8px 0 6px; text-align: center; font-size: .68rem; line-height: 1.25; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.floating-edit-actions .button { width: auto; flex: 1 1 70px; margin-top: 0; padding-inline: .45rem; }
+.download-workspace[hidden] { display: none !important; }
+@media (max-width: 760px) {
+  .five-step-tabs { gap: 4px; padding: 5px; }
+  .five-step-tabs .step-tab { min-width: 108px; font-size: .78rem; padding-inline: .7rem; }
+  .preview-edit-strip { padding: 10px 6px 2px; }
+  .preview-edit-actions { gap: 6px; }
+  .preview-edit-actions .button { min-height: 38px; font-size: .74rem; padding: .42rem .65rem; }
+  .review-modal-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .review-modal-actions .button-primary { grid-column: 1 / -1; }
+}

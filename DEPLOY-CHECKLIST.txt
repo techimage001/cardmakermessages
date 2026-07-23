@@ -71,3 +71,11 @@ PHOTO POSITIONING TEST
 - Drag with a mouse on desktop and a finger on mobile.
 - Change Photo zoom, use Centre photo and arrow controls, then review the card.
 - Confirm the chosen crop remains identical in PNG, JPG, one-page PDF and folded PDF.
+
+
+V8 HERO, MESSAGE AND SHARING CHECK
+[ ] Homepage hero shows the short three-step How it works guide.
+[ ] Card maker shows How it works immediately below the title.
+[ ] Main message box is comfortably large on phone and desktop.
+[ ] WhatsApp and social buttons share https://cardmakermessages.com/app.html, never a blob: address.
+[ ] Asset URLs use ?v=8 after deployment.

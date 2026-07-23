@@ -385,9 +385,11 @@
     const formatSummary = document.getElementById('selectedFormatSummary');
     const reviewButton = document.getElementById('reviewCard');
     const downloadSummary = document.getElementById('downloadSummary');
+    const reviewStepSummary = document.getElementById('reviewStepSummary');
     if (formatSummary) formatSummary.textContent = `${format.label} · ${format.detail}`;
     if (reviewButton) reviewButton.textContent = `Review ${format.shortLabel}`;
     if (downloadSummary) downloadSummary.textContent = `${format.label} · ${format.detail}`;
+    if (reviewStepSummary) reviewStepSummary.textContent = `${format.label} · ${format.detail}`;
   }
 
   function roundedRect(context, x, y, width, height, radius) {
@@ -1059,19 +1061,42 @@
 
   async function openImage(type) {
     const blob = await canvasBlob(type, .94);
-    window.CardPDF.openBlob(blob, filename(type === 'image/png' ? 'png' : 'jpg'));
-    announce('Your card opened in a new tab.');
+    window.CardPDF.downloadBlob(blob, filename(type === 'image/png' ? 'png' : 'jpg'));
+    announce('Your card was downloaded.');
+  }
+
+  function canonicalAppUrl() {
+    const configuredHost = document.documentElement.dataset.siteDomain;
+    const base = configuredHost ? `https://${configuredHost}` : location.origin;
+    const url = new URL('/app.html', base);
+    url.searchParams.set('occasion', state.occasion);
+    url.searchParams.set('tone', state.tone);
+    return url.toString();
   }
 
   async function shareImage() {
     const blob = await canvasBlob('image/png');
     const file = new File([blob], filename('png'), { type: 'image/png' });
+    const appUrl = canonicalAppUrl();
+    const shareText = `Create your own personalised card: ${appUrl}`;
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: `${state.occasionLabel} card` });
+      await navigator.share({
+        files: [file],
+        title: `${state.occasionLabel} card`,
+        text: shareText,
+        url: appUrl
+      });
+      try { await navigator.clipboard?.writeText(appUrl); } catch (_) {}
+      announce('Card shared. The permanent card-maker link was also copied so you can paste it if the social app removes the caption.');
       return;
     }
+    try {
+      await navigator.clipboard.writeText(appUrl);
+      announce('The permanent card-maker link was copied. The finished image will now open for saving.');
+    } catch (_) {
+      announce('The finished image will open for saving. Share the Card Maker Messages app link rather than the temporary image-tab address.');
+    }
     window.CardPDF.openBlob(blob, filename('png'));
-    announce('File sharing is not available here, so the card opened in a new tab.');
   }
 
   async function copyImage() {
@@ -1088,8 +1113,8 @@
     const selected = printSizes[state.singlePrintSize] || printSizes.A5;
     const output = createPanelCanvas('front', selected.width, selected.height, false);
     const pdf = await window.CardPDF.canvasesToPdf([output], selected.pdf);
-    window.CardPDF.openBlob(pdf, filename('pdf'));
-    announce(`${selected.label} opened in a new tab.`);
+    window.CardPDF.downloadBlob(pdf, filename('pdf'));
+    announce(`${selected.label} was downloaded.`);
   }
 
   async function createFoldedPdf() {
@@ -1127,8 +1152,8 @@
     }
 
     const pdf = await window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
-    window.CardPDF.openBlob(pdf, filename('pdf'));
-    announce('Your folded card PDF opened in a new tab.');
+    window.CardPDF.downloadBlob(pdf, filename('pdf'));
+    announce('Your folded card PDF was downloaded.');
   }
 
   async function copyMessage() {
@@ -1137,15 +1162,12 @@
   }
 
   async function shareLink() {
-    const url = new URL(location.href);
-    url.search = '';
-    url.searchParams.set('occasion', state.occasion);
-    url.searchParams.set('tone', state.tone);
-    const shareData = { title: `${state.occasionLabel} card maker`, text: 'Create a personalised card for free.', url: url.toString() };
+    const appUrl = canonicalAppUrl();
+    const shareData = { title: `${state.occasionLabel} card maker`, text: 'Create a personalised card for free.', url: appUrl };
     if (navigator.share) await navigator.share(shareData);
     else {
-      await navigator.clipboard.writeText(url.toString());
-      announce('Card maker link copied.');
+      await navigator.clipboard.writeText(appUrl);
+      announce('Permanent card-maker link copied.');
     }
   }
 
@@ -1213,7 +1235,9 @@
     const summary = document.getElementById('reviewFormatSummary');
     const singleWrap = document.getElementById('reviewSingleWrap');
     const foldedWrap = document.getElementById('reviewFoldedWrap');
-    if (summary) summary.textContent = `${format.label} · ${format.detail}`;
+    if (summary) summary.textContent = `Reviewing: ${format.label} · ${format.detail}`;
+    const reviewFigureCaption = document.getElementById('reviewFigureCaption');
+    if (reviewFigureCaption) reviewFigureCaption.textContent = `${format.label} · ${format.detail}`;
 
     if (format.kind === 'folded') {
       if (singleWrap) singleWrap.hidden = true;
@@ -1245,7 +1269,7 @@
 
   function openReview() {
     // Review is a fixed overlay. It must never leave the user near the FAQ or footer.
-    state.step = 3;
+    state.step = 4;
     state.reviewed = false;
     syncControls();
     renderReviewModal();
@@ -1300,12 +1324,12 @@
   }
 
   function goToStep(step) {
-    updateState({ step: Math.max(1, Math.min(3, Number(step) || 1)) });
+    updateState({ step: Math.max(1, Math.min(5, Number(step) || 1)) });
     scrollToWorkspace();
   }
 
   function openSocialLink(network) {
-    const cleanUrl = `${location.origin}${location.pathname}`;
+    const cleanUrl = canonicalAppUrl();
     const url = encodeURIComponent(cleanUrl);
     const text = encodeURIComponent(`${state.mainMessage}
 
@@ -1358,6 +1382,7 @@ Create your own card: ${cleanUrl}`);
     });
 
     document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
+    document.querySelectorAll('[data-jump-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.jumpStep))));
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };
@@ -1541,8 +1566,11 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('startAgainBottom')?.addEventListener('click', resetCard);
     document.getElementById('reviewCard')?.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); openReview(); });
     document.getElementById('closeReview')?.addEventListener('click', closeReview);
-    document.getElementById('editFromReview')?.addEventListener('click', () => { updateState({ reviewed: false }); closeReview(); scrollToWorkspace(); });
-    document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true }); closeReview(); window.setTimeout(() => document.getElementById('downloadWorkspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
+    document.getElementById('editFromReview')?.addEventListener('click', () => { updateState({ reviewed: false, step: 2 }); closeReview(); scrollToWorkspace(); });
+    document.getElementById('reviewEditWords')?.addEventListener('click', () => { updateState({ reviewed: false, step: 1 }); closeReview(); scrollToWorkspace(); });
+    document.getElementById('reviewChangeDesign')?.addEventListener('click', () => { updateState({ reviewed: false, step: 3 }); closeReview(); scrollToWorkspace(); });
+    document.getElementById('reviewContinueHint')?.addEventListener('click', openReview);
+    document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true, step: 5 }); closeReview(); window.setTimeout(scrollToWorkspace, 60); });
     document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
     document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
