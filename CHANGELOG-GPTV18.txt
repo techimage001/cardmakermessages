@@ -1,0 +1,68 @@
+Card Maker Messages GPTV18 - Change Log
+
+Scope
+- GPTV18 was created as a separate copy of GPTV17.
+- GPTV17 was not overwritten or modified.
+- The card editor, message system, design presets, photo positioning, sizes, folded-card review layout, signup system, API files, SEO pages, navigation and existing printable PDF arrangement remain unchanged.
+
+Approved changes
+1. Final review
+- Changed the confirmation button to: Continue to download & share.
+- Added a short note explaining that PNG, JPEG, PDF and sharing options appear next.
+
+2. Digital cards
+- Added a mobile-first Share card action.
+- Shares the completed PNG from the user's device through the native device share menu when supported.
+- Added PNG and JPEG download buttons.
+- Retained Copy image and Copy card wording under More options.
+- Added Copy share message.
+
+3. One-page printable cards
+- Kept the printable PDF download.
+- Added PNG and JPEG downloads at the approved print dimensions.
+- Added Share card image and Share PDF actions where the browser supports file sharing.
+
+4. Folded cards
+- Kept the existing two-page folded PDF and sheet arrangement unchanged.
+- Added Share both sheets, sending the outside and inside sheets as two separate PNG files.
+- Added Share folded PDF.
+- Added separate outside-sheet and inside-sheet downloads for PNG and JPEG.
+- The sheet images use the same print layout as the folded PDF.
+
+5. Sharing message
+All native share actions use exactly:
+
+I made this card on CardMakerMessages.com. Create yours too:
+https://cardmakermessages.com
+
+6. Privacy and fallback
+- No image or finished card is uploaded to the website backend.
+- Temporary blob addresses are used only internally to create local files and never appear in the shared message.
+- When native file sharing is unavailable, files download locally and the promotional message is copied when clipboard access is available.
+
+7. Responsive interface
+- Added a premium mobile-first Download and Share panel.
+- Verified layouts at 320, 375, 768, 1024, 1440 and 1920 pixel viewport widths.
+- All action buttons have at least a 50 pixel rendered height in the tested layouts.
+
+Primary source files changed
+- src/app.js
+- src/site.css
+- tools/build.js
+- tools/tests.js
+- site.config.json
+- package.json
+
+Generated files refreshed
+- app.html
+- assets/app.js
+- assets/site.css
+- service-worker.js
+- sitemap.xml
+- Generated HTML pages received the V18 asset version so browsers load the corrected JavaScript and CSS.
+
+New documentation
+- RELEASE-NOTES-GPTV18.txt
+- CHANGELOG-GPTV18.txt
+- QA-REPORT-GPTV18.txt
+- docs/v18-qa/

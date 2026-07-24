@@ -1,0 +1,461 @@
+{
+  "viewports": [
+    {
+      "label": "digital-mobile-320",
+      "mode": "digital",
+      "viewport": [
+        320,
+        568
+      ],
+      "width": 320,
+      "height": 568,
+      "scrollWidth": 320,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": true,
+        "single": false,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 282,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "folded-mobile-320",
+      "mode": "folded",
+      "viewport": [
+        320,
+        568
+      ],
+      "width": 320,
+      "height": 568,
+      "scrollWidth": 320,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": false,
+        "folded": true
+      },
+      "panelExists": true,
+      "panelWidth": 282,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "digital-mobile-375",
+      "mode": "digital",
+      "viewport": [
+        375,
+        812
+      ],
+      "width": 375,
+      "height": 812,
+      "scrollWidth": 375,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": true,
+        "single": false,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 337,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "folded-mobile-375",
+      "mode": "folded",
+      "viewport": [
+        375,
+        812
+      ],
+      "width": 375,
+      "height": 812,
+      "scrollWidth": 375,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": false,
+        "folded": true
+      },
+      "panelExists": true,
+      "panelWidth": 337,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "single-tablet-768",
+      "mode": "single-print",
+      "viewport": [
+        768,
+        1024
+      ],
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": true,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 718,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "folded-tablet-1024",
+      "mode": "folded",
+      "viewport": [
+        1024,
+        768
+      ],
+      "width": 1024,
+      "height": 768,
+      "scrollWidth": 1009,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": false,
+        "folded": true
+      },
+      "panelExists": true,
+      "panelWidth": 496.5625,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "digital-desktop-1440",
+      "mode": "digital",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": true,
+        "single": false,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 698.125,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "folded-desktop-1440",
+      "mode": "folded",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": false,
+        "folded": true
+      },
+      "panelExists": true,
+      "panelWidth": 698.125,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "digital-desktop-1920",
+      "mode": "digital",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "width": 1920,
+      "height": 1080,
+      "scrollWidth": 1905,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": true,
+        "single": false,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 715.46875,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "functional-digital",
+      "mode": "digital",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": true,
+        "single": false,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 698.125,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "functional-single",
+      "mode": "single-print",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": true,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 698.125,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "functional-folded",
+      "mode": "folded",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": false,
+        "folded": true
+      },
+      "panelExists": true,
+      "panelWidth": 698.125,
+      "minButtonHeight": 50.828125,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "share-payload-digital",
+      "mode": "digital",
+      "viewport": [
+        375,
+        812
+      ],
+      "width": 375,
+      "height": 812,
+      "scrollWidth": 375,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": true,
+        "single": false,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 337,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "share-payload-single",
+      "mode": "single-print",
+      "viewport": [
+        768,
+        1024
+      ],
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": true,
+        "folded": false
+      },
+      "panelExists": true,
+      "panelWidth": 718,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    },
+    {
+      "label": "share-payload-folded",
+      "mode": "folded",
+      "viewport": [
+        375,
+        812
+      ],
+      "width": 375,
+      "height": 812,
+      "scrollWidth": 375,
+      "overflow": false,
+      "visiblePanels": {
+        "digital": false,
+        "single": false,
+        "folded": true
+      },
+      "panelExists": true,
+      "panelWidth": 337,
+      "minButtonHeight": 50,
+      "buttonsOutside": [],
+      "shareTextVisible": true,
+      "privacyVisible": true,
+      "reviewButton": "Continue to download & share",
+      "downloadWorkspaceVisible": true
+    }
+  ],
+  "downloads": {
+    "digital": [
+      {
+        "name": "job-promotion-alex-card.png",
+        "size": 1000826
+      }
+    ],
+    "single": [
+      {
+        "name": "job-promotion-alex-card.jpg",
+        "size": 248984
+      },
+      {
+        "name": "job-promotion-alex-card.pdf",
+        "size": 249688
+      }
+    ],
+    "folded": [
+      {
+        "name": "job-promotion-alex-card.pdf",
+        "size": 600019
+      },
+      {
+        "name": "job-promotion-alex-inside-sheet.jpg",
+        "size": 229261
+      },
+      {
+        "name": "job-promotion-alex-outside-sheet.png",
+        "size": 4916288
+      }
+    ],
+    "shareFallback": [
+      {
+        "name": "job-promotion-alex-inside-sheet.png",
+        "size": 297819
+      },
+      {
+        "name": "job-promotion-alex-outside-sheet.png",
+        "size": 4916288
+      }
+    ]
+  },
+  "nativeSharePayloads": {
+    "digital": {
+      "title": "Job Promotion card",
+      "text": "I made this card on CardMakerMessages.com. Create yours too:\nhttps://cardmakermessages.com",
+      "files": [
+        {
+          "name": "job-promotion-alex-card.png",
+          "type": "image/png",
+          "size": 1000826
+        }
+      ]
+    },
+    "singlePdf": {
+      "title": "Job Promotion printable card",
+      "text": "I made this card on CardMakerMessages.com. Create yours too:\nhttps://cardmakermessages.com",
+      "files": [
+        {
+          "name": "job-promotion-alex-card.pdf",
+          "type": "application/pdf",
+          "size": 249688
+        }
+      ]
+    },
+    "foldedSheets": {
+      "title": "Job Promotion folded card",
+      "text": "I made this card on CardMakerMessages.com. Create yours too:\nhttps://cardmakermessages.com",
+      "files": [
+        {
+          "name": "job-promotion-alex-outside-sheet.png",
+          "type": "image/png",
+          "size": 4916288
+        },
+        {
+          "name": "job-promotion-alex-inside-sheet.png",
+          "type": "image/png",
+          "size": 297819
+        }
+      ]
+    }
+  }
+}
