@@ -1,6 +1,6 @@
 {
   "name": "card-maker-messages",
-  "version": "1.10.0",
+  "version": "1.9.0",
   "private": true,
   "description": "A premium client-side card and invitation maker with original messages and printable folded PDFs.",
   "scripts": {
@@ -11,5 +11,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "jsdom": "^29.1.1"
   }
 }

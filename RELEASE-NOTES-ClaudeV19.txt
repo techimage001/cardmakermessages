@@ -1,0 +1,49 @@
+Card Maker Messages ClaudeV19
+
+Sharing and export release.
+
+Fixed:
+- Removed the url field from the file-based navigator.share call. This was the
+  cause of the temporary blob: address appearing in shared WhatsApp messages and
+  resolving to a blank page. Shared cards now carry the image plus a short
+  caption only.
+- Share caption rewritten to lead with the occasion-aware app link so it
+  survives caption truncation:
+  "Made with cardmakermessages.com/app.html?occasion=... I made this card there,
+  create yours too"
+
+Added to the review screen:
+- Digital and one-page print modes: Share card as the primary action, with PNG,
+  JPEG and PDF saves beneath it.
+- Folded card mode: Download folded PDF as the primary action, with expandable
+  Save as PNG and Save as JPEG groups offering the outside sheet and inside
+  sheet as separate files, then Share both sheets as a secondary action.
+- Privacy line confirming cards and photos stay on the device.
+
+Folded sharing behaviour:
+- Attempts both sheets through the native share sheet.
+- Falls back to sharing the outside sheet alone where the device supports only
+  one file, with an on-screen note.
+- Falls back to downloading both sheets where sharing is unsupported.
+
+Changed:
+- Download JPG relabelled Download JPEG in the download workspace. The element
+  id and the .jpg file extension are unchanged.
+- Share help text updated now that captions work without manual pasting.
+- Review modal action row pinned to the bottom while the body scrolls.
+
+Internal:
+- Folded sheet layout extracted into a shared builder used by both the folded
+  PDF and the new sheet image exports, removing duplicated drawing logic.
+- All new review buttons routed through withUsageGate so the review shortcut
+  cannot bypass the usage gate.
+
+Cache:
+- All asset version queries bumped to v19.
+- Service worker VERSION bumped to 19.
+
+Unchanged:
+- Card rendering, five-stage workflow, email verification, SMTP, admin
+  dashboard, templates, SEO pages and all other GPTV18 functionality.
+- No upload endpoint, hosted card page or server-side storage was added. The
+  shared link points at the card maker as attribution.
