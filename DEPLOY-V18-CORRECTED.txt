@@ -1,0 +1,15 @@
+SAFE DEPLOYMENT STEPS
+
+1. Keep a backup of the current public_html folder.
+2. Upload every file and folder from this corrected package into public_html.
+3. Choose overwrite/replace when Hostinger asks about existing files.
+4. Confirm these files exist after upload:
+   assets/site-v18-1.css
+   assets/site-v18-1.js
+   assets/messages-v18-1.js
+   assets/pdf-v18-1.js
+   assets/app-v18-1.js
+5. Open app.html and confirm its source references the five files above.
+6. Test Download printable PDF, Share card image, Share PDF, PNG and JPEG.
+
+Do not delete the normal assets/site.js, assets/app.js, assets/pdf.js or assets/messages.js files. They are retained for compatibility with the build system and other pages.

@@ -6,7 +6,6 @@
   Never place the completed secrets.php inside public_html or GitHub.
 */
 return [
-    'admin_password' => 'REPLACE_WITH_A_STRONG_ADMIN_PASSWORD',
     'SITE_SALT' => 'REPLACE-WITH-A-RANDOM-32-PLUS-CHARACTER-STRING',
     'NOTIFY_EMAIL' => 'info@cardmakermessages.com',
     'smtp_host' => 'smtp.hostinger.com',
