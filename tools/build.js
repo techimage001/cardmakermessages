@@ -14,13 +14,18 @@ const pagesData = JSON.parse(fs.readFileSync(path.join(SRC, 'seo-pages.json'), '
 const toolPages = JSON.parse(fs.readFileSync(path.join(SRC, 'tool-pages.json'), 'utf8'));
 const domain = config.domain.replace(/\/$/, '');
 const version = config.assetVersion;
+const assetSlug = String(version).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
 
 if (!/^https:\/\//.test(domain)) throw new Error('site.config.json domain must start with https://');
 if (!/^[a-f0-9]{32}$/i.test(config.indexNowKey)) throw new Error('IndexNow key must be exactly 32 hexadecimal characters.');
 
 fs.mkdirSync(ASSETS, { recursive: true });
 for (const file of ['site.css', 'site.js', 'messages.js', 'pdf.js', 'app.js']) {
-  fs.copyFileSync(path.join(SRC, file), path.join(ASSETS, file));
+  const source = path.join(SRC, file);
+  fs.copyFileSync(source, path.join(ASSETS, file));
+  const extension = path.extname(file);
+  const basename = path.basename(file, extension);
+  fs.copyFileSync(source, path.join(ASSETS, `${basename}-v${assetSlug}${extension}`));
 }
 
 const pageList = [];
@@ -244,7 +249,7 @@ function graphSchema({ title, description, pathname, breadcrumbs, type = 'Articl
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
 }
 
-function htmlPage({ pathname, title, description, body, breadcrumbs = [{ name: 'Home', url: '/' }], type = 'Article', faq = [], howTo = [], noindex = false, extraScripts = '', extraHead = '' }) {
+function htmlPage({ pathname, title, description, body, breadcrumbs = [{ name: 'Home', url: '/' }], type = 'Article', faq = [], howTo = [], noindex = false, extraScripts = '', extraHead = '', isolatedAssets = false }) {
   const canonical = absolute(pathname);
   const fullTitle = title.includes(config.brand) ? title : `${title} | ${config.brand}`;
   const robots = noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1';
@@ -254,6 +259,8 @@ function htmlPage({ pathname, title, description, body, breadcrumbs = [{ name: '
   const autoFaq = effectiveFaq.length && !hasVisibleFaq ? faqMarkup(effectiveFaq, `Questions about ${title.replace(/\s+(for|with|and).*$/i,'')}`) : '';
   const hasRelated = body.includes('related-panel') || body.includes('internal-links-section');
   const related = noindex || pathname === '/' || pathname === '/app.html' || hasRelated ? '' : contextLinks(pathname);
+  const stylesheetHref = isolatedAssets ? `/assets/site-v${assetSlug}.css` : `/assets/site.css?v=${version}`;
+  const siteScriptSrc = isolatedAssets ? `/assets/site-v${assetSlug}.js` : `/assets/site.js?v=${version}`;
   const result = `<!doctype html>
 <html lang="en-GB" data-site-domain="${escapeHtml(domain.replace(/^https?:\/\//, ''))}">
 <head>
@@ -266,9 +273,9 @@ function htmlPage({ pathname, title, description, body, breadcrumbs = [{ name: '
   <meta property="og:image" content="${absolute('/assets/og-image.png')}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escapeHtml(title)}"><meta name="twitter:description" content="${escapeHtml(description)}"><meta name="twitter:image" content="${absolute('/assets/og-image.png')}">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png"><link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="/assets/site.css?v=${version}">${extraHead}<script type="application/ld+json">${schema}</script>
+  <link rel="stylesheet" href="${stylesheetHref}">${extraHead}<script type="application/ld+json">${schema}</script>
 </head>
-<body><a class="skip-link" href="#main">Skip to main content</a>${header()}<main id="main">${body}${autoFaq}${related}</main>${footer()}${signupModal()}<div id="appLiveRegion" class="skip-link" role="status" aria-live="polite" aria-atomic="true"></div><script src="/assets/site.js?v=${version}" defer></script>${extraScripts}</body></html>`;
+<body><a class="skip-link" href="#main">Skip to main content</a>${header()}<main id="main">${body}${autoFaq}${related}</main>${footer()}${signupModal()}<div id="appLiveRegion" class="skip-link" role="status" aria-live="polite" aria-atomic="true"></div><script src="${siteScriptSrc}" defer></script>${extraScripts}</body></html>`;
   pageList.push({ pathname, noindex });
   return result;
 }
@@ -470,7 +477,8 @@ writePage('app.html', {
   pathname: '/app.html', title: 'Card Maker and Invitation Maker',
   description: 'Card maker and invitation maker with original wording, premium one-tap designs, private photos and printable folded PDFs.',
   body: appBody(), breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Card maker', url: '/app.html' }], type: 'WebApplication', howTo: appSteps, faq: defaultFaq('Card Maker and Invitation Maker', '/app.html'),
-  extraScripts: `<script src="/assets/messages.js?v=${version}" defer></script><script src="/assets/pdf.js?v=${version}" defer></script><script src="/assets/app.js?v=${version}" defer></script>`
+  isolatedAssets: true,
+  extraScripts: `<script src="/assets/messages-v${assetSlug}.js" defer></script><script src="/assets/pdf-v${assetSlug}.js" defer></script><script src="/assets/app-v${assetSlug}.js" defer></script>`
 });
 
 // SEO occasion pages

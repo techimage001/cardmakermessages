@@ -66,3 +66,9 @@ New documentation
 - CHANGELOG-GPTV18.txt
 - QA-REPORT-GPTV18.txt
 - docs/v18-qa/
+
+GPTV18 corrected deployment patch (asset version 18.1)
+- Added uniquely named card-maker assets to prevent mixed V17/V18 deployment or stale CDN files.
+- Added reliable share fallbacks that download the requested file rather than leaving a failed share action silent.
+- Added a compatible copy-message fallback.
+- Kept all buttons visible and retained all existing card-maker features.

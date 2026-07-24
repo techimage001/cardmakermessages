@@ -1136,12 +1136,26 @@
   }
 
   async function copyShareMessage(silent = false) {
+    const text = shareMessage();
     try {
-      await navigator.clipboard.writeText(shareMessage());
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand('copy');
+        field.remove();
+        if (!copied) throw new Error('Copy command was not accepted.');
+      }
       if (!silent) announce('The sharing message and website link were copied.');
       return true;
     } catch (_) {
-      if (!silent) announce('Copying is not supported in this browser.');
+      if (!silent) announce('Your browser could not copy automatically. Select the message shown below the buttons and copy it manually.');
       return false;
     }
   }
@@ -1159,14 +1173,15 @@
         return true;
       } catch (error) {
         if (error?.name === 'AbortError') return false;
-        throw error;
+        // Some browsers report file sharing support but reject a particular file type
+        // or number of files. Fall back visibly instead of leaving the button silent.
       }
     }
     const copied = await copyShareMessage(true);
     await fallback();
     announce(copied
-      ? 'Sharing files is not supported here. The files were downloaded and the sharing message was copied.'
-      : 'Sharing files is not supported here. The files were downloaded; add cardmakermessages.com when you share them.');
+      ? 'The file was downloaded and the sharing message was copied. Attach the downloaded file in WhatsApp, email or another app.'
+      : 'The file was downloaded. Attach it in WhatsApp, email or another app and add cardmakermessages.com to your message.');
     return false;
   }
 

@@ -49,8 +49,8 @@ for (const file of htmlFiles) {
   check(source.includes('/favicon-96.png'), `${file}: missing 96 favicon declaration`);
   check(source.includes('/favicon.ico'), `${file}: missing ICO favicon declaration`);
   check(source.includes('/apple-touch-icon.png'), `${file}: missing Apple touch icon`);
-  check(source.includes('/assets/site.js?v='), `${file}: shared script not loaded`);
-  const versionMatches = [...source.matchAll(/\/assets\/[a-z-]+\.(?:css|js)\?v=([0-9]+)/g)];
+  check(/\/assets\/site(?:-v[a-z0-9-]+)?\.js(?:\?v=[0-9.]+)?/.test(source), `${file}: shared script not loaded`);
+  const versionMatches = [...source.matchAll(/\/assets\/[a-z-]+\.(?:css|js)\?v=([0-9.]+)/g)];
   versionMatches.forEach(match => versions.add(match[1]));
 
   const schemaBlocks = [...source.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
@@ -96,7 +96,7 @@ for (const file of htmlFiles) {
 
 check(versions.size === 1 && versions.has(config.assetVersion), `Asset version mismatch: ${[...versions].join(', ')}`);
 
-for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md','EMAIL-VERIFICATION-SETUP.md','CMM-SECRETS-TEMPLATE.php']) {
+for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','assets/site-v18-1.css','assets/site-v18-1.js','assets/messages-v18-1.js','assets/pdf-v18-1.js','assets/app-v18-1.js','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md','EMAIL-VERIFICATION-SETUP.md','CMM-SECRETS-TEMPLATE.php']) {
   check(fs.existsSync(path.join(ROOT, file)), `Missing required file: ${file}`);
 }
 
@@ -145,6 +145,7 @@ check(app.includes('data-inside-paper="white"') && app.includes('data-inside-pap
 check(app.includes('data-creation-type="invitation"'), 'app.html missing invitation creation mode');
 check(app.includes('data-creation-type="postcard"'), 'app.html missing postcard creation mode');
 check(app.includes(config.domain), 'app.html missing configured domain');
+check(app.includes('/assets/site-v18-1.js') && app.includes('/assets/messages-v18-1.js') && app.includes('/assets/pdf-v18-1.js') && app.includes('/assets/app-v18-1.js'), 'app.html must load the isolated corrected V18.1 scripts');
 
 check(app.includes('class="design-options-visible"'), 'app.html must keep the full design studio visible');
 check(!app.includes('<details class="more-options"'), 'app.html must not hide design controls in a More design options disclosure');
