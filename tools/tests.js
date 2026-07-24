@@ -49,8 +49,8 @@ for (const file of htmlFiles) {
   check(source.includes('/favicon-96.png'), `${file}: missing 96 favicon declaration`);
   check(source.includes('/favicon.ico'), `${file}: missing ICO favicon declaration`);
   check(source.includes('/apple-touch-icon.png'), `${file}: missing Apple touch icon`);
-  check(/\/assets\/site(?:-v[a-z0-9-]+)?\.js(?:\?v=[0-9.]+)?/.test(source), `${file}: shared script not loaded`);
-  const versionMatches = [...source.matchAll(/\/assets\/[a-z-]+\.(?:css|js)\?v=([0-9.]+)/g)];
+  check(source.includes('/assets/site.js?v='), `${file}: shared script not loaded`);
+  const versionMatches = [...source.matchAll(/\/assets\/[a-z-]+\.(?:css|js)\?v=([0-9]+)/g)];
   versionMatches.forEach(match => versions.add(match[1]));
 
   const schemaBlocks = [...source.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
@@ -96,7 +96,7 @@ for (const file of htmlFiles) {
 
 check(versions.size === 1 && versions.has(config.assetVersion), `Asset version mismatch: ${[...versions].join(', ')}`);
 
-for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','assets/site-v18-1.css','assets/site-v18-1.js','assets/messages-v18-1.js','assets/pdf-v18-1.js','assets/app-v18-1.js','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md','EMAIL-VERIFICATION-SETUP.md','CMM-SECRETS-TEMPLATE.php']) {
+for (const file of ['favicon.svg','favicon-48.png','favicon-96.png','favicon.ico','apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','robots.txt','sitemap.xml','site.webmanifest','service-worker.js','llms.txt','.htaccess','COPYRIGHT-SAFETY.md','EMAIL-VERIFICATION-SETUP.md','CMM-SECRETS-TEMPLATE.php']) {
   check(fs.existsSync(path.join(ROOT, file)), `Missing required file: ${file}`);
 }
 
@@ -125,7 +125,7 @@ check(css.includes('min-height: 44px'), 'CSS missing 44px tap targets');
 
 const app = fs.readFileSync(path.join(ROOT, 'app.html'), 'utf8');
 const appJs = fs.readFileSync(path.join(ROOT, 'assets', 'app.js'), 'utf8');
-for (const id of ['cardCanvas','messageOptions','messageOptionsPanel','downloadPng','downloadJpg','downloadPdf','reviewCard','photoInput','photoPositionControls','photoZoom','centrePhoto','backgroundPicker','mainMessage','frontHeading','backMessage','customOccasion','eventTitle','eventDate','eventVenue','eventRsvp','downloadSinglePdf','downloadSinglePng','downloadSingleJpeg','shareImage','shareSingleImage','shareSinglePdf','shareFoldedSheets','shareFoldedPdf','downloadFoldedOutsidePng','downloadFoldedInsidePng','downloadFoldedOutsideJpeg','downloadFoldedInsideJpeg','downloadWorkspace','signupForm']) {
+for (const id of ['cardCanvas','messageOptions','messageOptionsPanel','downloadPng','downloadPdf','reviewCard','photoInput','photoPositionControls','photoZoom','centrePhoto','backgroundPicker','mainMessage','frontHeading','backMessage','customOccasion','eventTitle','eventDate','eventVenue','eventRsvp','downloadSinglePdf','downloadWorkspace','signupForm']) {
   check(app.includes(`id="${id}"`), `app.html missing #${id}`);
 }
 for (const text of ['Folded card','A4 folded to A5','A5 folded to A6','Review selected format','Instagram square','5 × 7 inch','Show message choices','WhatsApp square','LinkedIn post','4 × 6 inch postcard','6 × 6 inch square']) {
@@ -134,18 +134,13 @@ for (const text of ['Folded card','A4 folded to A5','A5 folded to A6','Review se
 
 check(app.indexOf('id="outputFormatSection"') < app.indexOf('id="reviewCard"'), 'Size and format choices must appear before review');
 check(app.includes('id="reviewSingleWrap"') && app.includes('id="reviewFoldedWrap"'), 'app.html missing exact-format review views');
-check(!app.includes('id="facebookShare"') && !app.includes('id="linkedinShare"') && !app.includes('id="pinterestShare"'), 'Legacy link-only social buttons should not appear in the V18 export panel');
-check(app.includes('Continue to download &amp; share'), 'Review confirmation must continue to Download & Share');
-check(app.includes('I made this card on CardMakerMessages.com. Create yours too:'), 'Approved sharing message is missing from the export UI');
-check(app.includes('Your image stays on this device') && app.includes('Nothing is uploaded to our server'), 'Digital privacy wording is missing');
-check(app.includes('Share both sheets') && app.includes('Outside sheet PNG') && app.includes('Inside sheet JPEG'), 'Folded image sharing and downloads are incomplete');
+check(app.includes('id="facebookShare"') && app.includes('id="linkedinShare"') && app.includes('id="pinterestShare"'), 'app.html missing social share choices');
 check(app.includes('id="cardMakerWorkspace"'), 'app.html missing workspace scroll target');
 check(app.includes('data-signup-open'), 'app.html missing sign-up control');
 check(app.includes('data-inside-paper="white"') && app.includes('data-inside-paper="ivory"'), 'app.html missing light inside-paper choices');
 check(app.includes('data-creation-type="invitation"'), 'app.html missing invitation creation mode');
 check(app.includes('data-creation-type="postcard"'), 'app.html missing postcard creation mode');
 check(app.includes(config.domain), 'app.html missing configured domain');
-check(app.includes('/assets/site-v18-1.js') && app.includes('/assets/messages-v18-1.js') && app.includes('/assets/pdf-v18-1.js') && app.includes('/assets/app-v18-1.js'), 'app.html must load the isolated corrected V18.1 scripts');
 
 check(app.includes('class="design-options-visible"'), 'app.html must keep the full design studio visible');
 check(!app.includes('<details class="more-options"'), 'app.html must not hide design controls in a More design options disclosure');
@@ -164,7 +159,7 @@ check(htaccess.includes('no-cache, no-store, must-revalidate, max-age=0'), '.hta
 check(css.includes('.design-options-visible { display: block !important; }'), 'CSS must keep full design controls visible');
 check(css.includes('.mock-controls .mock-design-link') && css.includes('pointer-events: auto'), 'Choose design link needs an interactive CSS layer');
 check(css.includes('.floating-preview-dock'), 'CSS missing persistent footer preview');
-for (const file of ['api/bootstrap.php','api/verify.php','api/status.php','api/logout.php','api/smtp_mailer.php']) check(fs.existsSync(path.join(ROOT,file)), `Missing verified-email access file: ${file}`);
+for (const file of ['api/bootstrap.php','api/verify.php','api/status.php','api/logout.php','api/smtp_mailer.php','api/leads.php']) check(fs.existsSync(path.join(ROOT,file)), `Missing verified-email access file: ${file}`);
 const subscribeSource = fs.readFileSync(path.join(ROOT, 'api/subscribe.php'), 'utf8');
 const verifySource = fs.readFileSync(path.join(ROOT, 'api/verify.php'), 'utf8');
 check(subscribeSource.includes('verification link') && subscribeSource.includes('honeypot'), 'Signup must use email verification and bot protection');
@@ -207,11 +202,7 @@ const appSource = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
 check(appSource.includes('All visual motifs are original procedural canvas drawings'), 'Copyright-safety declaration missing from visual engine');
 check(appSource.includes("canvas.addEventListener('pointerdown'") && appSource.includes('data-photo-nudge') && appSource.includes('photoZoom'), 'Photo must support direct pointer dragging, nudging and zoom');
 check(appSource.includes('Photo added at the top of the card') && appSource.includes('drawPhotoTopArea'), 'Uploaded photo must appear immediately in the card top area');
-check(appSource.includes("I made this card on CardMakerMessages.com. Create yours too:\\nhttps://cardmakermessages.com"), 'Approved share message is missing from the sharing function');
-check(appSource.includes('navigator.canShare') && appSource.includes('shareFoldedSheets') && appSource.includes('createFoldedSheetCanvases'), 'Native file sharing and folded sheet export functions are incomplete');
-check(!appSource.includes('permanent card-maker link was also copied'), 'Old permanent-link sharing message remains');
 check(css.includes('#cardCanvas.photo-draggable') && css.includes('touch-action: none'), 'Photo dragging CSS must support mouse and touch');
-check(css.includes('.export-panel') && css.includes('.export-download-grid') && css.includes('@media (max-width: 380px)'), 'Mobile-first V18 export styles are incomplete');
 check(!/@font-face|fonts\.googleapis|cdnjs|unpkg|jsdelivr/i.test(css + appSource), 'External font or asset dependency found');
 const copyrightSafety = fs.readFileSync(path.join(ROOT, 'COPYRIGHT-SAFETY.md'), 'utf8');
 check(copyrightSafety.includes('does not bundle third-party greeting-card templates'), 'Copyright safety document is incomplete');
@@ -252,3 +243,8 @@ check(!app.includes('id="selectedFormatSummary"'), 'Redundant selected format ba
 check(app.includes('id="stageGuardPrompt"'), 'Stage guard prompt is present');
 check(appJs.includes('Please select a size'), 'Missing-size stage validation is present');
 check(appJs.includes('Review your card first'), 'Review-before-download validation is present');
+
+const leadsSource = fs.readFileSync(path.join(ROOT, 'api/leads.php'), 'utf8');
+check(leadsSource.includes('download=verified-csv'), 'Missing verified-only CSV export');
+check(leadsSource.includes('admin_password'), 'Missing private admin password support');
+check(leadsSource.includes('DELETE FROM subscribers'), 'Missing GDPR subscriber deletion');

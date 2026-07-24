@@ -1099,24 +1099,10 @@
     return output;
   }
 
-  function canvasToBlob(canvasElement, type = 'image/png', quality = .95) {
-    return new Promise((resolve, reject) => canvasElement.toBlob(
-      blob => blob ? resolve(blob) : reject(new Error('Could not create image.')),
-      type,
-      quality
-    ));
-  }
-
   async function canvasBlob(type = 'image/png', quality = .95) {
     const selected = sizes[state.size] || sizes['instagram-square'];
     const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return canvasToBlob(output, type, quality);
-  }
-
-  async function singlePrintCanvasBlob(type = 'image/png', quality = .95) {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return canvasToBlob(output, type, quality);
+    return new Promise((resolve, reject) => output.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
   }
 
   function slug(value) {
@@ -1125,64 +1111,6 @@
 
   function filename(ext) {
     return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-card.${ext}`;
-  }
-
-  function sheetFilename(sheet, ext) {
-    return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-${sheet}-sheet.${ext}`;
-  }
-
-  function shareMessage() {
-    return 'I made this card on CardMakerMessages.com. Create yours too:\nhttps://cardmakermessages.com';
-  }
-
-  async function copyShareMessage(silent = false) {
-    const text = shareMessage();
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const field = document.createElement('textarea');
-        field.value = text;
-        field.setAttribute('readonly', '');
-        field.style.position = 'fixed';
-        field.style.opacity = '0';
-        document.body.appendChild(field);
-        field.select();
-        const copied = document.execCommand('copy');
-        field.remove();
-        if (!copied) throw new Error('Copy command was not accepted.');
-      }
-      if (!silent) announce('The sharing message and website link were copied.');
-      return true;
-    } catch (_) {
-      if (!silent) announce('Your browser could not copy automatically. Select the message shown below the buttons and copy it manually.');
-      return false;
-    }
-  }
-
-  function supportsFileShare(files) {
-    if (!navigator.share || !navigator.canShare) return false;
-    try { return navigator.canShare({ files }); } catch (_) { return false; }
-  }
-
-  async function shareFiles(files, title, fallback) {
-    if (supportsFileShare(files)) {
-      try {
-        await navigator.share({ files, title, text: shareMessage() });
-        announce('Your card was shared.');
-        return true;
-      } catch (error) {
-        if (error?.name === 'AbortError') return false;
-        // Some browsers report file sharing support but reject a particular file type
-        // or number of files. Fall back visibly instead of leaving the button silent.
-      }
-    }
-    const copied = await copyShareMessage(true);
-    await fallback();
-    announce(copied
-      ? 'The file was downloaded and the sharing message was copied. Attach the downloaded file in WhatsApp, email or another app.'
-      : 'The file was downloaded. Attach it in WhatsApp, email or another app and add cardmakermessages.com to your message.');
-    return false;
   }
 
   async function openImage(type) {
@@ -1200,42 +1128,38 @@
     return url.toString();
   }
 
+  function shareCaption() {
+    return `Made with ${canonicalAppUrl()} I made this card there, create yours too`;
+  }
+
   async function shareImage() {
     const blob = await canvasBlob('image/png');
     const file = new File([blob], filename('png'), { type: 'image/png' });
-    await shareFiles([file], `${state.occasionLabel} card`, async () => {
-      window.CardPDF.downloadBlob(blob, filename('png'));
-    });
-  }
-
-  async function copyImage() {
-    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
-      announce('Image copying is not supported in this browser.');
+    const appUrl = canonicalAppUrl();
+    const shareText = shareCaption();
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: `${state.occasionLabel} card`,
+        text: shareText
+      });
+      announce('Card shared.');
       return;
     }
-    const blob = await canvasBlob('image/png');
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    announce('Card image copied.');
+    try {
+      await navigator.clipboard.writeText(appUrl);
+      announce('Card link copied. The finished image will now open for saving.');
+    } catch (_) {
+      announce('The finished image will open for saving.');
+    }
+    window.CardPDF.openBlob(blob, filename('png'));
   }
 
-  async function createSinglePagePdfBlob() {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return window.CardPDF.canvasesToPdf([output], selected.pdf);
-  }
-
-  async function createSinglePagePdf() {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const pdf = await createSinglePagePdfBlob();
-    window.CardPDF.downloadBlob(pdf, filename('pdf'));
-    announce(`${selected.label} was downloaded.`);
-  }
-
-  function createFoldedSheetCanvases() {
+  function foldedSheetCanvases() {
     const specs = {
-      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
-      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
-      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
+      A4: { pageWidth: 3508, pageHeight: 2480 },
+      A5: { pageWidth: 2480, pageHeight: 1748 },
+      Letter: { pageWidth: 3300, pageHeight: 2550 }
     };
     const spec = specs[state.printPaper] || specs.A4;
     const { pageWidth, pageHeight } = spec;
@@ -1250,11 +1174,94 @@
     const outCtx = outside.getContext('2d');
     const inCtx = inside.getContext('2d');
     [outCtx, inCtx].forEach(context => { context.fillStyle = '#ffffff'; context.fillRect(0, 0, pageWidth, pageHeight); });
-
     drawPanel(outCtx, margin, margin, panelWidth, panelHeight, 'back', state, true);
     drawPanel(outCtx, half + margin, margin, panelWidth, panelHeight, 'front', state, true);
     drawPanel(inCtx, margin, margin, panelWidth, panelHeight, 'inside-left', state, true);
     drawPanel(inCtx, half + margin, margin, panelWidth, panelHeight, 'inside-right', state, true);
+    return { outside, inside };
+  }
+
+  function canvasToBlob(source, type, quality) {
+    return new Promise((resolve, reject) => source.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
+  }
+
+  function sheetFilename(sheet, ext) {
+    return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-${sheet}-sheet.${ext}`;
+  }
+
+  async function saveFoldedSheet(sheet, type) {
+    const sheets = foldedSheetCanvases();
+    const source = sheet === 'inside' ? sheets.inside : sheets.outside;
+    const ext = type === 'image/png' ? 'png' : 'jpg';
+    const blob = await canvasToBlob(source, type, .94);
+    window.CardPDF.downloadBlob(blob, sheetFilename(sheet, ext));
+    announce(`The ${sheet} sheet was downloaded.`);
+  }
+
+  async function shareFoldedSheets() {
+    const sheets = foldedSheetCanvases();
+    const outsideBlob = await canvasToBlob(sheets.outside, 'image/png', .94);
+    const insideBlob = await canvasToBlob(sheets.inside, 'image/png', .94);
+    const files = [
+      new File([outsideBlob], sheetFilename('outside', 'png'), { type: 'image/png' }),
+      new File([insideBlob], sheetFilename('inside', 'png'), { type: 'image/png' })
+    ];
+    const shareText = shareCaption();
+    if (navigator.share && navigator.canShare?.({ files })) {
+      await navigator.share({ files, title: `${state.occasionLabel} card`, text: shareText });
+      announce('Both sheets were shared.');
+      return;
+    }
+    if (navigator.share && navigator.canShare?.({ files: [files[0]] })) {
+      await navigator.share({ files: [files[0]], title: `${state.occasionLabel} card`, text: shareText });
+      announce('This device shares one file at a time. The outside sheet was shared. Save the inside sheet below and send it separately.');
+      return;
+    }
+    window.CardPDF.downloadBlob(outsideBlob, sheetFilename('outside', 'png'));
+    window.CardPDF.downloadBlob(insideBlob, sheetFilename('inside', 'png'));
+    announce('Sharing is not supported in this browser. Both sheets were downloaded instead.');
+  }
+
+  async function reviewSaveImage(type) {
+    if (state.outputMode === 'folded') { await saveFoldedSheet('outside', type); return; }
+    await openImage(type);
+  }
+
+  async function reviewSavePdf() {
+    if (state.outputMode === 'folded') { await createFoldedPdf(); return; }
+    await createSinglePagePdf();
+  }
+
+  async function copyImage() {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      announce('Image copying is not supported in this browser.');
+      return;
+    }
+    const blob = await canvasBlob('image/png');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    announce('Card image copied.');
+  }
+
+  async function createSinglePagePdf() {
+    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+    const output = createPanelCanvas('front', selected.width, selected.height, false);
+    const pdf = await window.CardPDF.canvasesToPdf([output], selected.pdf);
+    window.CardPDF.downloadBlob(pdf, filename('pdf'));
+    announce(`${selected.label} was downloaded.`);
+  }
+
+  async function createFoldedPdf() {
+    const specs = {
+      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
+      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
+      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
+    };
+    const spec = specs[state.printPaper] || specs.A4;
+    const { pageWidth, pageHeight } = spec;
+    const half = pageWidth / 2;
+    const { outside, inside } = foldedSheetCanvases();
+    const outCtx = outside.getContext('2d');
+    const inCtx = inside.getContext('2d');
 
     if (state.showFoldMarks && state.printQuality === 'home') {
       [outCtx, inCtx].forEach(context => {
@@ -1265,74 +1272,9 @@
       });
     }
 
-    return { outside, inside, spec };
-  }
-
-  async function createFoldedPdfBlob() {
-    const { outside, inside, spec } = createFoldedSheetCanvases();
-    return window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
-  }
-
-  async function createFoldedPdf() {
-    const pdf = await createFoldedPdfBlob();
+    const pdf = await window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
     window.CardPDF.downloadBlob(pdf, filename('pdf'));
     announce('Your folded card PDF was downloaded.');
-  }
-
-  async function downloadSinglePrintImage(type) {
-    const blob = await singlePrintCanvasBlob(type, .94);
-    const ext = type === 'image/png' ? 'png' : 'jpg';
-    window.CardPDF.downloadBlob(blob, filename(ext));
-    announce(`Your ${ext === 'png' ? 'PNG' : 'JPEG'} card was downloaded.`);
-  }
-
-  async function shareSinglePrintImage() {
-    const blob = await singlePrintCanvasBlob('image/png');
-    const file = new File([blob], filename('png'), { type: 'image/png' });
-    await shareFiles([file], `${state.occasionLabel} card`, async () => {
-      window.CardPDF.downloadBlob(blob, filename('png'));
-    });
-  }
-
-  async function shareSinglePagePdf() {
-    const blob = await createSinglePagePdfBlob();
-    const file = new File([blob], filename('pdf'), { type: 'application/pdf' });
-    await shareFiles([file], `${state.occasionLabel} printable card`, async () => {
-      window.CardPDF.downloadBlob(blob, filename('pdf'));
-    });
-  }
-
-  async function downloadFoldedSheet(sheet, type) {
-    const canvases = createFoldedSheetCanvases();
-    const canvasElement = sheet === 'inside' ? canvases.inside : canvases.outside;
-    const blob = await canvasToBlob(canvasElement, type, .94);
-    const ext = type === 'image/png' ? 'png' : 'jpg';
-    window.CardPDF.downloadBlob(blob, sheetFilename(sheet, ext));
-    announce(`${sheet === 'inside' ? 'Inside' : 'Outside'} sheet ${ext === 'png' ? 'PNG' : 'JPEG'} was downloaded.`);
-  }
-
-  async function shareFoldedSheets() {
-    const { outside, inside } = createFoldedSheetCanvases();
-    const [outsideBlob, insideBlob] = await Promise.all([
-      canvasToBlob(outside, 'image/png'),
-      canvasToBlob(inside, 'image/png')
-    ]);
-    const files = [
-      new File([outsideBlob], sheetFilename('outside', 'png'), { type: 'image/png' }),
-      new File([insideBlob], sheetFilename('inside', 'png'), { type: 'image/png' })
-    ];
-    await shareFiles(files, `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(outsideBlob, sheetFilename('outside', 'png'));
-      window.CardPDF.downloadBlob(insideBlob, sheetFilename('inside', 'png'));
-    });
-  }
-
-  async function shareFoldedPdf() {
-    const blob = await createFoldedPdfBlob();
-    const file = new File([blob], filename('pdf'), { type: 'application/pdf' });
-    await shareFiles([file], `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(blob, filename('pdf'));
-    });
   }
 
   async function copyMessage() {
@@ -1417,6 +1359,11 @@
     if (summary) summary.textContent = `Reviewing: ${format.label} · ${format.detail}`;
     const reviewFigureCaption = document.getElementById('reviewFigureCaption');
     if (reviewFigureCaption) reviewFigureCaption.textContent = `${format.label} · ${format.detail}`;
+
+    const flatShare = document.getElementById('reviewFlatShare');
+    const foldedShare = document.getElementById('reviewFoldedShare');
+    if (flatShare) flatShare.hidden = format.kind === 'folded';
+    if (foldedShare) foldedShare.hidden = format.kind !== 'folded';
 
     if (format.kind === 'folded') {
       if (singleWrap) singleWrap.hidden = true;
@@ -1818,19 +1765,20 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('downloadPng')?.addEventListener('click', () => withUsageGate(() => openImage('image/png')).catch(handleError));
     document.getElementById('downloadJpg')?.addEventListener('click', () => withUsageGate(() => openImage('image/jpeg')).catch(handleError));
     document.getElementById('downloadSinglePdf')?.addEventListener('click', () => withUsageGate(createSinglePagePdf).catch(handleError));
-    document.getElementById('downloadSinglePng')?.addEventListener('click', () => withUsageGate(() => downloadSinglePrintImage('image/png')).catch(handleError));
-    document.getElementById('downloadSingleJpeg')?.addEventListener('click', () => withUsageGate(() => downloadSinglePrintImage('image/jpeg')).catch(handleError));
     document.getElementById('downloadPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
     document.getElementById('shareImage')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
-    document.getElementById('shareSingleImage')?.addEventListener('click', () => withUsageGate(shareSinglePrintImage).catch(handleError));
-    document.getElementById('shareSinglePdf')?.addEventListener('click', () => withUsageGate(shareSinglePagePdf).catch(handleError));
-    document.getElementById('shareFoldedSheets')?.addEventListener('click', () => withUsageGate(shareFoldedSheets).catch(handleError));
-    document.getElementById('shareFoldedPdf')?.addEventListener('click', () => withUsageGate(shareFoldedPdf).catch(handleError));
-    document.getElementById('downloadFoldedOutsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/png')).catch(handleError));
-    document.getElementById('downloadFoldedInsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/png')).catch(handleError));
-    document.getElementById('downloadFoldedOutsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/jpeg')).catch(handleError));
-    document.getElementById('downloadFoldedInsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/jpeg')).catch(handleError));
-    document.querySelectorAll('[data-copy-share-message]').forEach(button => button.addEventListener('click', () => copyShareMessage().catch(handleError)));
+    document.getElementById('reviewShareCard')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
+    document.getElementById('reviewSavePng')?.addEventListener('click', () => withUsageGate(() => reviewSaveImage('image/png')).catch(handleError));
+    document.getElementById('reviewSaveJpeg')?.addEventListener('click', () => withUsageGate(() => reviewSaveImage('image/jpeg')).catch(handleError));
+    document.getElementById('reviewSavePdf')?.addEventListener('click', () => withUsageGate(reviewSavePdf).catch(handleError));
+    document.getElementById('reviewFoldedPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
+    document.getElementById('reviewShareSheets')?.addEventListener('click', () => withUsageGate(shareFoldedSheets).catch(handleError));
+    document.querySelectorAll('[data-sheet-save]').forEach(button => {
+      button.addEventListener('click', () => withUsageGate(() => saveFoldedSheet(button.dataset.sheetSave, button.dataset.sheetType === 'jpeg' ? 'image/jpeg' : 'image/png')).catch(handleError));
+    });
+    document.querySelectorAll('[data-sheet-group]').forEach(summary => {
+      summary.addEventListener('click', () => {});
+    });
     document.getElementById('shareLink')?.addEventListener('click', () => shareLink().catch(handleError));
     document.getElementById('copyImage')?.addEventListener('click', () => copyImage().catch(handleError));
     document.getElementById('copyMessage')?.addEventListener('click', () => copyMessage().catch(handleError));
