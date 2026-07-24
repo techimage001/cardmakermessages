@@ -1,0 +1,9 @@
+Card Maker Messages GPTV18.2
+
+Correction:
+- The Share card and Share both sheets buttons now pass the generated image file(s) and the exact CardMakerMessages.com promotional message together in the same native share action.
+- The separate Copy message button remains visible only as a fallback.
+- Updated the on-screen explanation so users understand that the website link is included automatically where the receiving app supports it.
+- Fixed a duplicate outside-sheet fallback download.
+- Added cache-busted app-v18-2.js and service-worker version 18.2.
+- No card designs, editor behaviour, user images, backend storage, SEO pages, forms or unrelated features were changed.
