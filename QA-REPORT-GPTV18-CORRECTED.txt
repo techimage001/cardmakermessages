@@ -1,0 +1,37 @@
+CARD MAKER MESSAGES GPTV18 CORRECTED - QA REPORT
+
+Build and static checks
+- Production build completed successfully: 50 HTML pages and 49 indexable URLs.
+- 6,002 automated assertions passed.
+- JavaScript syntax checks passed for the corrected app, PDF and shared-site files.
+- app.html confirmed to load only the isolated V18.1 asset names for the card maker.
+- Service-worker cleanup version confirmed as 18.1.
+
+Functional browser execution checks
+The corrected scripts were executed in Chromium and the completed files were verified as non-empty downloads.
+
+One-page card
+- Download printable PDF: passed.
+- Download PNG: passed.
+- Download JPEG: passed.
+- Share card image fallback: passed and produced a PNG download when native file sharing was unavailable.
+- Share PDF fallback: passed and produced a PDF download when native file sharing was unavailable.
+
+Folded card
+- Download folded PDF: passed.
+- Download outside sheet PNG: passed.
+- Download inside sheet PNG: passed.
+- Download outside sheet JPEG: passed.
+- Download inside sheet JPEG: passed.
+- Share both sheets fallback: passed and produced both PNG files.
+- Share folded PDF fallback: passed and produced the PDF.
+
+Sharing message
+- Confirmed exactly:
+  I made this card on CardMakerMessages.com. Create yours too:
+  https://cardmakermessages.com
+
+Privacy and change boundary
+- No backend image upload or image database was added.
+- Existing designs, editor controls, card wording, templates, SEO pages and email/backend files were not redesigned.
+- The correction isolates the app assets to prevent an older JavaScript file being paired with the new V18 buttons.

@@ -1,0 +1,16 @@
+Card Maker Messages GPTV18 Corrected
+
+Purpose
+- Correct the live deployment mismatch where V18 buttons were visible but an older app JavaScript file could still be served.
+
+Changes
+- App page now loads uniquely named V18.1 CSS and JavaScript files.
+- The canonical asset files are also retained for compatibility.
+- Asset version increased to 18.1.
+- Service-worker cleanup version increased to 18.1.
+- Share actions now fall back to a real download if a browser claims to support file sharing but rejects it.
+- Copy message uses a compatibility fallback where the modern Clipboard API is unavailable.
+- No card designs, wording fields, templates, SEO content, backend forms or image-storage behaviour were changed.
+
+Deployment
+Upload the entire contents of this folder to public_html and allow existing files to be overwritten. Do not upload app.html alone. The uniquely named files in /assets must be uploaded with it.
