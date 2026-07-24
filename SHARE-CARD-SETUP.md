@@ -64,3 +64,25 @@ Minimal. The endpoints are stateless and accept no uploads. `og.php` only ever
 draws text and shapes from a fixed palette, capped in length, with control
 characters and tags stripped. There is no file write except the server's own
 temp cache.
+
+## If the preview image does not appear
+
+Open the renderer directly with a debug flag:
+
+    https://cardmakermessages.com/api/og.php?o=birthday&t=floral&h=Happy+Birthday&debug=1
+
+It prints plain text showing the PHP version, whether GD is loaded, whether
+FreeType text works, and whether the render succeeded. Remove the debug flag for
+normal use.
+
+The renderer is written so it can never return a 500. If anything fails it
+redirects to the static brand image at /assets/og-image.png instead, so shared
+links always show a preview.
+
+## Fonts
+
+Larger, crisper preview text uses the bundled TrueType fonts in api/fonts
+(DejaVuSans.ttf and DejaVuSans-Bold.ttf). If the server's GD build lacks
+FreeType support, the renderer automatically falls back to GD's built-in bitmap
+fonts, which are smaller but always work. Both paths produce a valid readable
+card. Keep the api/fonts folder in place when deploying.

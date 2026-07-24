@@ -51,3 +51,14 @@ Unchanged:
 Server requirement:
 - api/og.php uses PHP GD, enabled by default on Hostinger. If absent it fails
   safe to the static brand preview. See SHARE-CARD-SETUP.md.
+
+Post-release fix (og.php hardening):
+- Fixed an undefined-variable reference in the renderer's error handler that
+  caused a 500 on some servers before the fail-safe could run.
+- The renderer now suppresses warning output so nothing can corrupt the PNG
+  byte stream, and is wrapped so it can never return a 500: any failure
+  redirects to the static brand image instead.
+- Added a ?debug=1 flag that reports GD, FreeType and render status as text.
+- Bundled DejaVu TrueType fonts for larger preview text, with an automatic
+  fallback to bitmap fonts where the server GD build lacks FreeType. Verified
+  end to end against a real PHP GD runtime producing a valid 1200x630 PNG.
