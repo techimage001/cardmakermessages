@@ -1,0 +1,59 @@
+Card Maker Messages GPTV18 - QA Report
+
+Automated project QA
+- Command: npm run check
+- Build result: 50 HTML pages, 49 indexable URLs and shared assets generated successfully.
+- Test result: 5,996 assertions passed across 50 HTML pages.
+- JavaScript syntax checks passed for source, generated assets and build tools.
+- Existing SEO, schema, internal-link, favicon, privacy, signup, photo-positioning, card-design and folded-review regression checks passed.
+
+Responsive browser rendering QA
+The generated V18 HTML, CSS and JavaScript were rendered in Chromium at:
+- 320 x 568 mobile
+- 375 x 812 mobile
+- 768 x 1024 tablet
+- 1024 x 768 tablet/desktop
+- 1440 x 1000 desktop
+- 1920 x 1080 large desktop
+
+Results at every tested viewport
+- No horizontal overflow.
+- No action button extended outside the viewport.
+- Minimum rendered action-button height was 50 pixels or more.
+- Only the correct Digital, One-page Print or Folded panel appeared for the selected output mode.
+- The exact approved sharing message appeared.
+- The local-device privacy statement appeared.
+- The review button displayed Continue to download & share.
+
+Functional export QA
+Digital card
+- PNG generated successfully: job-promotion-alex-card.png
+
+One-page printable card
+- JPEG generated successfully: job-promotion-alex-card.jpg
+- PDF generated successfully: job-promotion-alex-card.pdf
+
+Folded card
+- Folded two-page PDF generated successfully.
+- Outside-sheet PNG generated successfully.
+- Inside-sheet JPEG generated successfully.
+
+Unsupported-share fallback
+- Share both sheets produced two local PNG downloads when native sharing was unavailable.
+
+Native Web Share payload QA
+The browser share API was instrumented to verify the payload before it reaches the operating-system share sheet.
+- Digital share contained one PNG and the exact approved message.
+- One-page PDF share contained one application/pdf file and the exact approved message.
+- Folded share contained two PNG files, outside sheet first and inside sheet second, plus the exact approved message.
+
+Device-share limitation
+An automated headless browser cannot open the real iOS, Android, Windows or macOS operating-system share chooser. The generated file payloads, filenames, MIME types, file counts and accompanying message were verified. A final live-site spot check on an HTTPS mobile device is still recommended after deployment because the receiving app controls whether it retains accompanying text with file attachments.
+
+Evidence
+- docs/v18-qa/browser-qa.json
+- docs/v18-qa/*-panel.png
+- docs/v18-qa/*.png
+
+V17 protection
+- A checksum verification confirmed that the original GPTV17 working folder remained unchanged.
