@@ -1,17 +1,19 @@
 Card Maker Messages GPTV18
 
-Focused mobile-first download and sharing update:
-- V17 remains unchanged. GPTV18 is a separate updated version.
-- The folded-card review layout remains unchanged.
-- The review confirmation now continues to Download & Share.
-- Digital cards can be shared as a local PNG with the approved CardMakerMessages.com message.
-- One-page printable cards can be downloaded as PDF, PNG or JPEG and shared as an image or PDF where supported.
-- Folded cards keep the existing two-page printable PDF and can also share both sheets as two PNG images.
-- Folded outside and inside sheets can be downloaded separately as PNG or JPEG.
-- Unsupported browsers download the files and copy the approved share message when clipboard access is available.
-- No user image or completed card is uploaded to or stored on the backend.
-- The new export interface is mobile-first, responsive and uses existing card rendering and PDF functions.
+Focused admin-dashboard release.
 
-Approved sharing message:
-I made this card on CardMakerMessages.com. Create yours too:
-https://cardmakermessages.com
+Added:
+- Password-protected subscriber dashboard at /api/leads.php
+- Verified, pending, total and verified-today counts
+- Verified-only CSV export
+- Source-page and UTC date display
+- Permanent GDPR subscriber deletion
+- Safe lockout when admin_password or private secrets are missing
+- CSRF protection for deletion
+- Secure admin session cookie
+
+Unchanged:
+- Card maker, templates, five-stage workflow, email verification, SMTP, exports, SEO pages and all other GPTV17 functionality.
+
+Required private setting:
+'admin_password' => 'YOUR_STRONG_ADMIN_PASSWORD'

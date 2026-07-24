@@ -1,0 +1,53 @@
+Card Maker Messages ClaudeV20
+
+Shareable card links release.
+
+The problem this fixes:
+Sharing a card to WhatsApp sent the image but no working link, because
+WhatsApp discards the caption when a file is attached. There was no way for the
+app link to travel with the picture.
+
+The solution:
+Because every card is drawn procedurally from parameters, a card can be
+reproduced from its own URL. Sharing now sends a real hosted link that WhatsApp
+and other platforms turn into a card preview with the link as the message. The
+recipient does nothing. Nothing is uploaded or stored, and no personal photo
+ever reaches the server.
+
+Added:
+- c.php: a stateless shared-card landing page. Serves Open Graph and Twitter
+  card tags so platforms show a preview, and redraws the card for a human
+  visitor with a "Make your own free card" button that deep-links into the app.
+  Marked noindex and kept out of the sitemap.
+- api/og.php: a photo-free Open Graph image renderer. Draws a 1200x630 preview
+  from the card parameters using PHP GD, caching to the system temp directory
+  for one day. Fails safe to the static brand image if GD is unavailable.
+- SHARE-CARD-SETUP.md: setup, server requirement and privacy notes.
+
+Changed:
+- The review-screen Share button now shares the hosted card link when the card
+  has no personal photo, so the image and link arrive together automatically.
+- When a card includes a personal photo, Share keeps sharing the image file
+  directly, since the server has no copy of the photo and must not.
+- Share note on the review screen updated to describe the new behaviour.
+
+Privacy:
+- Personal photos never leave the browser.
+- Shared previews show the design and message only, never the photo.
+- Shared card pages are noindex and excluded from the sitemap.
+- The share link carries the whole card, so there is nothing stored to delete
+  and no directory to browse.
+
+Cache:
+- All asset version queries bumped to v20.
+- cmm-build meta bumped to 20.
+- Service worker VERSION bumped to 20.
+
+Unchanged:
+- Card rendering, five-stage workflow, email verification, SMTP, admin
+  dashboard, templates, SEO pages, folded and flat exports, and all other
+  ClaudeV19 functionality.
+
+Server requirement:
+- api/og.php uses PHP GD, enabled by default on Hostinger. If absent it fails
+  safe to the static brand preview. See SHARE-CARD-SETUP.md.
