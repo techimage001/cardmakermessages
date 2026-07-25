@@ -1468,49 +1468,21 @@ textarea { min-height:118px; }
 @media (max-width:430px) { .type-controls { grid-template-columns:1fr; } }
 
 
-/* GPT24 occasion library and premium ready-made defaults */
-.occasion-filter-bar{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(220px,1.2fr);gap:12px;margin:12px 0 16px}.occasion-filter-bar label{display:grid;gap:6px;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.occasion-filter-bar select,.occasion-filter-bar input{min-height:46px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:10px 14px;font:700 .95rem Inter,Arial,sans-serif}.occasion-choice[hidden]{display:none!important}.occasion-library{display:grid;gap:42px}.occasion-category-section>h2{margin:0 0 18px;font-size:clamp(1.45rem,2.2vw,2rem)}
-@media(max-width:700px){.occasion-filter-bar{grid-template-columns:1fr}.occasion-library{gap:30px}}
-
-
-/* GPT24.1 visible occasion category browser */
-.occasion-browser{margin:12px 0 18px;padding:16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(248,240,234,.72));display:grid;gap:14px}.occasion-browser-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}.occasion-browser-heading>div{display:grid;gap:2px}.occasion-browser-kicker{font-size:.7rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--brand)}.occasion-browser-heading strong{font-family:Playfair Display,Georgia,serif;font-size:1.12rem}.occasion-result-count{font-weight:800;color:var(--muted);white-space:nowrap}.occasion-category-chips{display:flex;flex-wrap:wrap;gap:8px}.occasion-category-chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);min-height:38px;padding:8px 13px;border-radius:999px;font:800 .82rem Inter,Arial,sans-serif;cursor:pointer}.occasion-category-chip:hover,.occasion-category-chip:focus-visible{border-color:var(--brand);outline:none}.occasion-category-chip.is-active{background:var(--brand);border-color:var(--brand);color:#fff}.occasion-browser .occasion-filter-bar{margin:0}.occasion-browser+.occasion-choices{margin-top:2px}@media(max-width:700px){.occasion-browser{padding:13px}.occasion-browser-heading{align-items:flex-start}.occasion-category-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.occasion-category-chip{white-space:nowrap}.occasion-result-count{font-size:.82rem}}
-
-
-/* GPTV24 corrected: compact occasion selector, approved wording controls, no page-wide stage strip */
-.app-intro .app-how{display:none!important}
-.occasion-selector-compact{margin:10px 0 18px;padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--surface);display:grid;gap:12px}
-.occasion-selector-title strong{font-family:Playfair Display,Georgia,serif;font-size:1.08rem}
-.occasion-selector-grid{display:grid;grid-template-columns:minmax(170px,.85fr) minmax(190px,1fr) minmax(220px,1.25fr);gap:12px;align-items:end}
-.occasion-selector-grid label{display:grid;gap:6px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.occasion-selector-grid select,.occasion-selector-grid input{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:10px 13px;font:700 .92rem Inter,Arial,sans-serif}
-.popular-occasion-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:10px 12px;border:1px solid #e7c982;border-radius:11px;background:#fff8df;color:#5d4322;font-size:.8rem}
-.popular-occasion-row>span{font-weight:900}.popular-occasion-row button{border:0;background:transparent;color:inherit;padding:0;font:700 .8rem Inter,Arial,sans-serif;cursor:pointer}.popular-occasion-row button:hover,.popular-occasion-row button:focus-visible{text-decoration:underline}.popular-occasion-row b{font-weight:400;opacity:.65}
-.occasion-no-results{margin:0;color:var(--muted);font-size:.88rem}
-.occasion-data-source{display:none!important}
-
-/* Keep the message section compact: label, wording, font and size in one desktop row. */
-.message-field-grid{grid-template-columns:1fr!important;gap:0!important;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface)}
-.message-field-grid>.field{display:grid!important;grid-template-columns:minmax(125px,.72fr) minmax(210px,1.55fr) minmax(250px,1.15fr);gap:10px;align-items:end;padding:12px 10px;margin:0!important;border-bottom:1px solid var(--line)}
-.message-field-grid>.field:last-child{border-bottom:0}
-.message-field-grid>.field>label:first-child{align-self:center;margin:0;font-size:.78rem;font-weight:800;color:var(--ink)}
-.message-field-grid>.field>input,.message-field-grid>.field>textarea,.message-field-grid>.field>select{grid-column:2;min-width:0}
-.message-field-grid>.field>.type-controls{grid-column:3;margin:0;align-self:end;grid-template-columns:minmax(0,1fr) minmax(90px,.72fr);gap:8px}
-.message-field-grid>.field>.field-note{grid-column:2/-1;margin-top:-4px}
-.message-field-grid>.field:not(:has(.type-controls)){grid-template-columns:minmax(125px,.72fr) minmax(210px,1.55fr) minmax(250px,1.15fr)}
-.message-field-grid>.field:not(:has(.type-controls))>input,.message-field-grid>.field:not(:has(.type-controls))>select{grid-column:2}
-
-@media(max-width:900px){
-  .occasion-selector-grid{grid-template-columns:1fr 1fr}.occasion-selector-grid label:last-child{grid-column:1/-1}
-  .message-field-grid>.field{grid-template-columns:120px minmax(0,1fr)}
-  .message-field-grid>.field>input,.message-field-grid>.field>textarea,.message-field-grid>.field>select{grid-column:2}
-  .message-field-grid>.field>.type-controls{grid-column:2;margin-top:4px}
-  .message-field-grid>.field>.field-note{grid-column:2}
-}
-@media(max-width:620px){
-  .occasion-selector-compact{padding:13px}.occasion-selector-grid{grid-template-columns:1fr}.occasion-selector-grid label:last-child{grid-column:auto}.popular-occasion-row{gap:7px}
-  .message-field-grid{border:0;overflow:visible;background:transparent}
-  .message-field-grid>.field{display:grid!important;grid-template-columns:1fr!important;padding:12px 0;border-bottom:1px solid var(--line)}
-  .message-field-grid>.field>label:first-child,.message-field-grid>.field>input,.message-field-grid>.field>textarea,.message-field-grid>.field>select,.message-field-grid>.field>.type-controls,.message-field-grid>.field>.field-note{grid-column:1}
-  .message-field-grid>.field>.type-controls{grid-template-columns:1fr 1fr}
-}
+/* GPTV26 compact occasion selector and approved message editor */
+.occasion-selector-card{border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:8px;background:var(--surface)}
+.occasion-selector-card h4{margin:0 0 12px;font-family:var(--font-display);font-size:1.15rem}
+.occasion-selector-grid{display:grid;grid-template-columns:1fr 1fr 1.45fr;gap:10px}
+.occasion-selector-grid label{display:grid;gap:6px;margin:0}
+.occasion-selector-grid label>span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.occasion-selector-grid select,.occasion-selector-grid input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:12px;padding:.65rem .75rem;background:var(--surface);color:var(--ink);font:inherit}
+.popular-occasions{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:10px;padding:9px 11px;border:1px solid #e9cf86;border-radius:10px;background:#fff9e7;font-size:.78rem;color:#5d4422}
+.popular-occasions button{border:0;background:transparent;padding:0;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.occasion-button-bank{display:none!important}
+.message-field-grid .field{display:grid;grid-template-columns:minmax(120px,.75fr) minmax(220px,1.55fr) minmax(210px,1fr);column-gap:12px;align-items:start}
+.message-field-grid .field>label:first-child{grid-column:1;align-self:center;margin-top:9px}
+.message-field-grid .field>input,.message-field-grid .field>textarea,.message-field-grid .field>select{grid-column:2}
+.message-field-grid .field>.field-note{grid-column:2}
+.message-field-grid .type-controls{grid-column:3;grid-row:1/4;display:grid;grid-template-columns:1fr .82fr;gap:8px;margin:0}
+.message-field-grid .type-controls label{display:grid;gap:5px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--muted)}
+.message-field-grid .type-controls select{min-width:0;width:100%;min-height:42px}
+@media(max-width:760px){.occasion-selector-grid{grid-template-columns:1fr}.message-field-grid .field{grid-template-columns:1fr}.message-field-grid .field>label:first-child,.message-field-grid .field>input,.message-field-grid .field>textarea,.message-field-grid .field>select,.message-field-grid .field>.field-note,.message-field-grid .type-controls{grid-column:1;grid-row:auto}.message-field-grid .type-controls{grid-template-columns:1fr 1fr;margin-top:8px}}

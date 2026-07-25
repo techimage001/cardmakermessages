@@ -95,7 +95,7 @@
       frontHeading: { font: 'playfair', size: 'large' },
       frontMessage: { font: 'cormorant', size: 'large' },
       mainMessage: { font: 'cormorant', size: 'large' },
-      coverMessage: { font: 'cormorant', size: 'medium' },
+      coverMessage: { font: 'cormorant', size: 'small' },
       senderName: { font: 'allura', size: 'medium' },
       backMessage: { font: 'cormorant', size: 'large' }
     },
@@ -301,6 +301,7 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    if (window.syncOccasionPicker) window.syncOccasionPicker();
     document.querySelectorAll('[data-tone]').forEach(button => {
       const active = button.dataset.tone === state.tone;
       button.classList.toggle('active', active);
@@ -1206,7 +1207,7 @@
       m: state.frontMessage, c: state.coverMessage, s: state.senderName,
       rf: state.typography?.recipientName?.font || 'allura',
       rs: state.typography?.recipientName?.size || 'large',
-      v: '24-corrected'
+      v: '26'
     };
     Object.entries(params).forEach(([key, value]) => {
       const clean = String(value || '').trim();
@@ -1227,25 +1228,24 @@ ${shareCardUrl()}`;
 
   async function shareRichCardLink() {
     const link = shareCardUrl();
-    const title = `${state.occasionLabel || 'Personalised'} card${state.recipientName ? ` for ${state.recipientName}` : ''}`;
-    const data = { title, text: `${title}. View it here:`, url: link };
+    const data = { title: `${state.occasionLabel} card`, text: shareCaption(), url: link };
     if (navigator.share) {
       await navigator.share(data);
-      announce('Your card preview and clickable link were shared together.');
-      return true;
+      announce('The card link was shared with its preview.');
+    } else {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareCaption()}\n${link}`)}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      announce('WhatsApp opened with the card preview link ready to send.');
     }
-    const whatsappText = encodeURIComponent(`${title}. View it here: ${link}`);
-    window.open(`https://wa.me/?text=${whatsappText}`, '_blank', 'noopener,noreferrer');
-    announce('WhatsApp opened with the card preview link ready to send.');
     return true;
   }
 
   const shareButtonLabels = {
-    shareImage: 'Share card with preview',
-    shareSingleImage: 'Share card with preview',
-    shareSinglePdf: 'Share card with preview',
-    shareFoldedSheets: 'Share card with preview',
-    shareFoldedPdf: 'Share card with preview'
+    shareImage: 'Share card link with preview',
+    shareSingleImage: 'Share card link with preview',
+    shareSinglePdf: 'Share PDF + website link',
+    shareFoldedSheets: 'Share both images + website link',
+    shareFoldedPdf: 'Share folded PDF + website link'
   };
 
   function shareStateKey() {
@@ -1289,7 +1289,18 @@ ${shareCardUrl()}`;
   }
 
   function scheduleShareAssetPreparation() {
-    setShareButtonsPreparing(state.outputMode, false);
+    const key = shareStateKey();
+    if ((preparedShare.assets || preparedShare.promise) && preparedShare.key === key) return;
+    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
+    const mode = state.outputMode;
+    setShareButtonsPreparing(mode, true);
+    sharePreparationTimer = window.setTimeout(() => {
+      sharePreparationTimer = 0;
+      prepareShareAssets().catch(error => {
+        console.error(error);
+        setShareButtonsPreparing(mode, false);
+      });
+    }, 20);
   }
 
   async function prepareShareAssets() {
@@ -1510,11 +1521,19 @@ ${shareCardUrl()}`;
   }
 
   function shareSinglePrintImage() {
-    return shareRichCardLink();
+    const assets = currentPreparedShareAssets();
+    if (!assets?.imageFiles?.length) return shareNotReady();
+    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
+      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
+    });
   }
 
   function shareSinglePagePdf() {
-    return shareRichCardLink();
+    const assets = currentPreparedShareAssets();
+    if (!assets?.pdfFile) return shareNotReady();
+    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} printable card`, async () => {
+      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
+    });
   }
 
   async function downloadFoldedSheet(sheet, type) {
@@ -1527,11 +1546,20 @@ ${shareCardUrl()}`;
   }
 
   function shareFoldedSheets() {
-    return shareRichCardLink();
+    const assets = currentPreparedShareAssets();
+    if (!assets?.imageFiles?.length) return shareNotReady();
+    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} folded card`, async () => {
+      window.CardPDF.downloadBlob(assets.imageBlobs[0], sheetFilename('outside', 'png'));
+      window.setTimeout(() => window.CardPDF.downloadBlob(assets.imageBlobs[1], sheetFilename('inside', 'png')), 180);
+    });
   }
 
   function shareFoldedPdf() {
-    return shareRichCardLink();
+    const assets = currentPreparedShareAssets();
+    if (!assets?.pdfFile) return shareNotReady();
+    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} folded card`, async () => {
+      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
+    });
   }
 
   async function copyMessage() {
@@ -1850,6 +1878,54 @@ ${shareCardUrl()}`;
     update();
   }
 
+  const occasionCategories = {"celebrate": [["birthday", "Birthday"], ["anniversary", "Anniversary"], ["congratulations", "Congratulations"], ["graduation", "Graduation"], ["retirement", "Retirement"], ["good-luck", "Good luck"], ["exam-success", "Exam success"], ["driving-test-passed", "Driving test passed"]], "love": [["wedding", "Wedding"], ["engagement", "Engagement"], ["valentine", "Valentine’s Day"], ["friendship", "Friendship"], ["sorry-apology", "Sorry and apology"], ["divorce-new-beginnings", "Divorce, breakup and new beginnings"]], "new-beginnings": [["new-baby", "New baby"], ["pregnancy", "Pregnancy"], ["baby-shower", "Baby shower"], ["adoption", "Adoption"], ["new-home", "New home"], ["housewarming", "Housewarming"], ["new-job", "New job"], ["job-promotion", "Job promotion"], ["starting-university", "Starting university"], ["welcome-back", "Welcome back"]], "support": [["get-well", "Get well"], ["thinking-of-you", "Thinking of you"], ["sympathy", "Sympathy and bereavement"], ["pet-loss", "Pet loss sympathy"], ["pregnancy-loss", "Pregnancy loss support"], ["serious-illness", "Serious illness support"], ["encouragement", "Encouragement"], ["difficult-times", "Difficult times"]], "family-faith": [["mothers-day", "Mother’s Day"], ["fathers-day", "Father’s Day"], ["child-naming", "Child naming ceremony"], ["baptism", "Baptism"], ["christening", "Christening"], ["first-communion", "First Holy Communion"], ["confirmation", "Confirmation"], ["pastor-appreciation", "Pastor appreciation"], ["church-anniversary", "Church anniversary"]], "seasonal": [["christmas", "Christmas"], ["easter", "Easter"], ["new-year", "New Year"], ["eid-fitr", "Eid al-Fitr"], ["eid-adha", "Eid al-Adha"], ["ramadan", "Ramadan"], ["diwali", "Diwali"], ["hanukkah", "Hanukkah"], ["lunar-new-year", "Lunar New Year"], ["vaisakhi", "Vaisakhi"]], "work-thanks": [["thanks", "Thank you"], ["leaving-farewell", "Leaving and farewell"], ["teacher-appreciation", "Teacher appreciation"], ["colleague-appreciation", "Colleague appreciation"], ["boss-appreciation", "Boss appreciation"], ["volunteer-appreciation", "Volunteer appreciation"], ["new-job", "New job"], ["job-promotion", "Job promotion"], ["retirement", "Retirement"]]};
+  const occasionCategoryLabels = {"celebrate": "Celebrate", "love": "Love and relationships", "new-beginnings": "New beginnings", "support": "Support and care", "family-faith": "Family and faith", "seasonal": "Seasonal and cultural", "work-thanks": "Work and appreciation"};
+
+  function categoryForOccasion(occasion) {
+    for (const [category, items] of Object.entries(occasionCategories)) {
+      if (items.some(item => item[0] === occasion)) return category;
+    }
+    return 'celebrate';
+  }
+
+  function selectOccasionFromPicker(occasion) {
+    const button = document.querySelector(`[data-kind="card"][data-occasion="${CSS.escape(occasion)}"]`);
+    if (button) button.click();
+  }
+
+  function initOccasionPicker() {
+    const category = document.getElementById('occasionCategory');
+    const occasion = document.getElementById('occasionSelect');
+    const search = document.getElementById('occasionSearch');
+    if (!category || !occasion || !search) return;
+    category.innerHTML = Object.entries(occasionCategoryLabels).map(([value,label]) => `<option value="${value}">${label}</option>`).join('');
+    const populate = (categoryValue, preferred = '') => {
+      const items = occasionCategories[categoryValue] || occasionCategories.celebrate;
+      occasion.innerHTML = items.map(([value,label]) => `<option value="${value}">${label}</option>`).join('');
+      const selected = items.some(item => item[0] === preferred) ? preferred : items[0][0];
+      occasion.value = selected;
+      return selected;
+    };
+    const syncPicker = () => {
+      const cat = categoryForOccasion(state.occasion);
+      category.value = cat;
+      populate(cat, state.occasion);
+    };
+    category.addEventListener('change', () => { const first = populate(category.value); selectOccasionFromPicker(first); });
+    occasion.addEventListener('change', () => selectOccasionFromPicker(occasion.value));
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      if (!q) { syncPicker(); return; }
+      const matches = [];
+      Object.values(occasionCategories).flat().forEach(([value,label]) => { if (label.toLowerCase().includes(q) && !matches.some(x => x[0] === value)) matches.push([value,label]); });
+      occasion.innerHTML = matches.length ? matches.map(([value,label]) => `<option value="${value}">${label}</option>`).join('') : '<option value="">No matching occasion</option>';
+    });
+    search.addEventListener('keydown', event => { if (event.key === 'Enter' && occasion.value) { event.preventDefault(); selectOccasionFromPicker(occasion.value); } });
+    document.querySelectorAll('[data-popular-occasion]').forEach(button => button.addEventListener('click', () => selectOccasionFromPicker(button.dataset.popularOccasion)));
+    window.syncOccasionPicker = syncPicker;
+    syncPicker();
+  }
+
   function initControls() {
     const recipientSelect = document.getElementById('recipientSelect');
     DATA.recipients.forEach(recipient => {
@@ -1933,79 +2009,12 @@ ${shareCardUrl()}`;
       const fontLabel = document.createElement('label'); fontLabel.textContent = 'Font'; fontLabel.appendChild(font);
       const sizeLabel = document.createElement('label'); sizeLabel.textContent = 'Size'; sizeLabel.appendChild(size);
       controls.append(fontLabel,sizeLabel); field.appendChild(controls);
-      const updateType = async () => {
-        const family = FONT_FAMILIES[font.value] || FONT_FAMILIES.serif;
-        try { if (document.fonts?.load) await document.fonts.load(`32px ${family}`); } catch (_) {}
+      const updateType = () => {
         const typography = { ...(state.typography || {}), [fieldId]: { font: font.value, size: size.value } };
         updateState({ typography });
       };
       font.addEventListener('change', updateType); size.addEventListener('change', updateType);
     });
-
-    const occasionCategory = document.getElementById('occasionCategory');
-    const occasionSelect = document.getElementById('occasionSelect');
-    const occasionSearch = document.getElementById('occasionSearch');
-    const popularOccasions = document.getElementById('popularOccasions');
-    const occasionNoResults = document.getElementById('occasionNoResults');
-    const occasionSourceButtons = [...document.querySelectorAll('.occasion-data-source .occasion-choice')];
-
-    const visibleCreationKind = () => state.creationType === 'invitation' ? 'invitation' : state.creationType === 'postcard' ? 'postcard' : 'card';
-    const cardCategoryForOccasion = occasion => occasionSourceButtons.find(button => button.dataset.kind === 'card' && button.dataset.occasion === occasion)?.dataset.category || 'all';
-    const optionLabel = button => button.querySelector('span:last-child')?.textContent?.trim() || button.textContent.trim();
-
-    const selectOccasionFromControl = occasion => {
-      const source = occasionSourceButtons.find(button => button.dataset.occasion === occasion && button.dataset.kind === visibleCreationKind());
-      if (source) source.click();
-    };
-
-    const rebuildOccasionSelect = ({ preserveSelection = true } = {}) => {
-      if (!occasionSelect || !occasionCategory) return;
-      const kind = visibleCreationKind();
-      const query = (occasionSearch?.value || '').trim().toLowerCase();
-      const category = occasionCategory.value || 'celebrate';
-      const previous = preserveSelection ? state.occasion : '';
-      const candidates = occasionSourceButtons.filter(button => {
-        if (button.dataset.kind !== kind) return false;
-        if (kind !== 'card') return !query || optionLabel(button).toLowerCase().includes(query);
-        const categoryMatch = category === 'all' || button.dataset.category === category || button.dataset.occasion === 'custom';
-        const queryMatch = !query || optionLabel(button).toLowerCase().includes(query);
-        return categoryMatch && queryMatch;
-      });
-      occasionSelect.innerHTML = '';
-      candidates.forEach(button => {
-        const option = new Option(optionLabel(button), button.dataset.occasion);
-        occasionSelect.add(option);
-      });
-      if (candidates.some(button => button.dataset.occasion === previous)) occasionSelect.value = previous;
-      else if (candidates[0]) occasionSelect.value = candidates[0].dataset.occasion;
-      occasionNoResults?.toggleAttribute('hidden', candidates.length > 0);
-      const cardMode = kind === 'card';
-      occasionCategory.disabled = !cardMode;
-      if (popularOccasions) popularOccasions.hidden = !cardMode;
-    };
-
-    occasionCategory?.addEventListener('change', () => rebuildOccasionSelect({ preserveSelection: false }));
-    occasionSearch?.addEventListener('input', () => rebuildOccasionSelect({ preserveSelection: false }));
-    occasionSelect?.addEventListener('change', () => selectOccasionFromControl(occasionSelect.value));
-    document.querySelectorAll('[data-quick-occasion]').forEach(button => button.addEventListener('click', () => {
-      const occasion = button.dataset.quickOccasion;
-      if (occasionCategory) occasionCategory.value = cardCategoryForOccasion(occasion);
-      if (occasionSearch) occasionSearch.value = '';
-      rebuildOccasionSelect({ preserveSelection: false });
-      if (occasionSelect) occasionSelect.value = occasion;
-      selectOccasionFromControl(occasion);
-    }));
-    document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
-      window.setTimeout(() => {
-        const kind = visibleCreationKind();
-        if (kind === 'card') occasionCategory.value = cardCategoryForOccasion(state.occasion);
-        else occasionCategory.value = 'all';
-        if (occasionSearch) occasionSearch.value = '';
-        rebuildOccasionSelect();
-      }, 0);
-    }));
-    if (visibleCreationKind() === 'card') occasionCategory.value = cardCategoryForOccasion(state.occasion);
-    rebuildOccasionSelect();
 
     const bindings = {
       recipientSelect: 'recipient', occasionLabel: 'occasionLabel', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
@@ -2173,7 +2182,9 @@ ${shareCardUrl()}`;
     if (legacySizeMap[state.size]) state.size = legacySizeMap[state.size];
     if (!sizes[state.size]) state.size = 'instagram-square';
     queryDefaults();
+    if (!DATA.occasions[state.occasion]) { state = { ...state, occasion: 'birthday', creationType: 'card', occasionLabel: 'Birthday Wishes', frontHeading: 'Happy Birthday', frontMessage: defaultFrontMessage('birthday'), coverMessage: defaultCover('birthday') }; }
     initControls();
+    initOccasionPicker();
     restorePhoto();
     const hasSaved = Boolean(Store.load().app?.savedAt);
     if (hasSaved) {

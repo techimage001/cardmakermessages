@@ -146,7 +146,7 @@ check(app.includes('data-creation-type="invitation"'), 'app.html missing invitat
 check(app.includes('data-creation-type="postcard"'), 'app.html missing postcard creation mode');
 check(app.includes(config.domain), 'app.html missing configured domain');
 check(app.includes('Share image + website link') && app.includes('Sent with the image when supported:'), 'share panels must clearly state that the image and website link are sent together');
-check(app.includes('/assets/site-v24.js') && app.includes('/assets/messages-v24.js') && app.includes('/assets/pdf-v24.js') && app.includes('/assets/app-v24.js'), 'app.html must load the isolated GPT24 scripts');
+check(app.includes('/assets/site-v22.js') && app.includes('/assets/messages-v22.js') && app.includes('/assets/pdf-v22.js') && app.includes('/assets/app-v22.js'), 'app.html must load the isolated GPT22 scripts');
 check(!app.includes('Copy website message (backup)') && !app.includes('data-copy-share-message'), 'app.html must not show a manual backup copy button');
 check(appJs.includes('prepareShareAssets') && appJs.includes('scheduleShareAssetPreparation'), 'GPT20 must pre-generate share files before the user clicks Share');
 check(appJs.includes('url: shareWebsiteUrl()') && appJs.includes('bestFileSharePayload'), 'GPT20 must pass the website URL in the native share payload');
