@@ -1,0 +1,10 @@
+GPT22 DEPLOYMENT
+
+1. Back up the current public_html folder.
+2. Upload the CONTENTS of Card-Maker-Messages-GPT22 into public_html.
+3. Allow replacement of existing files.
+4. Confirm that assets/app-v22.js and assets/site-v22.css exist after upload.
+5. Clear Hostinger/LiteSpeed cache and browser cache.
+6. Open /app.html in a private browser window and test all five stages.
+
+Do not upload the outer Card-Maker-Messages-GPT22 folder itself if public_html is already the website root.

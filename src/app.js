@@ -64,7 +64,7 @@
     step: 1,
     creationType: 'card',
     occasion: 'birthday',
-    occasionLabel: 'Birthday',
+    occasionLabel: 'Birthday Wishes',
     customOccasion: '',
     recipient: 'Friend',
     tone: 'heartfelt',
@@ -104,7 +104,7 @@
     printPaper: 'A4',
     printQuality: 'home',
     showFoldMarks: true,
-    showWebsite: true,
+    showWebsite: false,
     reviewed: false,
     savedAt: 0,
     sizeSelected: false,
@@ -116,6 +116,8 @@
   let photoImage = null;
   let messageOptions = [];
   let renderQueued = false;
+  let preparedShare = { key: '', promise: null, assets: null, error: null };
+  let sharePreparationTimer = 0;
 
   function announce(text) {
     if (!live) return;
@@ -130,6 +132,7 @@
 
   function updateState(patch, options = {}) {
     const reviewSensitive = Object.keys(patch).some(key => !['step', 'activePanel', 'reviewed'].includes(key));
+    if (reviewSensitive) clearPreparedShareAssets();
     state = { ...state, ...patch, ...(reviewSensitive ? { reviewed: false } : {}) };
     syncControls();
     if (options.persist !== false) persist();
@@ -159,7 +162,7 @@
     else if (legacySizeMap[size]) { patch.size = legacySizeMap[size]; patch.sizeSelected = true; }
     if (occasion && DATA.occasions[occasion]) {
       patch.occasion = occasion;
-      patch.occasionLabel = DATA.occasions[occasion].label;
+      patch.occasionLabel = defaultOccasionLabel(occasion);
       patch.coverMessage = defaultCover(occasion);
       patch.frontMessage = defaultFrontMessage(occasion);
       patch.frontHeading = DATA.occasions[occasion].front || DATA.occasions[occasion].label;
@@ -168,6 +171,19 @@
     if (recipient) patch.recipient = recipient;
     if (message) patch.mainMessage = message;
     if (Object.keys(patch).length) state = { ...state, ...patch };
+  }
+
+  function defaultOccasionLabel(occasion) {
+    const labels = {
+      birthday: 'Birthday Wishes', christmas: 'Christmas Wishes', wedding: 'Wedding Wishes', anniversary: 'Anniversary Wishes',
+      easter: 'Easter Wishes', thanks: 'With Thanks', congratulations: 'Congratulations', 'new-baby': 'New Baby Wishes',
+      retirement: 'Retirement Wishes', 'get-well': 'Get Well Wishes', valentine: 'Valentine’s Wishes', graduation: 'Graduation Wishes',
+      'mothers-day': 'Mother’s Day Wishes', 'fathers-day': 'Father’s Day Wishes', 'child-naming': 'Naming Ceremony Wishes',
+      'job-promotion': 'Promotion Wishes', custom: 'Special Occasion', 'birthday-invitation': 'You’re Invited',
+      'party-invitation': 'You’re Invited', 'wedding-invitation': 'Wedding Invitation', 'christmas-invitation': 'Christmas Invitation',
+      postcard: 'A Note For You'
+    };
+    return labels[occasion] || DATA.occasions[occasion]?.label || 'Special Occasion';
   }
 
   function defaultCover(occasion) {
@@ -256,10 +272,8 @@
 
   function syncControls() {
     document.querySelectorAll('[data-step]').forEach(button => {
-      const stepNum = Number(button.dataset.step);
-      const active = stepNum === state.step;
+      const active = Number(button.dataset.step) === state.step;
       button.classList.toggle('active', active);
-      button.classList.toggle('done', stepNum < state.step);
       button.setAttribute('aria-current', active ? 'step' : 'false');
     });
     document.querySelectorAll('[data-step-panel]').forEach(panel => {
@@ -368,6 +382,7 @@
     if (downloadWorkspace) downloadWorkspace.hidden = !state.reviewed;
     const inputs = {
       recipientSelect: state.recipient,
+      occasionLabel: state.occasionLabel,
       customOccasion: state.customOccasion,
       recipientName: state.recipientName,
       senderName: state.senderName,
@@ -418,12 +433,8 @@
       if (button.dataset.panel !== 'front') button.hidden = !foldedPanelsAvailable;
     });
     if (!foldedPanelsAvailable && state.activePanel !== 'front') state.activePanel = 'front';
-    const website = document.getElementById('showWebsite');
     const marks = document.getElementById('showFoldMarks');
-    if (website) website.checked = state.showWebsite;
     if (marks) marks.checked = state.showFoldMarks;
-    const selectedOccasion = DATA.occasions[state.occasion];
-    state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
     const format = selectedFormat();
     const reviewButton = document.getElementById('reviewCard');
     const downloadSummary = document.getElementById('downloadSummary');
@@ -436,6 +447,7 @@
     const reviewReadyState = document.getElementById('reviewReadyState');
     if (noSizeReviewState) noSizeReviewState.hidden = state.sizeSelected;
     if (reviewReadyState) reviewReadyState.hidden = !state.sizeSelected;
+    if (state.reviewed && state.step === 5) scheduleShareAssetPreparation();
   }
 
   function roundedRect(context, x, y, width, height, radius) {
@@ -477,7 +489,7 @@
     const motif = p.motif || renderState.preset;
     if (motif === 'floral') {
       drawLeafSprig(context, x + width * .08, y + height * .1, width * .16, p.accent, -0.4);
-      drawLeafSprig(context, x + width * .92, y + height * .93, width * .15, p.accent, 2.7);
+      drawLeafSprig(context, x + width * .9, y + height * .88, width * .18, p.accent, 2.7);
       context.strokeStyle = hexToRgba(p.accent, .24);
       context.lineWidth = Math.max(3, width * .005);
       context.beginPath(); context.arc(x + width * .08, y + height * .08, width * .17, 0, Math.PI * 2); context.stroke();
@@ -532,7 +544,7 @@
       context.fillStyle = hexToRgba(p.soft, .3); context.beginPath(); context.arc(x + width * .5, y + height * 1.02, width * .65, Math.PI, Math.PI * 2); context.fill();
     } else if (motif === 'botanical') {
       drawLeafSprig(context, x + width * .07, y + height * .15, width * .24, p.ink, -.2);
-      drawLeafSprig(context, x + width * .94, y + height * .93, width * .22, p.ink, 2.9);
+      drawLeafSprig(context, x + width * .93, y + height * .83, width * .28, p.ink, 2.9);
       context.fillStyle = hexToRgba(p.accent, .16); context.fillRect(x + width * .05, y + height * .05, width * .9, height * .9);
       context.fillStyle = p.bg; context.fillRect(x + width * .065, y + height * .065, width * .87, height * .87);
     } else if (motif === 'cute') {
@@ -783,7 +795,7 @@
       }
     } else if (type === 'botanical') {
       drawLeafSprig(context, x + width * .14, y + height * .18, width * .22, p.accent, -.45);
-      drawLeafSprig(context, x + width * .9, y + height * .93, width * .2, p.accent, 2.7);
+      drawLeafSprig(context, x + width * .86, y + height * .82, width * .24, p.accent, 2.7);
     } else if (type === 'confetti') {
       drawConfetti(context, x, y, width, height, p.accent, p.soft);
     } else if (type === 'dove') {
@@ -844,7 +856,7 @@
       context.lineWidth = Math.max(3, width * .004); roundedRect(context,left,top,w,h,width*.018); context.stroke();
       const d=width*.035; [[left,top],[left+w,top],[left,top+h],[left+w,top+h]].forEach(([cx,cy],i)=>{context.save();context.translate(cx,cy);context.rotate((i%2?1:-1)*Math.PI/4);context.strokeRect(-d/2,-d/2,d,d);context.restore();});
     } else if (frame === 'botanical') {
-      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.06,width*.14,p.accent,-.55); drawLeafSprig(context,left+w-width*.015,top+h-height*.03,width*.13,p.accent,2.55);
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.08,width*.15,p.accent,-.55); drawLeafSprig(context,left+w-width*.02,top+h-height*.07,width*.16,p.accent,2.55);
     } else if (frame === 'ribbon') {
       roundedRect(context,left,top,w,h,width*.018); context.stroke(); context.fillStyle=hexToRgba(p.accent,.18); context.fillRect(left, y+height*.12, w, height*.055); context.fillRect(left, y+height*.83, w, height*.055);
     } else if (frame === 'inset') {
@@ -945,52 +957,61 @@
     } else if (panel === 'front') {
       const digital = renderState.outputMode === 'digital' && !folded;
       const hasPhoto = drawPhotoTopArea(context, x, y, width, height, renderState, p);
+      // Decorative accents are painted before all wording so they can never cover names or the sign-off.
+      drawLittleAccent(context, x, y, width, height, renderState, p);
+
+      const labelY = hasPhoto ? .355 : .145;
+      const dedicationY = hasPhoto ? .405 : .205;
+      const titleY = hasPhoto ? .445 : .275;
+      const copyY = hasPhoto ? .585 : .465;
+
       context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      context.font = `700 ${Math.max(20, width * .03)}px Arial, Helvetica, sans-serif`;
-      context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
+      context.font = `700 ${Math.max(18, width * .027)}px Arial, Helvetica, sans-serif`;
+      context.fillText((renderState.occasionLabel || defaultOccasionLabel(renderState.occasion)).toUpperCase(), x + width / 2, y + height * labelY, width * .76);
 
-      if (!folded && renderState.recipientName) {
+      // Single cards use a prominent dedication directly beneath the occasion label.
+      if (!folded && renderState.recipientName.trim()) {
         context.fillStyle = p.accent;
-        context.font = `600 ${Math.max(15, width * .036)}px ${family}`;
-        context.fillText(`To ${renderState.recipientName}`, x + width / 2, y + height * (hasPhoto ? .40 : .225), width * .74);
+        context.font = `600 ${Math.max(22, width * .039)}px ${family}`;
+        context.fillText(`To ${renderState.recipientName.trim()}`, x + width / 2, y + height * dedicationY, width * .74);
       }
 
-      const titleY = hasPhoto ? .435 : (renderState.recipientName ? .285 : .245);
       let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
-        x: x + pad, y: y + height * titleY, width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
+        x: x + pad, y: y + height * (titleY + (!folded && !renderState.recipientName.trim() ? -.025 : 0)), width: width - pad * 2, height: height * (hasPhoto ? .135 : .16)
       }, {
-        colour: p.ink, family, startSize: width * .085, minSize: width * .038,
-        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
+        colour: p.ink, family, startSize: width * .082, minSize: width * .037,
+        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.12, maxLines: 3
       });
-
 
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
       drawTextBlock(context, frontCopy, {
-        x: x + pad * 1.05, y: y + height * (hasPhoto ? .58 : (renderState.recipientName ? .47 : .43)), width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .2)
+        x: x + pad * 1.05, y: y + height * copyY, width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .20)
       }, {
-        colour: p.ink, family, startSize: width * .042, minSize: width * .025,
-        weight: 500, lineHeight: 1.32, maxLines: 6
+        colour: p.ink, family, startSize: width * .041, minSize: width * .024,
+        weight: 500, lineHeight: 1.3, maxLines: 6
       });
 
+      // Reserve the bottom band for a quiet sign-off. Decorations remain behind it and outside the text hierarchy.
+      if (!folded && (renderState.coverMessage || renderState.senderName)) {
+        if (renderState.coverMessage) {
+          drawTextBlock(context, renderState.coverMessage, {
+            x: x + width * .2, y: y + height * (hasPhoto ? .78 : .735), width: width * .6, height: height * .055
+          }, { colour: p.ink, family, startSize: width * .026, minSize: width * .019, weight: 500, lineHeight: 1.2, maxLines: 2 });
+        }
+        if (renderState.senderName) {
+          drawTextBlock(context, renderState.senderName, {
+            x: x + width * .22, y: y + height * (hasPhoto ? .845 : .805), width: width * .56, height: height * .05
+          }, { colour: p.ink, family, startSize: width * .023, minSize: width * .017, weight: 400, lineHeight: 1.18, maxLines: 2 });
+        }
+      }
       if (renderState.textStyle === 'underline') {
         context.strokeStyle = p.accent; context.lineWidth = Math.max(3, width * .004);
         context.beginPath(); context.moveTo(x + width * .31, y + height * .64); context.lineTo(x + width * .69, y + height * .64); context.stroke();
-      }
-      drawLittleAccent(context, x, y, width, height, renderState, p);
-
-      const signoff = folded ? '' : [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
-      if (signoff) {
-        drawTextBlock(context, signoff, {
-          x: x + pad, y: y + height * (hasPhoto ? .80 : .74), width: width - pad * 2, height: height * (hasPhoto ? .11 : .13)
-        }, {
-          colour: (p.motif || renderState.preset) === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .026, minSize: width * .019,
-          weight: 500, lineHeight: 1.28, maxLines: 3
-        });
       }
     } else if (panel === 'inside-left') {
       if (renderState.insideLeftMode === 'photo' && photoImage) {
@@ -1027,16 +1048,12 @@
       if (closing) {
         drawTextBlock(context, closing, {
           x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * .14
-        }, { colour: p.ink, family, startSize: width * .038, minSize: width * .026, weight: 600, lineHeight: 1.35, maxLines: 3, align: 'left' });
+        }, { colour: p.ink, family, startSize: width * .032, minSize: width * .022, weight: 400, lineHeight: 1.35, maxLines: 3, align: 'left' });
       }
     } else if (panel === 'back') {
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038}px ${family}`;
       if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
-      if (renderState.showWebsite && renderState.outputMode !== 'folded') {
-        context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
-        context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
-      }
     }
 
     context.restore();
@@ -1109,10 +1126,24 @@
     return output;
   }
 
+  function canvasToBlob(canvasElement, type = 'image/png', quality = .95) {
+    return new Promise((resolve, reject) => canvasElement.toBlob(
+      blob => blob ? resolve(blob) : reject(new Error('Could not create image.')),
+      type,
+      quality
+    ));
+  }
+
   async function canvasBlob(type = 'image/png', quality = .95) {
     const selected = sizes[state.size] || sizes['instagram-square'];
     const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return new Promise((resolve, reject) => output.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
+    return canvasToBlob(output, type, quality);
+  }
+
+  async function singlePrintCanvasBlob(type = 'image/png', quality = .95) {
+    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+    const output = createPanelCanvas('front', selected.width, selected.height, false);
+    return canvasToBlob(output, type, quality);
   }
 
   function slug(value) {
@@ -1121,6 +1152,205 @@
 
   function filename(ext) {
     return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-card.${ext}`;
+  }
+
+  function sheetFilename(sheet, ext) {
+    return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-${sheet}-sheet.${ext}`;
+  }
+
+  function shareWebsiteUrl() {
+    return 'https://cardmakermessages.com';
+  }
+
+  function shareCaption() {
+    return 'I made this card on CardMakerMessages.com. Create yours too:';
+  }
+
+  function shareMessage() {
+    return `${shareCaption()}\n${shareWebsiteUrl()}`;
+  }
+
+  const shareButtonLabels = {
+    shareImage: 'Share image + website link',
+    shareSingleImage: 'Share image + website link',
+    shareSinglePdf: 'Share PDF + website link',
+    shareFoldedSheets: 'Share both images + website link',
+    shareFoldedPdf: 'Share folded PDF + website link'
+  };
+
+  function shareStateKey() {
+    const stable = { ...state };
+    delete stable.step;
+    delete stable.activePanel;
+    delete stable.reviewed;
+    delete stable.savedAt;
+    return JSON.stringify(stable);
+  }
+
+  function relevantShareButtonIds(mode = state.outputMode) {
+    if (mode === 'single-print') return ['shareSingleImage', 'shareSinglePdf'];
+    if (mode === 'folded') return ['shareFoldedSheets', 'shareFoldedPdf'];
+    return ['shareImage'];
+  }
+
+  function setShareButtonsPreparing(mode, preparing) {
+    relevantShareButtonIds(mode).forEach(id => {
+      const button = document.getElementById(id);
+      if (!button) return;
+      button.disabled = Boolean(preparing);
+      button.setAttribute('aria-busy', String(Boolean(preparing)));
+      button.textContent = preparing
+        ? (id.toLowerCase().includes('pdf') ? 'Preparing PDF…' : 'Preparing image + link…')
+        : (shareButtonLabels[id] || button.textContent);
+    });
+  }
+
+  function clearPreparedShareAssets() {
+    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
+    sharePreparationTimer = 0;
+    preparedShare = { key: '', promise: null, assets: null, error: null };
+    Object.keys(shareButtonLabels).forEach(id => {
+      const button = document.getElementById(id);
+      if (!button) return;
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+      button.textContent = shareButtonLabels[id];
+    });
+  }
+
+  function scheduleShareAssetPreparation() {
+    const key = shareStateKey();
+    if ((preparedShare.assets || preparedShare.promise) && preparedShare.key === key) return;
+    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
+    const mode = state.outputMode;
+    setShareButtonsPreparing(mode, true);
+    sharePreparationTimer = window.setTimeout(() => {
+      sharePreparationTimer = 0;
+      prepareShareAssets().catch(error => {
+        console.error(error);
+        setShareButtonsPreparing(mode, false);
+      });
+    }, 20);
+  }
+
+  async function prepareShareAssets() {
+    const key = shareStateKey();
+    if (preparedShare.key === key && preparedShare.assets) return preparedShare.assets;
+    if (preparedShare.key === key && preparedShare.promise) return preparedShare.promise;
+
+    const mode = state.outputMode;
+    setShareButtonsPreparing(mode, true);
+    const promise = (async () => {
+      if (mode === 'single-print') {
+        const [imageBlob, pdfBlob] = await Promise.all([
+          singlePrintCanvasBlob('image/png'),
+          createSinglePagePdfBlob()
+        ]);
+        return {
+          mode,
+          imageBlobs: [imageBlob],
+          imageFiles: [new File([imageBlob], filename('png'), { type: 'image/png' })],
+          pdfBlob,
+          pdfFile: new File([pdfBlob], filename('pdf'), { type: 'application/pdf' })
+        };
+      }
+      if (mode === 'folded') {
+        const { outside, inside, spec } = createFoldedSheetCanvases();
+        const [outsideBlob, insideBlob, pdfBlob] = await Promise.all([
+          canvasToBlob(outside, 'image/png'),
+          canvasToBlob(inside, 'image/png'),
+          window.CardPDF.canvasesToPdf([outside, inside], spec.pdf)
+        ]);
+        return {
+          mode,
+          imageBlobs: [outsideBlob, insideBlob],
+          imageFiles: [
+            new File([outsideBlob], sheetFilename('outside', 'png'), { type: 'image/png' }),
+            new File([insideBlob], sheetFilename('inside', 'png'), { type: 'image/png' })
+          ],
+          pdfBlob,
+          pdfFile: new File([pdfBlob], filename('pdf'), { type: 'application/pdf' })
+        };
+      }
+      const imageBlob = await canvasBlob('image/png');
+      return {
+        mode,
+        imageBlobs: [imageBlob],
+        imageFiles: [new File([imageBlob], filename('png'), { type: 'image/png' })],
+        pdfBlob: null,
+        pdfFile: null
+      };
+    })();
+
+    preparedShare = { key, promise, assets: null, error: null };
+    try {
+      const assets = await promise;
+      if (preparedShare.key === key) {
+        preparedShare = { key, promise: null, assets, error: null };
+        setShareButtonsPreparing(mode, false);
+      }
+      return assets;
+    } catch (error) {
+      if (preparedShare.key === key) {
+        preparedShare = { key, promise: null, assets: null, error };
+        setShareButtonsPreparing(mode, false);
+      }
+      throw error;
+    }
+  }
+
+  function currentPreparedShareAssets() {
+    return preparedShare.key === shareStateKey() ? preparedShare.assets : null;
+  }
+
+  function canSharePayload(payload) {
+    if (!navigator.share) return false;
+    if (!payload.files?.length) return true;
+    if (!navigator.canShare) return false;
+    try { return navigator.canShare(payload); } catch (_) { return false; }
+  }
+
+  function bestFileSharePayload(files, title) {
+    const candidates = [
+      { files, title, text: shareCaption(), url: shareWebsiteUrl() },
+      { files, title, text: shareMessage() },
+      { files, title }
+    ];
+    return candidates.find(canSharePayload) || null;
+  }
+
+  async function runShareFallback(fallback) {
+    await fallback();
+    announce('The card was downloaded. Share it from your device.');
+    return false;
+  }
+
+  function sharePreparedFiles(files, title, fallback) {
+    const payload = bestFileSharePayload(files, title);
+    if (!payload) return runShareFallback(fallback);
+
+    let result;
+    try {
+      // Files are prepared before the click, so navigator.share is called
+      // immediately while the browser still recognises the user gesture.
+      result = navigator.share(payload);
+    } catch (_) {
+      return runShareFallback(fallback);
+    }
+
+    return Promise.resolve(result).then(() => {
+      announce('Your card and website link were sent to the sharing app.');
+      return true;
+    }).catch(error => {
+      if (error?.name === 'AbortError') return false;
+      return runShareFallback(fallback);
+    });
+  }
+
+  function shareNotReady() {
+    scheduleShareAssetPreparation();
+    announce('Your card is still being prepared. The share button will be ready in a moment.');
+    return Promise.resolve(false);
   }
 
   async function openImage(type) {
@@ -1138,123 +1368,42 @@
     return url.toString();
   }
 
-  function shareCaption() {
-    return `Made with ${canonicalAppUrl()} I made this card there, create yours too`;
+  function shareImage() {
+    const assets = currentPreparedShareAssets();
+    if (!assets?.imageFiles?.length) return shareNotReady();
+    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
+      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
+    });
   }
 
-  function shareCardUrl() {
-    const configuredHost = document.documentElement.dataset.siteDomain;
-    const base = configuredHost ? `https://${configuredHost}` : location.origin;
-    const url = new URL('/c.php', base);
-    url.searchParams.set('o', state.occasion);
-    url.searchParams.set('t', state.preset);
-    const headline = (state.occasion === 'custom' && state.customOccasion.trim())
-      ? state.customOccasion.trim()
-      : (DATA.occasions[state.occasion]?.front || state.occasionLabel || '');
-    if (headline) url.searchParams.set('h', headline.slice(0, 60));
-    if (state.coverMessage) url.searchParams.set('m', state.coverMessage.slice(0, 180));
-    return url.toString();
-  }
-
-  async function shareWebCard() {
-    const url = shareCardUrl();
-    const text = `${state.occasionLabel} card. View it here: ${url}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: `${state.occasionLabel} card`, text });
-        announce('Card link shared. The recipient sees a preview and can make their own.');
-        return true;
-      } catch (err) {
-        if (err && err.name === 'AbortError') return true;
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      announce('Share link copied. Paste it into any chat or social app to send the card preview.');
-    } catch (_) {
-      announce('Share link ready: ' + url);
-    }
-    return true;
-  }
-
-  function cloudinaryConfig() {
-    const cloud = document.documentElement.dataset.cloudinaryCloud;
-    const preset = document.documentElement.dataset.cloudinaryPreset;
-    return cloud && preset ? { cloud, preset } : null;
-  }
-
-  async function sharePhotoWebCard() {
-    const cfg = cloudinaryConfig();
-    if (!cfg) return false;
-    const consent = window.confirm('Create a shareable link that includes your card image?\n\nThe finished card, including your photo, will be uploaded so the recipient sees a preview. You are responsible for the content you create. The link expires automatically. Continue?');
-    if (!consent) return true;
-    announce('Preparing your shareable card link.');
-    try {
-      const blob = await canvasBlob('image/jpeg');
-      const form = new FormData();
-      form.append('file', blob);
-      form.append('upload_preset', cfg.preset);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cfg.cloud}/image/upload`, { method: 'POST', body: form });
-      if (!res.ok) throw new Error('upload failed');
-      const data = await res.json();
-      if (!data.secure_url) throw new Error('no url');
-      const base = document.documentElement.dataset.siteDomain ? `https://${document.documentElement.dataset.siteDomain}` : location.origin;
-      const url = new URL('/c.php', base);
-      url.searchParams.set('o', state.occasion);
-      url.searchParams.set('t', state.preset);
-      const headline = (state.occasion === 'custom' && state.customOccasion.trim()) ? state.customOccasion.trim() : (DATA.occasions[state.occasion]?.front || state.occasionLabel || '');
-      if (headline) url.searchParams.set('h', headline.slice(0, 60));
-      if (state.coverMessage) url.searchParams.set('m', state.coverMessage.slice(0, 180));
-      url.searchParams.set('img', data.secure_url);
-      const link = url.toString();
-      const text = `${state.occasionLabel} card. View it here: ${link}`;
-      if (navigator.share) {
-        try { await navigator.share({ title: `${state.occasionLabel} card`, text }); announce('Card link shared with your photo preview.'); return true; } catch (err) { if (err && err.name === 'AbortError') return true; }
-      }
-      try { await navigator.clipboard.writeText(link); announce('Shareable card link copied. Paste it into any chat to send the photo preview.'); } catch (_) { announce('Shareable link ready: ' + link); }
-      return true;
-    } catch (_) {
-      announce('The shareable link could not be created. Sharing the image directly instead.');
-      return false;
-    }
-  }
-
-  async function shareImage() {
-    if (!state.photoData) {
-      await shareWebCard();
+  async function copyImage() {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      announce('Image copying is not supported in this browser.');
       return;
-    }
-    if (cloudinaryConfig()) {
-      const done = await sharePhotoWebCard();
-      if (done) return;
     }
     const blob = await canvasBlob('image/png');
-    const file = new File([blob], filename('png'), { type: 'image/png' });
-    const appUrl = canonicalAppUrl();
-    const shareText = shareCaption();
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: `${state.occasionLabel} card`,
-        text: shareText
-      });
-      announce('Card shared.');
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(appUrl);
-      announce('Card link copied. The finished image will now open for saving.');
-    } catch (_) {
-      announce('The finished image will open for saving.');
-    }
-    window.CardPDF.openBlob(blob, filename('png'));
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    announce('Card image copied.');
   }
 
-  function foldedSheetCanvases() {
+  async function createSinglePagePdfBlob() {
+    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+    const output = createPanelCanvas('front', selected.width, selected.height, false);
+    return window.CardPDF.canvasesToPdf([output], selected.pdf);
+  }
+
+  async function createSinglePagePdf() {
+    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+    const pdf = await createSinglePagePdfBlob();
+    window.CardPDF.downloadBlob(pdf, filename('pdf'));
+    announce(`${selected.label} was downloaded.`);
+  }
+
+  function createFoldedSheetCanvases() {
     const specs = {
-      A4: { pageWidth: 3508, pageHeight: 2480 },
-      A5: { pageWidth: 2480, pageHeight: 1748 },
-      Letter: { pageWidth: 3300, pageHeight: 2550 }
+      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
+      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
+      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
     };
     const spec = specs[state.printPaper] || specs.A4;
     const { pageWidth, pageHeight } = spec;
@@ -1269,94 +1418,11 @@
     const outCtx = outside.getContext('2d');
     const inCtx = inside.getContext('2d');
     [outCtx, inCtx].forEach(context => { context.fillStyle = '#ffffff'; context.fillRect(0, 0, pageWidth, pageHeight); });
+
     drawPanel(outCtx, margin, margin, panelWidth, panelHeight, 'back', state, true);
     drawPanel(outCtx, half + margin, margin, panelWidth, panelHeight, 'front', state, true);
     drawPanel(inCtx, margin, margin, panelWidth, panelHeight, 'inside-left', state, true);
     drawPanel(inCtx, half + margin, margin, panelWidth, panelHeight, 'inside-right', state, true);
-    return { outside, inside };
-  }
-
-  function canvasToBlob(source, type, quality) {
-    return new Promise((resolve, reject) => source.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
-  }
-
-  function sheetFilename(sheet, ext) {
-    return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-${sheet}-sheet.${ext}`;
-  }
-
-  async function saveFoldedSheet(sheet, type) {
-    const sheets = foldedSheetCanvases();
-    const source = sheet === 'inside' ? sheets.inside : sheets.outside;
-    const ext = type === 'image/png' ? 'png' : 'jpg';
-    const blob = await canvasToBlob(source, type, .94);
-    window.CardPDF.downloadBlob(blob, sheetFilename(sheet, ext));
-    announce(`The ${sheet} sheet was downloaded.`);
-  }
-
-  async function shareFoldedSheets() {
-    const sheets = foldedSheetCanvases();
-    const outsideBlob = await canvasToBlob(sheets.outside, 'image/png', .94);
-    const insideBlob = await canvasToBlob(sheets.inside, 'image/png', .94);
-    const files = [
-      new File([outsideBlob], sheetFilename('outside', 'png'), { type: 'image/png' }),
-      new File([insideBlob], sheetFilename('inside', 'png'), { type: 'image/png' })
-    ];
-    const shareText = shareCaption();
-    if (navigator.share && navigator.canShare?.({ files })) {
-      await navigator.share({ files, title: `${state.occasionLabel} card`, text: shareText });
-      announce('Both sheets were shared.');
-      return;
-    }
-    if (navigator.share && navigator.canShare?.({ files: [files[0]] })) {
-      await navigator.share({ files: [files[0]], title: `${state.occasionLabel} card`, text: shareText });
-      announce('This device shares one file at a time. The outside sheet was shared. Save the inside sheet below and send it separately.');
-      return;
-    }
-    window.CardPDF.downloadBlob(outsideBlob, sheetFilename('outside', 'png'));
-    window.CardPDF.downloadBlob(insideBlob, sheetFilename('inside', 'png'));
-    announce('Sharing is not supported in this browser. Both sheets were downloaded instead.');
-  }
-
-  async function reviewSaveImage(type) {
-    if (state.outputMode === 'folded') { await saveFoldedSheet('outside', type); return; }
-    await openImage(type);
-  }
-
-  async function reviewSavePdf() {
-    if (state.outputMode === 'folded') { await createFoldedPdf(); return; }
-    await createSinglePagePdf();
-  }
-
-  async function copyImage() {
-    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
-      announce('Image copying is not supported in this browser.');
-      return;
-    }
-    const blob = await canvasBlob('image/png');
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    announce('Card image copied.');
-  }
-
-  async function createSinglePagePdf() {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const output = createPanelCanvas('front', selected.width, selected.height, false);
-    const pdf = await window.CardPDF.canvasesToPdf([output], selected.pdf);
-    window.CardPDF.downloadBlob(pdf, filename('pdf'));
-    announce(`${selected.label} was downloaded.`);
-  }
-
-  async function createFoldedPdf() {
-    const specs = {
-      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
-      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
-      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
-    };
-    const spec = specs[state.printPaper] || specs.A4;
-    const { pageWidth, pageHeight } = spec;
-    const half = pageWidth / 2;
-    const { outside, inside } = foldedSheetCanvases();
-    const outCtx = outside.getContext('2d');
-    const inCtx = inside.getContext('2d');
 
     if (state.showFoldMarks && state.printQuality === 'home') {
       [outCtx, inCtx].forEach(context => {
@@ -1367,9 +1433,67 @@
       });
     }
 
-    const pdf = await window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
+    return { outside, inside, spec };
+  }
+
+  async function createFoldedPdfBlob() {
+    const { outside, inside, spec } = createFoldedSheetCanvases();
+    return window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
+  }
+
+  async function createFoldedPdf() {
+    const pdf = await createFoldedPdfBlob();
     window.CardPDF.downloadBlob(pdf, filename('pdf'));
     announce('Your folded card PDF was downloaded.');
+  }
+
+  async function downloadSinglePrintImage(type) {
+    const blob = await singlePrintCanvasBlob(type, .94);
+    const ext = type === 'image/png' ? 'png' : 'jpg';
+    window.CardPDF.downloadBlob(blob, filename(ext));
+    announce(`Your ${ext === 'png' ? 'PNG' : 'JPEG'} card was downloaded.`);
+  }
+
+  function shareSinglePrintImage() {
+    const assets = currentPreparedShareAssets();
+    if (!assets?.imageFiles?.length) return shareNotReady();
+    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
+      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
+    });
+  }
+
+  function shareSinglePagePdf() {
+    const assets = currentPreparedShareAssets();
+    if (!assets?.pdfFile) return shareNotReady();
+    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} printable card`, async () => {
+      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
+    });
+  }
+
+  async function downloadFoldedSheet(sheet, type) {
+    const canvases = createFoldedSheetCanvases();
+    const canvasElement = sheet === 'inside' ? canvases.inside : canvases.outside;
+    const blob = await canvasToBlob(canvasElement, type, .94);
+    const ext = type === 'image/png' ? 'png' : 'jpg';
+    window.CardPDF.downloadBlob(blob, sheetFilename(sheet, ext));
+    announce(`${sheet === 'inside' ? 'Inside' : 'Outside'} sheet ${ext === 'png' ? 'PNG' : 'JPEG'} was downloaded.`);
+  }
+
+  function shareFoldedSheets() {
+    const assets = currentPreparedShareAssets();
+    if (!assets?.imageFiles?.length) return shareNotReady();
+    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} folded card`, async () => {
+      window.CardPDF.downloadBlob(assets.imageBlobs[0], sheetFilename('outside', 'png'));
+      window.setTimeout(() => window.CardPDF.downloadBlob(assets.imageBlobs[1], sheetFilename('inside', 'png')), 180);
+    });
+  }
+
+  function shareFoldedPdf() {
+    const assets = currentPreparedShareAssets();
+    if (!assets?.pdfFile) return shareNotReady();
+    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} folded card`, async () => {
+      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
+    });
   }
 
   async function copyMessage() {
@@ -1442,7 +1566,11 @@
   function restorePhoto() {
     if (!state.photoData) return;
     photoImage = new Image();
-    photoImage.onload = queueRender;
+    photoImage.onload = () => {
+      clearPreparedShareAssets();
+      queueRender();
+      if (state.reviewed && state.step === 5) scheduleShareAssetPreparation();
+    };
     photoImage.src = state.photoData;
   }
 
@@ -1454,11 +1582,6 @@
     if (summary) summary.textContent = `Reviewing: ${format.label} · ${format.detail}`;
     const reviewFigureCaption = document.getElementById('reviewFigureCaption');
     if (reviewFigureCaption) reviewFigureCaption.textContent = `${format.label} · ${format.detail}`;
-
-    const flatShare = document.getElementById('reviewFlatShare');
-    const foldedShare = document.getElementById('reviewFoldedShare');
-    if (flatShare) flatShare.hidden = format.kind === 'folded';
-    if (foldedShare) foldedShare.hidden = format.kind !== 'folded';
 
     if (format.kind === 'folded') {
       if (singleWrap) singleWrap.hidden = true;
@@ -1582,7 +1705,7 @@
 
   function hideStageGuard() {
     const prompt = document.getElementById('stageGuardPrompt');
-    if (prompt) { prompt.hidden = true; prompt.classList.remove('stage-guard-pinned'); }
+    if (prompt) prompt.hidden = true;
   }
 
   function showStageGuard(title, message, actionLabel, destinationStep) {
@@ -1596,10 +1719,8 @@
     action.textContent = actionLabel;
     action.dataset.destinationStep = String(destinationStep);
     prompt.hidden = false;
-    const pinned = window.matchMedia('(max-width: 900px)').matches;
-    prompt.classList.toggle('stage-guard-pinned', pinned);
     window.requestAnimationFrame(() => {
-      if (!pinned) prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
       action.focus({ preventScroll: true });
     });
   }
@@ -1697,14 +1818,14 @@ Create your own card: ${cleanUrl}`);
     document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
     document.querySelectorAll('[data-jump-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.jumpStep))));
     document.getElementById('stageGuardAction')?.addEventListener('click', () => goToStep(Number(document.getElementById('stageGuardAction')?.dataset.destinationStep || 1)));
-    document.getElementById('stageGuardClose')?.addEventListener('click', hideStageGuard);
+    document.querySelector('[data-guard-close]')?.addEventListener('click', hideStageGuard);
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };
       const occasion = defaults[creationType];
       state.creationType = creationType;
       state.occasion = occasion;
-      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Special Occasion') : defaultOccasionLabel(occasion);
       state.coverMessage = defaultCover(occasion);
       state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || DATA.occasions[occasion]?.label || 'For You';
@@ -1718,7 +1839,7 @@ Create your own card: ${cleanUrl}`);
       const occasion = button.dataset.occasion;
       state.creationType = button.dataset.kind || state.creationType;
       state.occasion = occasion;
-      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Special Occasion') : defaultOccasionLabel(occasion);
       state.coverMessage = defaultCover(occasion);
       state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || (occasion === 'custom' ? 'For Your Special Occasion' : DATA.occasions[occasion]?.label) || 'For You';
@@ -1748,7 +1869,7 @@ Create your own card: ${cleanUrl}`);
     }));
 
     const bindings = {
-      recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
+      recipientSelect: 'recipient', occasionLabel: 'occasionLabel', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
       eventTitle: 'eventTitle', eventDate: 'eventDate', eventTime: 'eventTime', eventVenue: 'eventVenue', eventRsvp: 'eventRsvp', eventHost: 'eventHost',
       mainMessage: 'mainMessage', frontHeading: 'frontHeading', frontMessage: 'frontMessage', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
       backgroundPicker: 'background', textColourPicker: 'textColour'
@@ -1757,7 +1878,7 @@ Create your own card: ${cleanUrl}`);
       document.getElementById(id)?.addEventListener('input', event => {
         const patch = { [key]: event.target.value };
         if (key === 'customOccasion') {
-          patch.occasionLabel = event.target.value.trim() || 'Custom Occasion';
+          patch.occasionLabel = event.target.value.trim() || 'Special Occasion';
           patch.coverMessage = event.target.value.trim() ? `Celebrating ${event.target.value.trim()}` : 'Made especially for this occasion';
           patch.frontMessage = event.target.value.trim() ? `A special message for ${event.target.value.trim()}.` : defaultFrontMessage('custom');
           patch.frontHeading = event.target.value.trim() || 'For Your Special Occasion';
@@ -1863,20 +1984,18 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('downloadPng')?.addEventListener('click', () => withUsageGate(() => openImage('image/png')).catch(handleError));
     document.getElementById('downloadJpg')?.addEventListener('click', () => withUsageGate(() => openImage('image/jpeg')).catch(handleError));
     document.getElementById('downloadSinglePdf')?.addEventListener('click', () => withUsageGate(createSinglePagePdf).catch(handleError));
+    document.getElementById('downloadSinglePng')?.addEventListener('click', () => withUsageGate(() => downloadSinglePrintImage('image/png')).catch(handleError));
+    document.getElementById('downloadSingleJpeg')?.addEventListener('click', () => withUsageGate(() => downloadSinglePrintImage('image/jpeg')).catch(handleError));
     document.getElementById('downloadPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
     document.getElementById('shareImage')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
-    document.getElementById('reviewShareCard')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
-    document.getElementById('reviewSavePng')?.addEventListener('click', () => withUsageGate(() => reviewSaveImage('image/png')).catch(handleError));
-    document.getElementById('reviewSaveJpeg')?.addEventListener('click', () => withUsageGate(() => reviewSaveImage('image/jpeg')).catch(handleError));
-    document.getElementById('reviewSavePdf')?.addEventListener('click', () => withUsageGate(reviewSavePdf).catch(handleError));
-    document.getElementById('reviewFoldedPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
-    document.getElementById('reviewShareSheets')?.addEventListener('click', () => withUsageGate(shareFoldedSheets).catch(handleError));
-    document.querySelectorAll('[data-sheet-save]').forEach(button => {
-      button.addEventListener('click', () => withUsageGate(() => saveFoldedSheet(button.dataset.sheetSave, button.dataset.sheetType === 'jpeg' ? 'image/jpeg' : 'image/png')).catch(handleError));
-    });
-    document.querySelectorAll('[data-sheet-group]').forEach(summary => {
-      summary.addEventListener('click', () => {});
-    });
+    document.getElementById('shareSingleImage')?.addEventListener('click', () => withUsageGate(shareSinglePrintImage).catch(handleError));
+    document.getElementById('shareSinglePdf')?.addEventListener('click', () => withUsageGate(shareSinglePagePdf).catch(handleError));
+    document.getElementById('shareFoldedSheets')?.addEventListener('click', () => withUsageGate(shareFoldedSheets).catch(handleError));
+    document.getElementById('shareFoldedPdf')?.addEventListener('click', () => withUsageGate(shareFoldedPdf).catch(handleError));
+    document.getElementById('downloadFoldedOutsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/png')).catch(handleError));
+    document.getElementById('downloadFoldedInsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/png')).catch(handleError));
+    document.getElementById('downloadFoldedOutsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/jpeg')).catch(handleError));
+    document.getElementById('downloadFoldedInsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/jpeg')).catch(handleError));
     document.getElementById('shareLink')?.addEventListener('click', () => shareLink().catch(handleError));
     document.getElementById('copyImage')?.addEventListener('click', () => copyImage().catch(handleError));
     document.getElementById('copyMessage')?.addEventListener('click', () => copyMessage().catch(handleError));
@@ -1903,7 +2022,6 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('reviewContinueHint')?.addEventListener('click', openReview);
     document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true, step: 5 }); closeReview(); window.setTimeout(scrollToWorkspace, 60); });
     document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
-    document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
   }
 

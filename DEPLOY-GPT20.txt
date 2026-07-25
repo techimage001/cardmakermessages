@@ -1,0 +1,11 @@
+GPT20 Deployment
+
+1. Keep your existing live-site backup.
+2. Open the Card-Maker-Messages-GPT20 folder from this ZIP.
+3. Upload every file and folder inside it to Hostinger public_html.
+4. Choose Replace/Overwrite for existing files.
+5. Do not upload only app.html. The matching assets folder is required.
+6. Confirm the live page source loads /assets/app-v20.js.
+7. Test PNG, JPEG, PDF and Share image + website link on the live HTTPS site.
+
+The original photographs and generated cards stay on the user's device. GPT20 does not add backend image storage.

@@ -1,0 +1,8 @@
+DEPLOY CARD MAKER MESSAGES GPT21
+
+1. Keep your current public_html backup.
+2. Upload every file and folder inside Card-Maker-Messages-GPT21 to public_html.
+3. Choose Replace/Overwrite for existing files.
+4. Do not upload app.html alone; upload the complete assets folder as well.
+5. Confirm app.html loads site-v21.css, site-v21.js, messages-v21.js, pdf-v21.js and app-v21.js.
+6. Test Share image + website link, image downloads and PDF downloads on the live HTTPS website.
