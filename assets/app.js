@@ -115,7 +115,7 @@
     printPaper: 'A4',
     printQuality: 'home',
     showFoldMarks: true,
-    showWebsite: true,
+    showWebsite: false,
     reviewed: false,
     savedAt: 0,
     sizeSelected: false,
@@ -184,27 +184,29 @@
 
 
   function buildTypographyControls() {
-    const host = document.getElementById('typographyControls');
-    if (!host || host.dataset.built === '1') return;
     const fontOptions = [
-      ['', 'Design default'], ['serif', 'Serif'], ['sans', 'Sans'],
+      ['', 'Design font'], ['serif', 'Serif'], ['sans', 'Sans'],
       ['classic', 'Classic'], ['modern', 'Modern'], ['mono', 'Typewriter'], ['handwritten', 'Handwritten']
     ];
     const sizeOptions = [['0.8', 'Small'], ['0.9', 'Reduced'], ['1', 'Normal'], ['1.15', 'Large'], ['1.3', 'Larger'], ['1.5', 'Largest']];
-    TYPO_FIELDS.forEach(([id, label]) => {
+    TYPO_FIELDS.forEach(([id, label, inputId]) => {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const field = input.closest('.field') || input.parentElement;
+      if (!field || field.dataset.typoBuilt === '1') return;
       const row = document.createElement('div');
-      row.className = 'typo-row';
-      const name = document.createElement('span');
-      name.className = 'typo-name';
-      name.textContent = label;
-      row.appendChild(name);
+      row.className = 'field-typo';
+      const tag = document.createElement('span');
+      tag.className = 'field-typo-tag';
+      tag.textContent = 'Style';
+      row.appendChild(tag);
       const fontSel = document.createElement('select');
-      fontSel.className = 'typo-select';
+      fontSel.className = 'field-typo-select';
       fontSel.id = 'typoFont_' + id;
       fontSel.setAttribute('aria-label', label + ' font');
       fontOptions.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; fontSel.appendChild(o); });
       const sizeSel = document.createElement('select');
-      sizeSel.className = 'typo-select';
+      sizeSel.className = 'field-typo-select';
       sizeSel.id = 'typoSize_' + id;
       sizeSel.setAttribute('aria-label', label + ' size');
       sizeOptions.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sizeSel.appendChild(o); });
@@ -212,9 +214,10 @@
       sizeSel.addEventListener('change', () => updateState({ ['typoSize_' + id]: Number(sizeSel.value) }));
       row.appendChild(fontSel);
       row.appendChild(sizeSel);
-      host.appendChild(row);
+      const note = field.querySelector('.field-note');
+      if (note) field.insertBefore(row, note); else field.appendChild(row);
+      field.dataset.typoBuilt = '1';
     });
-    host.dataset.built = '1';
   }
 
   function syncTypographyControls() {
@@ -253,33 +256,51 @@
     generateMessages(); syncControls();
   }
 
-  function populateCategorySelects() {
-    const catSelect = document.getElementById('categorySelect');
-    const occSelect = document.getElementById('categoryOccasionSelect');
-    if (!catSelect || !occSelect) return;
+  function buildCategoryColumns() {
+    const host = document.getElementById('categoryColumns');
+    if (!host) return;
     const cats = DATA.categories || [];
-    if (!catSelect.options.length) {
-      cats.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id; opt.textContent = c.label;
-        catSelect.appendChild(opt);
+    if (host.dataset.built !== '1') {
+      cats.forEach(cat => {
+        const col = document.createElement('div');
+        col.className = 'category-column';
+        const heading = document.createElement('h4');
+        heading.className = 'category-column-title';
+        heading.textContent = cat.label;
+        col.appendChild(heading);
+        const select = document.createElement('select');
+        select.className = 'category-column-select';
+        select.id = 'catSelect_' + cat.id;
+        select.setAttribute('aria-label', cat.label + ' occasions');
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Choose occasion';
+        select.appendChild(placeholder);
+        cat.occasions.forEach(key => {
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = DATA.occasions[key] ? DATA.occasions[key].label : key;
+          select.appendChild(opt);
+        });
+        select.addEventListener('change', () => {
+          if (select.value) applyOccasion(select.value, 'card');
+        });
+        col.appendChild(select);
+        host.appendChild(col);
       });
+      host.dataset.built = '1';
     }
-    if (catSelect.value !== state.category) catSelect.value = state.category;
-    const current = cats.find(c => c.id === state.category) || cats[0];
-    const wanted = current ? current.occasions : [];
-    const rendered = Array.from(occSelect.options).map(o => o.value).join('|');
-    if (rendered !== wanted.join('|')) {
-      occSelect.textContent = '';
-      wanted.forEach(key => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = DATA.occasions[key]?.label || key;
-        occSelect.appendChild(opt);
-      });
-    }
-    if (wanted.includes(state.occasion)) occSelect.value = state.occasion;
+    cats.forEach(cat => {
+      const select = document.getElementById('catSelect_' + cat.id);
+      if (!select) return;
+      const owns = cat.occasions.includes(state.occasion);
+      const wanted = owns ? state.occasion : '';
+      if (select.value !== wanted) select.value = wanted;
+      const col = select.closest('.category-column');
+      if (col) col.classList.toggle('is-active', owns);
+    });
   }
+
 
   function defaultOccasionLabel(occasion, renderState) {
     if (occasion === 'custom') {
@@ -408,6 +429,8 @@
     document.querySelectorAll('[data-occasion]').forEach(button => {
       const visible = button.dataset.kind === state.creationType;
       button.hidden = !visible;
+      const wrapper = button.closest('.custom-occasion-cta');
+      if (wrapper) wrapper.hidden = !visible;
       const active = visible && button.dataset.occasion === state.occasion;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
@@ -539,7 +562,7 @@
     if (customOccasionField) customOccasionField.hidden = state.occasion !== 'custom';
     const customOccasion = document.getElementById('customOccasion');
     if (customOccasion && customOccasion.value !== state.customOccasion) customOccasion.value = state.customOccasion;
-    populateCategorySelects();
+    buildCategoryColumns();
     buildTypographyControls();
     syncTypographyControls();
     const occasionLabelInput = document.getElementById('occasionLabelText');
@@ -561,9 +584,7 @@
       if (button.dataset.panel !== 'front') button.hidden = !foldedPanelsAvailable;
     });
     if (!foldedPanelsAvailable && state.activePanel !== 'front') state.activePanel = 'front';
-    const website = document.getElementById('showWebsite');
     const marks = document.getElementById('showFoldMarks');
-    if (website) website.checked = state.showWebsite;
     if (marks) marks.checked = state.showFoldMarks;
     const selectedOccasion = DATA.occasions[state.occasion];
     state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
@@ -806,14 +827,14 @@
   };
 
   const TYPO_FIELDS = [
-    ['label', 'Occasion label'],
-    ['dedication', 'Recipient dedication'],
-    ['heading', 'Front heading'],
-    ['frontMsg', 'Front message'],
-    ['insideMsg', 'Inside message'],
-    ['closing', 'Closing wish'],
-    ['sender', 'Sender'],
-    ['backMsg', 'Back message']
+    ['label', 'Occasion label', 'occasionLabelText'],
+    ['dedication', 'Recipient dedication', 'recipientName'],
+    ['heading', 'Front heading', 'frontHeading'],
+    ['frontMsg', 'Front message', 'frontMessage'],
+    ['insideMsg', 'Inside message', 'mainMessage'],
+    ['closing', 'Closing wish', 'coverMessage'],
+    ['sender', 'Sender', 'senderName'],
+    ['backMsg', 'Back message', 'backMessage']
   ];
 
   function typoFamily(renderState, id, fallback) {
@@ -1129,15 +1150,15 @@
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.font = `700 ${Math.max(20, width * .03 * typoScale(renderState, 'label'))}px ${typoFamily(renderState, 'label', 'Arial, Helvetica, sans-serif')}`;
-      context.fillText(currentOccasionLabel(renderState).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
+      context.fillText(currentOccasionLabel(renderState).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .355 : .165), width * .76);
 
       if (!folded && renderState.recipientName) {
         context.fillStyle = p.accent;
         context.font = `600 ${Math.max(15, width * .036 * typoScale(renderState, 'dedication'))}px ${typoFamily(renderState, 'dedication', family)}`;
-        context.fillText(`To ${renderState.recipientName}`, x + width / 2, y + height * (hasPhoto ? .40 : .225), width * .74);
+        context.fillText(`To ${renderState.recipientName}`, x + width / 2, y + height * (hasPhoto ? .415 : .243), width * .74);
       }
 
-      const titleY = hasPhoto ? .435 : (renderState.recipientName ? .285 : .245);
+      const titleY = hasPhoto ? .45 : (renderState.recipientName ? .305 : .245);
       let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
@@ -1230,10 +1251,6 @@
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038 * typoScale(renderState, 'backMsg')}px ${typoFamily(renderState, 'backMsg', family)}`;
       if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
-      if (renderState.showWebsite && renderState.outputMode !== 'folded') {
-        context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
-        context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
-      }
     }
 
     context.restore();
@@ -1793,7 +1810,7 @@
     action.textContent = actionLabel;
     action.dataset.destinationStep = String(destinationStep);
     prompt.hidden = false;
-    const pinned = window.matchMedia('(max-width: 900px)').matches;
+    const pinned = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 900px)').matches : (window.innerWidth || 0) <= 900;
     prompt.classList.toggle('stage-guard-pinned', pinned);
     window.requestAnimationFrame(() => {
       if (!pinned) prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1914,16 +1931,7 @@ Create your own card: ${cleanUrl}`);
     document.querySelectorAll('[data-occasion]').forEach(button => button.addEventListener('click', () => {
       applyOccasion(button.dataset.occasion, button.dataset.kind);
     }));
-    document.getElementById('categorySelect')?.addEventListener('change', event => {
-      state.category = event.target.value;
-      const cat = (DATA.categories || []).find(c => c.id === state.category);
-      if (cat && cat.occasions.length && !cat.occasions.includes(state.occasion)) {
-        applyOccasion(cat.occasions[0], 'card');
-      } else { syncControls(); }
-    });
-    document.getElementById('categoryOccasionSelect')?.addEventListener('change', event => {
-      applyOccasion(event.target.value, 'card');
-    });
+
     document.querySelectorAll('[data-tone]').forEach(button => button.addEventListener('click', () => { state.tone = button.dataset.tone; generateMessages(); syncControls(); }));
     document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => { const chosen = presets[button.dataset.preset] || presets.floral; updateState({ designVisited: true, preset: button.dataset.preset, background: '', textColour: '', font: chosen.font, frame: chosen.frame || state.frame, illustration: chosen.illustration || 'none', accent: chosen.accentChoice || state.accent, textStyle: chosen.textStyle || state.textStyle }); }));
     document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ designVisited: true, frame: button.dataset.frame })));
@@ -2104,7 +2112,6 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('reviewContinueHint')?.addEventListener('click', openReview);
     document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true, step: 5 }); closeReview(); window.setTimeout(scrollToWorkspace, 60); });
     document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
-    document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
   }
 
