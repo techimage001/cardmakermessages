@@ -7,7 +7,7 @@ function clean(string $key, int $limit=180): string {
 }
 $o=clean('o',40); $t=clean('t',30); $ol=clean('ol',60); $r=clean('r',60);
 $h=clean('h',80) ?: 'A personalised card'; $m=clean('m',220); $c=clean('c',100); $s=clean('s',80);
-$rf=clean('rf',24); $rs=clean('rs',12); $v=clean('v',8) ?: '23';
+$rf=clean('rf',24); $rs=clean('rs',12); $v=clean('v',8) ?: '25';
 $params=['o'=>$o,'t'=>$t,'ol'=>$ol,'r'=>$r,'h'=>$h,'m'=>$m,'c'=>$c,'s'=>$s,'rf'=>$rf,'rs'=>$rs,'v'=>$v];
 $query=http_build_query(array_filter($params, fn($x)=>$x!==''));
 $scheme=(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http';
@@ -19,6 +19,7 @@ $title=($ol ?: 'Personalised card').($r ? ' for '.$r : '');
 $description=$m ?: 'Open this personalised card made especially for you.';
 function e(string $v): string { return htmlspecialchars($v, ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8'); }
 ?>
+<?php header('Cache-Control: public, max-age=300'); ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?=e($title)?></title><meta name="robots" content="noindex,nofollow,noarchive">
 <meta property="og:type" content="website"><meta property="og:title" content="<?=e($title)?>"><meta property="og:description" content="<?=e($description)?>"><meta property="og:url" content="<?=e($pageUrl)?>">

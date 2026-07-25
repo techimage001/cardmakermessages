@@ -333,6 +333,138 @@
     }
   };
 
+    "sympathy": {
+      label: "Sympathy And Bereavement", front: "With Deepest Sympathy", icon: "♡",
+      messages: [
+        ['heartfelt',"I am so sorry for your loss. Thinking of you and holding you close in my thoughts."],
+        ['short',"May the love around you bring comfort as you remember a life that meant so much."],
+        ['formal',"There are no perfect words, but please know that I am here for you."],
+        ['inspirational',"With deepest sympathy and warm support during this difficult time."],
+        ['heartfelt',"May God surround you with peace, strength and loving care."],
+        ['short',"Remembering someone special and sending comfort to everyone who loved them."]
+      ]
+    },
+    "thinking-of-you": {
+      label: "Thinking Of You", front: "Thinking of You", icon: "✧",
+      messages: [
+        ['heartfelt',"Just a little reminder that you are in my thoughts today."],
+        ['short',"Thinking of you and sending warmth across the distance."],
+        ['formal',"No need to reply. I simply wanted you to know that I care."],
+        ['inspirational',"You have been on my mind, and I hope today is gentle with you."],
+        ['heartfelt',"Sending love, encouragement and a quiet reminder that you are not alone."],
+        ['short',"May you feel supported, valued and deeply cared for today."]
+      ]
+    },
+    "pet-loss": {
+      label: "Pet Loss Sympathy", front: "With Sympathy", icon: "♡",
+      messages: [
+        ['heartfelt',"I am so sorry for the loss of such a loved and faithful companion."],
+        ['short',"The love and happiness they brought will always remain part of your family story."],
+        ['formal',"Thinking of you as you remember all the gentle moments you shared."],
+        ['inspirational',"A beloved pet leaves pawprints on the heart that time cannot erase."],
+        ['heartfelt',"May your favourite memories bring comfort as you grieve."],
+        ['short',"Sending sympathy for the loss of a very special member of your family."]
+      ]
+    },
+    "divorce": {
+      label: "Divorce And Breakup", front: "A New Chapter", icon: "↗",
+      messages: [
+        ['heartfelt',"I am here for you as you take this new chapter one day at a time."],
+        ['short',"Wishing you peace, strength and brighter days ahead."],
+        ['formal',"May this next season bring freedom, confidence and room to breathe again."],
+        ['inspirational',"You do not have to carry this transition alone."],
+        ['heartfelt',"Here is to choosing peace and building a future that feels truly yours."],
+        ['short',"New chapter unlocked. May the next one be kinder, lighter and much more joyful."]
+      ]
+    },
+    "new-home": {
+      label: "New Home", front: "Congratulations on Your New Home", icon: "⌂",
+      messages: [
+        ['heartfelt',"Congratulations on your new home. May it be filled with comfort, laughter and happy memories."],
+        ['short',"Wishing you many peaceful mornings and joyful gatherings in your new place."],
+        ['formal',"May every room soon feel familiar, welcoming and completely yours."],
+        ['inspirational',"Here is to fresh keys, new memories and a wonderful chapter ahead."],
+        ['heartfelt',"Warmest wishes as you settle into your beautiful new home."],
+        ['short',"May your new address bring happiness, friendship and plenty of reasons to celebrate."]
+      ]
+    },
+    "new-job": {
+      label: "New Job", front: "Congratulations", icon: "✦",
+      messages: [
+        ['heartfelt',"Congratulations on your new job. Wishing you confidence, success and a brilliant first day."],
+        ['short',"Your hard work has opened an exciting new door. Well done."],
+        ['formal',"May this role bring fresh challenges, good people and meaningful progress."],
+        ['inspirational',"Warmest congratulations on your new position and every success ahead."],
+        ['heartfelt',"New job, new desk, new passwords to forget. Congratulations."],
+        ['short',"You earned this opportunity. Go into it knowing you have so much to offer."]
+      ]
+    },
+    "farewell": {
+      label: "Leaving And Farewell", front: "Wishing You Well", icon: "→",
+      messages: [
+        ['heartfelt',"Wishing you every success and happiness in your next chapter."],
+        ['short',"Thank you for everything you brought to the team. You will be greatly missed."],
+        ['formal',"It has been a pleasure knowing you, and I hope the road ahead brings wonderful opportunities."],
+        ['inspirational',"Good luck with what comes next. They are very fortunate to have you."],
+        ['heartfelt',"We will miss you almost as much as we will miss asking you how everything works."],
+        ['short',"Farewell for now, with warm thanks and every good wish for the future."]
+      ]
+    },
+    "engagement": {
+      label: "Engagement", front: "Congratulations", icon: "◇",
+      messages: [
+        ['heartfelt',"Congratulations on your engagement. Wishing you a lifetime of love and friendship."],
+        ['short',"What wonderful news. May this exciting chapter be filled with joy and happy planning."],
+        ['formal',"Here is to the beautiful future you have chosen together."],
+        ['inspirational',"Warmest congratulations to a wonderful couple."],
+        ['heartfelt',"May your engagement be the beginning of an even deeper and happier partnership."],
+        ['short',"Two people, one lovely decision and so much to celebrate."]
+      ]
+    },
+    "good-luck": {
+      label: "Good Luck", front: "Good Luck", icon: "★",
+      messages: [
+        ['heartfelt',"Good luck. Trust your preparation and take it one step at a time."],
+        ['short',"Wishing you confidence, calm and a result that makes you proud."],
+        ['formal',"You have done the work. Now go and show what you can do."],
+        ['inspirational',"Every good wish for the challenge ahead."],
+        ['heartfelt',"No pressure, but we are all expecting complete brilliance. Good luck."],
+        ['short',"May courage meet opportunity at exactly the right moment."]
+      ]
+    },
+    "friendship": {
+      label: "Friendship", front: "For a Wonderful Friend", icon: "♥",
+      messages: [
+        ['heartfelt',"Your friendship makes ordinary days brighter and difficult days easier."],
+        ['short',"Thank you for being the kind of friend who listens, laughs and stays."],
+        ['formal',"Life is better with someone like you in it."],
+        ['inspirational',"Distance changes many things, but it has never changed how much your friendship means."],
+        ['heartfelt',"Friends like you are rare, mostly because the world could not cope with two of you."],
+        ['short',"I am grateful for every memory behind us and every adventure still ahead."]
+      ]
+    },
+    "apology": {
+      label: "Sorry And Apology", front: "I Am Sorry", icon: "♡",
+      messages: [
+        ['heartfelt',"I am truly sorry for what I said and for the hurt it caused."],
+        ['short',"You deserved more care from me, and I regret letting you down."],
+        ['formal',"I cannot undo the moment, but I can take responsibility and do better."],
+        ['inspirational',"Please accept my sincere apology."],
+        ['heartfelt',"I am sorry. I value our relationship too much to pretend this did not matter."],
+        ['short',"I understand that trust may take time to rebuild, and I am willing to do the work."]
+      ]
+    },
+    "teacher-appreciation": {
+      label: "Teacher Appreciation", front: "Thank You, Teacher", icon: "✿",
+      messages: [
+        ['heartfelt',"Thank you for making learning feel encouraging, interesting and possible."],
+        ['short',"Your patience and belief have made a lasting difference."],
+        ['formal',"Thank you for seeing potential and helping it grow."],
+        ['inspirational',"With sincere appreciation for all your hard work this year."],
+        ['heartfelt',"Great teachers do far more than teach lessons. Thank you for everything."],
+        ['short',"You helped create confidence that will continue far beyond the classroom."]
+      ]
+    },
   const recipients = [
     'Mum','Dad','Husband','Wife','Partner','Son','Daughter','Sister','Brother',
     'Friend','Best friend','Colleague','Boss','Teacher','Customer','Couple','Child',

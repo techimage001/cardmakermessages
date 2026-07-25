@@ -90,14 +90,14 @@
     textColour: '',
     font: 'serif',
     typography: {
-      occasionLabel: { font: 'montserrat', size: 'medium' },
-      recipientName: { font: 'allura', size: 'large' },
+      occasionLabel: { font: 'montserrat', size: 'large' },
+      recipientName: { font: 'allura', size: 'xlarge' },
       frontHeading: { font: 'playfair', size: 'large' },
-      frontMessage: { font: 'cormorant', size: 'medium' },
-      mainMessage: { font: 'cormorant', size: 'medium' },
-      coverMessage: { font: 'cormorant', size: 'small' },
+      frontMessage: { font: 'cormorant', size: 'large' },
+      mainMessage: { font: 'cormorant', size: 'large' },
+      coverMessage: { font: 'cormorant', size: 'medium' },
       senderName: { font: 'allura', size: 'medium' },
-      backMessage: { font: 'cormorant', size: 'medium' }
+      backMessage: { font: 'cormorant', size: 'large' }
     },
     frame: 'classic',
     illustration: 'none',
@@ -1206,7 +1206,7 @@
       m: state.frontMessage, c: state.coverMessage, s: state.senderName,
       rf: state.typography?.recipientName?.font || 'allura',
       rs: state.typography?.recipientName?.size || 'large',
-      v: '23'
+      v: '25'
     };
     Object.entries(params).forEach(([key, value]) => {
       const clean = String(value || '').trim();
@@ -1227,24 +1227,23 @@ ${shareCardUrl()}`;
 
   async function shareRichCardLink() {
     const link = shareCardUrl();
-    const data = { title: `${state.occasionLabel} card`, text: shareCaption(), url: link };
+    const title = `${state.occasionLabel || 'Personalised'} card${state.recipientName ? ` for ${state.recipientName}` : ''}`;
+    const data = { title, text: `${title}. View it here:`, url: link };
     if (navigator.share) {
       await navigator.share(data);
-      announce('The card link was shared with its preview.');
-    } else {
-      await navigator.clipboard.writeText(`${shareCaption()}
-${link}`);
-      announce('Card link copied. Paste it into WhatsApp to show the preview.');
+      announce('Your card preview and clickable link were shared together.');
+      return true;
     }
+    const whatsappText = encodeURIComponent(`${title}. View it here: ${link}`);
+    window.open(`https://wa.me/?text=${whatsappText}`, '_blank', 'noopener,noreferrer');
+    announce('WhatsApp opened with the card preview link ready to send.');
     return true;
   }
 
   const shareButtonLabels = {
     shareImage: 'Share card link with preview',
-    shareSingleImage: 'Share card link with preview',
-    shareSinglePdf: 'Share PDF + website link',
-    shareFoldedSheets: 'Share both images + website link',
-    shareFoldedPdf: 'Share folded PDF + website link'
+    shareSingleImage: 'Share card preview + clickable link',
+    shareFoldedSheets: 'Share folded card preview + clickable link'
   };
 
   function shareStateKey() {
@@ -1257,8 +1256,8 @@ ${link}`);
   }
 
   function relevantShareButtonIds(mode = state.outputMode) {
-    if (mode === 'single-print') return ['shareSingleImage', 'shareSinglePdf'];
-    if (mode === 'folded') return ['shareFoldedSheets', 'shareFoldedPdf'];
+    if (mode === 'single-print') return ['shareSingleImage'];
+    if (mode === 'folded') return ['shareFoldedSheets'];
     return ['shareImage'];
   }
 
@@ -1288,18 +1287,7 @@ ${link}`);
   }
 
   function scheduleShareAssetPreparation() {
-    const key = shareStateKey();
-    if ((preparedShare.assets || preparedShare.promise) && preparedShare.key === key) return;
-    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
-    const mode = state.outputMode;
-    setShareButtonsPreparing(mode, true);
-    sharePreparationTimer = window.setTimeout(() => {
-      sharePreparationTimer = 0;
-      prepareShareAssets().catch(error => {
-        console.error(error);
-        setShareButtonsPreparing(mode, false);
-      });
-    }, 20);
+    setShareButtonsPreparing(state.outputMode, false);
   }
 
   async function prepareShareAssets() {
@@ -1520,19 +1508,11 @@ ${link}`);
   }
 
   function shareSinglePrintImage() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
-    });
+    return shareRichCardLink();
   }
 
   function shareSinglePagePdf() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.pdfFile) return shareNotReady();
-    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} printable card`, async () => {
-      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
-    });
+    return shareRichCardLink();
   }
 
   async function downloadFoldedSheet(sheet, type) {
@@ -1545,20 +1525,11 @@ ${link}`);
   }
 
   function shareFoldedSheets() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], sheetFilename('outside', 'png'));
-      window.setTimeout(() => window.CardPDF.downloadBlob(assets.imageBlobs[1], sheetFilename('inside', 'png')), 180);
-    });
+    return shareRichCardLink();
   }
 
   function shareFoldedPdf() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.pdfFile) return shareNotReady();
-    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
-    });
+    return shareRichCardLink();
   }
 
   async function copyMessage() {
@@ -1960,12 +1931,44 @@ ${link}`);
       const fontLabel = document.createElement('label'); fontLabel.textContent = 'Font'; fontLabel.appendChild(font);
       const sizeLabel = document.createElement('label'); sizeLabel.textContent = 'Size'; sizeLabel.appendChild(size);
       controls.append(fontLabel,sizeLabel); field.appendChild(controls);
-      const updateType = () => {
+      const updateType = async () => {
+        const family = FONT_FAMILIES[font.value] || FONT_FAMILIES.serif;
+        try { if (document.fonts?.load) await document.fonts.load(`32px ${family}`); } catch (_) {}
         const typography = { ...(state.typography || {}), [fieldId]: { font: font.value, size: size.value } };
         updateState({ typography });
       };
       font.addEventListener('change', updateType); size.addEventListener('change', updateType);
     });
+
+    const occasionCategory = document.getElementById('occasionCategory');
+    const occasionSearch = document.getElementById('occasionSearch');
+
+    const occasionCategoryChips = [...document.querySelectorAll('[data-occasion-category]')];
+    const occasionResultCount = document.getElementById('occasionResultCount');
+    const applyOccasionFilter = () => {
+      const category = occasionCategory?.value || 'popular';
+      const query = (occasionSearch?.value || '').trim().toLowerCase();
+      let visibleCount = 0;
+      document.querySelectorAll('.occasion-choice[data-kind="card"]').forEach(button => {
+        const matchesCategory = category === 'all' || (category === 'popular' && button.dataset.popular === 'true') || button.dataset.category === category || button.dataset.occasion === 'custom';
+        const matchesQuery = !query || button.textContent.toLowerCase().includes(query);
+        button.hidden = !(matchesCategory && matchesQuery);
+        if (!button.hidden) visibleCount += 1;
+      });
+      occasionCategoryChips.forEach(chip => {
+        const active = chip.dataset.occasionCategory === category;
+        chip.classList.toggle('is-active', active);
+        chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      if (occasionResultCount) occasionResultCount.textContent = `${visibleCount} card${visibleCount === 1 ? '' : 's'}`;
+    };
+    occasionCategory?.addEventListener('change', applyOccasionFilter);
+    occasionCategoryChips.forEach(chip => chip.addEventListener('click', () => {
+      if (occasionCategory) occasionCategory.value = chip.dataset.occasionCategory || 'popular';
+      applyOccasionFilter();
+    }));
+    occasionSearch?.addEventListener('input', applyOccasionFilter);
+    applyOccasionFilter();
 
     const bindings = {
       recipientSelect: 'recipient', occasionLabel: 'occasionLabel', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',

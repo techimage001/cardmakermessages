@@ -1466,3 +1466,12 @@ textarea { min-height:118px; }
   .type-controls { grid-template-columns:1fr 1fr; }
 }
 @media (max-width:430px) { .type-controls { grid-template-columns:1fr; } }
+
+
+/* GPT24 occasion library and premium ready-made defaults */
+.occasion-filter-bar{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(220px,1.2fr);gap:12px;margin:12px 0 16px}.occasion-filter-bar label{display:grid;gap:6px;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.occasion-filter-bar select,.occasion-filter-bar input{min-height:46px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:10px 14px;font:700 .95rem Inter,Arial,sans-serif}.occasion-choice[hidden]{display:none!important}.occasion-library{display:grid;gap:42px}.occasion-category-section>h2{margin:0 0 18px;font-size:clamp(1.45rem,2.2vw,2rem)}
+@media(max-width:700px){.occasion-filter-bar{grid-template-columns:1fr}.occasion-library{gap:30px}}
+
+
+/* GPT24.1 visible occasion category browser */
+.occasion-browser{margin:12px 0 18px;padding:16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(248,240,234,.72));display:grid;gap:14px}.occasion-browser-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}.occasion-browser-heading>div{display:grid;gap:2px}.occasion-browser-kicker{font-size:.7rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--brand)}.occasion-browser-heading strong{font-family:Playfair Display,Georgia,serif;font-size:1.12rem}.occasion-result-count{font-weight:800;color:var(--muted);white-space:nowrap}.occasion-category-chips{display:flex;flex-wrap:wrap;gap:8px}.occasion-category-chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);min-height:38px;padding:8px 13px;border-radius:999px;font:800 .82rem Inter,Arial,sans-serif;cursor:pointer}.occasion-category-chip:hover,.occasion-category-chip:focus-visible{border-color:var(--brand);outline:none}.occasion-category-chip.is-active{background:var(--brand);border-color:var(--brand);color:#fff}.occasion-browser .occasion-filter-bar{margin:0}.occasion-browser+.occasion-choices{margin-top:2px}@media(max-width:700px){.occasion-browser{padding:13px}.occasion-browser-heading{align-items:flex-start}.occasion-category-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.occasion-category-chip{white-space:nowrap}.occasion-result-count{font-size:.82rem}}
