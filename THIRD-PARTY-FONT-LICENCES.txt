@@ -1,10 +1,1 @@
-CARD MAKER MESSAGES GPTV25 — FONT LICENSING NOTICE
-
-The web app loads these font families from the official Google Fonts service:
-Alex Brush, Allura, Cormorant Garamond, Great Vibes, Inter, Montserrat, Nunito, Parisienne and Playfair Display.
-
-Google Fonts families are distributed under open-source licences that permit website and commercial use. The fonts are referenced from fonts.googleapis.com / fonts.gstatic.com and are not redistributed as font files inside this package.
-
-No proprietary or paid font files are included in GPTV25. Do not replace these references with files downloaded from unofficial font websites.
-
-For production compliance, retain this notice and the official Google Fonts references. If the fonts are later self-hosted, download them from the official Google Fonts repository and include the licence file supplied with each family.
+GPT24 uses font families loaded from the official Google Fonts CSS service: Allura, Parisienne, Great Vibes, Alex Brush, Playfair Display, Cormorant Garamond, Montserrat, Inter and Nunito. Google Fonts families are distributed under open-source licences (commonly the SIL Open Font License). Verify and retain the licence metadata from the official Google Fonts source whenever self-hosting font files. No proprietary font files are bundled in this ZIP.
