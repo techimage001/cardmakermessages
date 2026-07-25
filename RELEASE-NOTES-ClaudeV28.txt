@@ -1,0 +1,38 @@
+Card Maker Messages ClaudeV28
+
+Wording, step strip proportions and mobile floating card.
+
+Make Your Own Card Here:
+- The supporting line no longer claims the site builds anything for the user. It
+  now reads: "Name any occasion, write your own words, and bring your imagination
+  to life." The heading above it stays bold and unchanged.
+
+Steps on the floating card:
+- The five steps now sit on a single horizontal line at every width. Each step
+  takes an equal share of the available space, with a smaller label, a smaller
+  number badge and tighter padding, so Download no longer drops onto a second
+  row.
+- The sideways scrolling introduced in the previous version is no longer needed
+  and has been removed. Measured against a 390 pixel phone, the widest step,
+  Download, needs 62 pixels in the 67 pixels available.
+- Step names remain visible at every screen size. They are never reduced to bare
+  numbers.
+
+Mobile floating card:
+- The card and its step strip continue to float together as the page scrolls, on
+  phones as well as desktop. The strip sits inside the floating card itself, so
+  the current stage is always on screen with the card.
+
+Cache:
+- All asset version queries bumped to v28.
+- cmm-build meta and service worker VERSION bumped to 28.
+
+Verified before release:
+- 17 live DOM and stylesheet checks covering the new wording, the single line
+  step strip, and confirmation that the strip sits inside the floating column
+  with sticky positioning preserved at every mobile breakpoint.
+
+Unchanged:
+- All ClaudeV27 functionality: 63 occasions, 7 categories, the removal of the
+  duplicated how it works block, per line font and size controls, generated
+  category and occasion pages, and the footer arrangement.

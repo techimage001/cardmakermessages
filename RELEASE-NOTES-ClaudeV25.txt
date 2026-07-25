@@ -1,0 +1,51 @@
+Card Maker Messages ClaudeV25
+
+Removing duplication and adding the custom occasion feature button.
+
+Steps no longer duplicated:
+- The wide step bar across the top of the page has been removed entirely. The
+  compact step strip on the floating live card is now the only step navigation,
+  so the five stages appear once rather than twice.
+- All the styling rules for the old bar were removed as well, and the sticky
+  offset of the preview column was corrected now that nothing sits above it.
+
+Repeated occasions removed:
+- The flat grid of 17 card occasion buttons has been deleted. Every one of those
+  occasions already appears in the category dropdowns, so the page was listing
+  the same occasions twice with the same link text. That duplication is bad for
+  search and it also made the app look like it only had 17 occasions when it has
+  57 card occasions across the 7 categories.
+- The four invitation buttons and the postcard button are untouched. They are a
+  different creation type with their own date, venue and RSVP wording, and they
+  do not appear in the card category dropdowns.
+
+Make your own occasion:
+- One prominent button now sits directly beneath the category columns, replacing
+  the small custom chip that was lost in the old grid. It uses plain wording,
+  "Make your own occasion", with a supporting line explaining that any event can
+  be typed in.
+- Styled as a full-width gradient card with an icon, a soft highlight, a lift on
+  hover and a clear focus ring for keyboard users. It respects reduced-motion
+  settings and collapses gracefully on small screens.
+
+Text style controls:
+- Confirmed working end to end. Every font and size change queues an immediate
+  redraw of the live card, and each of the nine controls tested was proven to
+  change the drawn output.
+- Fonts remain standard system stacks only, with no web font loading anywhere in
+  the app, so there is no licensing or copyright exposure.
+
+Footer:
+- Unchanged. The 7 category columns with their occasion pages stay as they are.
+
+Cache:
+- All asset version queries bumped to v25.
+- cmm-build meta and service worker VERSION bumped to 25.
+
+Verified before release:
+- 19 live DOM checks covering removal of the old bar and buttons, the custom
+  button, the 7 dropdowns and the redraw behaviour of the style controls.
+- 10 render checks confirming typography visibly changes the card and all 63
+  occasions still draw.
+- A single-file clickable preview is included with this release so the layout can
+  be checked before deploying.

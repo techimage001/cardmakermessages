@@ -1,0 +1,47 @@
+Card Maker Messages ClaudeV27
+
+Mobile layout overhaul and removal of the last duplicated steps.
+
+The steps were listed three times:
+- A "How it works" block at the top of the app repeated the same five steps a
+  third time, after the wide step bar was removed in V25 and the strip on the
+  floating card was kept. That block has been deleted. The five steps now appear
+  exactly once, on the floating card.
+- On mobile this block was the main reason the category picker sat below the
+  fold. Removing it lifts the actual tool into view.
+
+Make Your Own Card Here:
+- The button now reads "Make Your Own Card Here" in bold, with the smaller
+  supporting line beneath it: "If it is not on the list, type any event and we
+  build the card around it."
+
+Mobile layout:
+- All five steps now stay visible and labelled on the floating card. The strip
+  scrolls sideways rather than dropping the names, so the current stage is always
+  readable. Previously the labels were hidden on narrow screens.
+- The card preview was taking too much of the screen. Reduced from 42 to 30
+  percent of viewport height so the controls beneath are reachable without a long
+  scroll.
+- The page heading was oversized on phones and pushed everything down. It is now
+  a normal heading size, left aligned, and the descriptive paragraph is hidden on
+  small screens.
+- The seven categories now sit two across on phones and become full width rows on
+  very small screens, with the category name and its dropdown side by side so
+  every category is visible and selectable without hunting.
+- The custom card button, control panel padding and section headings were all
+  tightened for phone widths.
+
+Cache:
+- All asset version queries bumped to v27.
+- cmm-build meta and service worker VERSION bumped to 27.
+
+Verified before release:
+- 15 live DOM and stylesheet checks confirming the duplicate step block is gone,
+  the steps now appear once, the button wording is correct, and every mobile rule
+  is present.
+- Desktop and mobile previews included and confirmed booting.
+
+Unchanged:
+- All ClaudeV26 functionality: 63 occasions, 7 categories, per line font and size
+  controls, generated category and occasion pages, footer arrangement, card
+  spacing and the removal of the domain from cards.

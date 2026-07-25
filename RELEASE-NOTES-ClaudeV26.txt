@@ -1,0 +1,48 @@
+Card Maker Messages ClaudeV26
+
+Three layout corrections.
+
+Category dropdown text:
+- The text inside the seven category dropdowns was too large for the column
+  width, so "Choose occasion" was being cut off. Reduced so the full wording
+  reads clearly in every column at every screen size.
+
+Website address removed from cards:
+- The site domain no longer prints on any card, on any panel, in any output
+  mode. Previously it was suppressed only on folded card backs.
+- The "Show the website address on the back" toggle has been removed from the
+  editor, since it no longer does anything, and the dead wiring behind it was
+  cleaned out.
+- Verified by rendering a card back with the old setting forced on and measuring
+  zero ink in the exact area where the domain used to sit.
+
+Spacing above the recipient name:
+- The occasion label and the "To [name]" line were too close together. The
+  label moved up, the recipient line moved down, and the heading below moved
+  down to keep its own clearance.
+- Measured on a rendered card, the gap between the two lines has more than
+  doubled, from roughly 37 pixels to 81 pixels on a portrait card.
+
+Mobile:
+- A separate mobile preview is included in this release, rendered at 390 pixels
+  wide, so the phone layout can be checked directly.
+- Category columns reflow from seven across to four, then two, then one. Font
+  and size controls drop their "Style" label and sit side by side. The footer
+  categories reflow to four then two columns. The step strip on the floating
+  card collapses to numbers on very narrow screens.
+
+Cache:
+- All asset version queries bumped to v26.
+- cmm-build meta and service worker VERSION bumped to 26.
+
+Verified before release:
+- 14 live DOM checks including the removal of the website toggle and the mobile
+  breakpoints.
+- Card rendering measured pixel by pixel for both the spacing change and the
+  domain removal.
+- Both previews boot cleanly with all controls present.
+
+Unchanged:
+- All ClaudeV25 functionality: 63 occasions, 7 categories, the category columns,
+  the make your own occasion button, per line font and size controls, the
+  generated category and occasion pages, and the footer arrangement.

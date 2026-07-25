@@ -1,0 +1,56 @@
+Card Maker Messages ClaudeV24
+
+Layout corrections to the category picker, text style controls and footer.
+
+Categories now horizontal:
+- The two-step category and occasion dropdown pair was replaced. All 7 categories
+  now sit side by side across the page, each as its own column with its own
+  dropdown listing only that category's occasions.
+- Selecting from any category dropdown applies the occasion immediately and the
+  live card updates. The active category column is highlighted and the other
+  dropdowns reset, so it is always clear which occasion is in use.
+- Columns reflow to four across on tablets, two on small screens and one on
+  narrow phones.
+
+Text style controls moved beside each box:
+- The separate text style table in the Design step was removed. Each text box in
+  the editor now carries its own font and size dropdowns directly beneath it:
+  occasion label, recipient name, front heading, front message, inside message,
+  closing wish, sender and back message.
+- Seven font choices and six sizes, unchanged and still standard system fonts
+  with no licensing or copyright risk.
+
+Step strip on the floating card fixed:
+- The step names were being cut into fragments because an old rule forced every
+  step button to a fixed 30 pixel circle, which clashed with the newer labelled
+  buttons. That stale rule has been removed, so the five steps now display in
+  full on top of the floating live card. Names collapse to numbers only on very
+  narrow screens.
+
+Footer rebuilt:
+- The footer is now organised around the 7 categories, each a column heading
+  linking to its category page, with all of its occasion pages listed beneath in
+  small text. That is 60 occasion links plus 7 category links on every page.
+- Site links moved to a single compact row underneath.
+- Columns reflow to four across on tablets and two on phones.
+
+Robustness:
+- The stage guard no longer depends on matchMedia being present, so it cannot
+  throw and block navigation in environments where that is unavailable.
+
+Cache:
+- All asset version queries bumped to v24.
+- cmm-build meta and service worker VERSION bumped to 24.
+
+Verified before release:
+- The app boots in a live DOM with all 7 category dropdowns populated correctly.
+- Selecting Diwali then Baptism from different categories updates the card and
+  moves the active highlight correctly.
+- All 8 font and size control pairs sit inside their own text box field.
+- All 63 occasions render, and every typography control still changes the card.
+- 10257 internal page links checked. None broken.
+
+Unchanged:
+- All ClaudeV23 functionality: 63 occasions, 7 categories, 246 messages, the 51
+  generated category and occasion pages, sitemap, card drawing, share previews,
+  email verification, SMTP and admin dashboard.
