@@ -1,0 +1,18 @@
+CARD MAKER MESSAGES — GPTV24 CORRECTED
+
+Built from GPTV24.1, not GPTV25.
+
+VERIFIED CHANGES
+- Removed the page-wide five-step strip; the five stages remain inside the floating preview card.
+- Replaced the long visible occasion grid with Category, Occasion and Search controls.
+- Added the compact Popular occasions row.
+- Kept all occasion buttons hidden as the application's data source, so existing occasion logic remains intact.
+- Corrected Valentine’s Day to Love & relationships.
+- Kept the existing two-column layout, card preview position, card designs and all other workflow stages.
+- Restyled the wording editor into the approved desktop row: field label, wording, font and size.
+- Preserved responsive stacking on mobile.
+- Preserved the larger ready-made typography defaults and calligraphy recipient styling.
+- Kept desktop guard reminders in the right editor and mobile reminders above the sticky preview.
+- Kept recipient dedication on single and folded cards, smaller sender hierarchy, protected sign-off zone and no fixed website line on folded-card backs.
+- All share actions now use the personalised rich-preview card URL; PNG/PDF remain separate download actions.
+- Retained the 12 additional indexable occasion pages, sitemap and robots.txt.

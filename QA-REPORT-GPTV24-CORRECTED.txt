@@ -1,0 +1,21 @@
+GPTV24 CORRECTED — VERIFICATION REPORT
+
+Verified against the actual packaged files:
+PASS: app.html contains one compact occasion selector.
+PASS: Category, Occasion and Search controls are present.
+PASS: Popular occasion shortcuts are present.
+PASS: the full occasion button library is hidden and retained as the data source.
+PASS: the long visible occasion grid is removed.
+PASS: exactly five stage buttons remain inside the floating preview.
+PASS: the page-wide five-stage strip is removed.
+PASS: font and size controls are generated for all eight wording fields.
+PASS: Valentine’s Day is assigned to Love & relationships.
+PASS: all share actions call the rich personalised URL sharing function; downloads remain separate.
+PASS: Copy card link fallback is absent.
+PASS: 12 additional SEO occasion pages exist and remain listed through sitemap.xml.
+PASS: JavaScript syntax checks passed.
+PASS: c.php and og.php PHP syntax checks passed.
+PASS: corrected asset references exist.
+PASS: ZIP integrity check passed.
+
+Note: the legacy tools/tests.js contains older GPTV18/GPT24 copy assertions that conflict with the approved rich-preview sharing wording, so it was not used as the release acceptance test.
