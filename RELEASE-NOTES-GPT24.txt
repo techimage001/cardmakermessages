@@ -1,0 +1,9 @@
+Card Maker Messages GPT24
+
+- Preserves larger, accessible ready-made typography as the default.
+- Fixes font and size controls so all editable text fields redraw after selected web fonts load.
+- Adds categorised occasion selection with search while retaining visual occasion tiles.
+- Adds indexable, crawlable SEO pages for sympathy, thinking of you, pet loss, divorce and breakup, new home, new job, farewell, engagement, good luck, friendship, apology and teacher appreciation.
+- Adds all new pages to sitemap.xml through the existing build system.
+- Shares a single personalised URL whose Open Graph image is the card preview, so WhatsApp receives a card preview and clickable link together. No separate Copy card link fallback is shown.
+- Retains image/PDF downloads as separate download actions.

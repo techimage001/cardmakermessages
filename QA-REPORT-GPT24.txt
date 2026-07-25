@@ -1,0 +1,16 @@
+Card Maker Messages GPT24 QA
+
+PASS: All 12 new SEO pages exist
+PASS: All 12 new pages are in sitemap
+PASS: Robots allows public crawling and references sitemap
+PASS: Categorised occasion selector exists
+PASS: GPT24 versioned assets loaded
+PASS: No Copy card link fallback
+PASS: Share uses URL-only rich preview payload
+PASS: WhatsApp fallback shares URL rather than copying
+PASS: Larger typography defaults present
+PASS: Font changes wait for web font load
+PASS: Desktop guard remains in editor column
+PASS: Open Graph landing and image generators exist
+
+Result: PASS
