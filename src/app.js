@@ -89,6 +89,16 @@
     background: '',
     textColour: '',
     font: 'serif',
+    typography: {
+      occasionLabel: { font: 'montserrat', size: 'medium' },
+      recipientName: { font: 'allura', size: 'large' },
+      frontHeading: { font: 'playfair', size: 'large' },
+      frontMessage: { font: 'cormorant', size: 'medium' },
+      mainMessage: { font: 'cormorant', size: 'medium' },
+      coverMessage: { font: 'cormorant', size: 'small' },
+      senderName: { font: 'allura', size: 'medium' },
+      backMessage: { font: 'cormorant', size: 'medium' }
+    },
     frame: 'classic',
     illustration: 'none',
     accent: 'sparkles',
@@ -112,7 +122,7 @@
   };
 
   const storedAppState = Store.load().app || {};
-  let state = { ...defaultState, ...storedAppState, sizeSelected: storedAppState.sizeSelected === true };
+  let state = { ...defaultState, ...storedAppState, typography: { ...defaultState.typography, ...(storedAppState.typography || {}) }, sizeSelected: storedAppState.sizeSelected === true };
   let photoImage = null;
   let messageOptions = [];
   let renderQueued = false;
@@ -661,10 +671,33 @@
     return null;
   }
 
+  const FONT_FAMILIES = {
+    allura: '"Allura", cursive',
+    parisienne: '"Parisienne", cursive',
+    greatvibes: '"Great Vibes", cursive',
+    alexbrush: '"Alex Brush", cursive',
+    playfair: '"Playfair Display", Georgia, serif',
+    cormorant: '"Cormorant Garamond", Georgia, serif',
+    montserrat: '"Montserrat", Arial, sans-serif',
+    inter: '"Inter", Arial, sans-serif',
+    nunito: '"Nunito", Arial, sans-serif',
+    serif: 'Georgia, Times New Roman, serif',
+    sans: 'Arial, Helvetica, sans-serif'
+  };
+  const FONT_SIZE_SCALE = { small: .86, medium: 1, large: 1.18, xlarge: 1.38 };
+
   function fontFamily(renderState, p) {
-    if (renderState.font === 'handwritten') return 'cursive';
-    if (renderState.font === 'sans' || p.font === 'sans') return 'Arial, Helvetica, sans-serif';
-    return 'Georgia, Times New Roman, serif';
+    if (renderState.font === 'handwritten') return FONT_FAMILIES.allura;
+    if (renderState.font === 'sans' || p.font === 'sans') return FONT_FAMILIES.sans;
+    return FONT_FAMILIES.serif;
+  }
+
+  function fieldTypography(renderState, field, fallbackFamily, fallbackScale = 1) {
+    const setting = renderState.typography?.[field] || {};
+    return {
+      family: FONT_FAMILIES[setting.font] || fallbackFamily,
+      scale: (FONT_SIZE_SCALE[setting.size] || 1) * fallbackScale
+    };
   }
 
   function wrapLines(context, text, maxWidth) {
@@ -968,13 +1001,15 @@
       context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      context.font = `700 ${Math.max(18, width * .027)}px Arial, Helvetica, sans-serif`;
+      const occasionType = fieldTypography(renderState, 'occasionLabel', FONT_FAMILIES.sans);
+      context.font = `700 ${Math.max(18, width * .027) * occasionType.scale}px ${occasionType.family}`;
       context.fillText((renderState.occasionLabel || defaultOccasionLabel(renderState.occasion)).toUpperCase(), x + width / 2, y + height * labelY, width * .76);
 
       // Single cards use a prominent dedication directly beneath the occasion label.
       if (!folded && renderState.recipientName.trim()) {
         context.fillStyle = p.accent;
-        context.font = `600 ${Math.max(22, width * .039)}px ${family}`;
+        const recipientType = fieldTypography(renderState, 'recipientName', FONT_FAMILIES.allura);
+        context.font = `500 ${Math.max(25, width * .048) * recipientType.scale}px ${recipientType.family}`;
         context.fillText(`To ${renderState.recipientName.trim()}`, x + width / 2, y + height * dedicationY, width * .74);
       }
 
@@ -983,7 +1018,7 @@
       drawTextBlock(context, title, {
         x: x + pad, y: y + height * (titleY + (!folded && !renderState.recipientName.trim() ? -.025 : 0)), width: width - pad * 2, height: height * (hasPhoto ? .135 : .16)
       }, {
-        colour: p.ink, family, startSize: width * .082, minSize: width * .037,
+        colour: p.ink, family: fieldTypography(renderState, 'frontHeading', family).family, startSize: width * .082 * fieldTypography(renderState, 'frontHeading', family).scale, minSize: width * .037,
         weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.12, maxLines: 3
       });
 
@@ -992,7 +1027,7 @@
       drawTextBlock(context, frontCopy, {
         x: x + pad * 1.05, y: y + height * copyY, width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .20)
       }, {
-        colour: p.ink, family, startSize: width * .041, minSize: width * .024,
+        colour: p.ink, family: fieldTypography(renderState, 'frontMessage', family).family, startSize: width * .041 * fieldTypography(renderState, 'frontMessage', family).scale, minSize: width * .024,
         weight: 500, lineHeight: 1.3, maxLines: 6
       });
 
@@ -1001,12 +1036,12 @@
         if (renderState.coverMessage) {
           drawTextBlock(context, renderState.coverMessage, {
             x: x + width * .2, y: y + height * (hasPhoto ? .78 : .735), width: width * .6, height: height * .055
-          }, { colour: p.ink, family, startSize: width * .026, minSize: width * .019, weight: 500, lineHeight: 1.2, maxLines: 2 });
+          }, { colour: p.ink, family: fieldTypography(renderState, 'coverMessage', family).family, startSize: width * .026 * fieldTypography(renderState, 'coverMessage', family).scale, minSize: width * .019, weight: 500, lineHeight: 1.2, maxLines: 2 });
         }
         if (renderState.senderName) {
           drawTextBlock(context, renderState.senderName, {
             x: x + width * .22, y: y + height * (hasPhoto ? .845 : .805), width: width * .56, height: height * .05
-          }, { colour: p.ink, family, startSize: width * .023, minSize: width * .017, weight: 400, lineHeight: 1.18, maxLines: 2 });
+          }, { colour: p.ink, family: fieldTypography(renderState, 'senderName', family).family, startSize: width * .023 * fieldTypography(renderState, 'senderName', family).scale, minSize: width * .017, weight: 400, lineHeight: 1.18, maxLines: 2 });
         }
       }
       if (renderState.textStyle === 'underline') {
@@ -1162,17 +1197,51 @@
     return 'https://cardmakermessages.com';
   }
 
+  function shareCardUrl() {
+    const base = document.documentElement.dataset.siteDomain ? `https://${document.documentElement.dataset.siteDomain}` : location.origin;
+    const url = new URL('/c.php', base);
+    const params = {
+      o: state.occasion, t: state.preset, ol: state.occasionLabel,
+      r: state.recipientName, h: state.frontHeading,
+      m: state.frontMessage, c: state.coverMessage, s: state.senderName,
+      rf: state.typography?.recipientName?.font || 'allura',
+      rs: state.typography?.recipientName?.size || 'large',
+      v: '23'
+    };
+    Object.entries(params).forEach(([key, value]) => {
+      const clean = String(value || '').trim();
+      if (clean) url.searchParams.set(key, clean.slice(0, key === 'm' ? 220 : 80));
+    });
+    return url.toString();
+  }
+
   function shareCaption() {
-    return 'I made this card on CardMakerMessages.com. Create yours too:';
+    const forName = state.recipientName ? ` for ${state.recipientName}` : '';
+    return `${state.occasionLabel || 'A personalised'} card${forName}. View it here:`;
   }
 
   function shareMessage() {
-    return `${shareCaption()}\n${shareWebsiteUrl()}`;
+    return `${shareCaption()}
+${shareCardUrl()}`;
+  }
+
+  async function shareRichCardLink() {
+    const link = shareCardUrl();
+    const data = { title: `${state.occasionLabel} card`, text: shareCaption(), url: link };
+    if (navigator.share) {
+      await navigator.share(data);
+      announce('The card link was shared with its preview.');
+    } else {
+      await navigator.clipboard.writeText(`${shareCaption()}
+${link}`);
+      announce('Card link copied. Paste it into WhatsApp to show the preview.');
+    }
+    return true;
   }
 
   const shareButtonLabels = {
-    shareImage: 'Share image + website link',
-    shareSingleImage: 'Share image + website link',
+    shareImage: 'Share card link with preview',
+    shareSingleImage: 'Share card link with preview',
     shareSinglePdf: 'Share PDF + website link',
     shareFoldedSheets: 'Share both images + website link',
     shareFoldedPdf: 'Share folded PDF + website link'
@@ -1369,11 +1438,7 @@
   }
 
   function shareImage() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
-    });
+    return shareRichCardLink();
   }
 
   async function copyImage() {
@@ -1502,13 +1567,7 @@
   }
 
   async function shareLink() {
-    const appUrl = canonicalAppUrl();
-    const shareData = { title: `${state.occasionLabel} card maker`, text: 'Create a personalised card for free.', url: appUrl };
-    if (navigator.share) await navigator.share(shareData);
-    else {
-      await navigator.clipboard.writeText(appUrl);
-      announce('Permanent card-maker link copied.');
-    }
+    return shareRichCardLink();
   }
 
   function surprise() {
@@ -1708,6 +1767,16 @@
     if (prompt) prompt.hidden = true;
   }
 
+
+  function placeStageGuard() {
+    const prompt = document.getElementById('stageGuardPrompt');
+    const previewCard = document.querySelector('.preview-card');
+    const controls = document.querySelector('.control-panel');
+    if (!prompt || !previewCard || !controls) return;
+    const desktop = window.matchMedia('(min-width: 900px)').matches;
+    const target = desktop ? controls : previewCard;
+    if (prompt.parentElement !== target) target.insertBefore(prompt, target.firstChild);
+  }
   function showStageGuard(title, message, actionLabel, destinationStep) {
     const prompt = document.getElementById('stageGuardPrompt');
     const heading = document.getElementById('stageGuardTitle');
@@ -1718,9 +1787,10 @@
     body.textContent = message;
     action.textContent = actionLabel;
     action.dataset.destinationStep = String(destinationStep);
+    placeStageGuard();
     prompt.hidden = false;
     window.requestAnimationFrame(() => {
-      prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (window.matchMedia('(max-width: 899px)').matches) prompt.scrollIntoView({ behavior: 'smooth', block: 'start' });
       action.focus({ preventScroll: true });
     });
   }
@@ -1764,11 +1834,9 @@
   }
 
   function openSocialLink(network) {
-    const cleanUrl = canonicalAppUrl();
+    const cleanUrl = shareCardUrl();
     const url = encodeURIComponent(cleanUrl);
-    const text = encodeURIComponent(`${state.mainMessage}
-
-Create your own card: ${cleanUrl}`);
+    const text = encodeURIComponent(`${shareCaption()} ${cleanUrl}`);
     const targets = {
       whatsapp: `https://wa.me/?text=${text}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
@@ -1867,6 +1935,37 @@ Create your own card: ${cleanUrl}`);
       document.querySelectorAll('[data-font]').forEach(item => item.classList.remove('active'));
       button.classList.add('active'); updateState({ designVisited: true, font: button.dataset.font });
     }));
+
+    const fontOptions = [
+      ['allura','Allura'], ['parisienne','Parisienne'], ['greatvibes','Great Vibes'], ['alexbrush','Alex Brush'],
+      ['playfair','Playfair Display'], ['cormorant','Cormorant Garamond'], ['montserrat','Montserrat'],
+      ['inter','Inter'], ['nunito','Nunito'], ['serif','Classic Serif'], ['sans','Clean Sans']
+    ];
+    const typeFields = ['occasionLabel','recipientName','frontHeading','frontMessage','mainMessage','coverMessage','senderName','backMessage'];
+    typeFields.forEach(fieldId => {
+      const input = document.getElementById(fieldId);
+      const field = input?.closest('.field');
+      if (!input || !field || field.querySelector(`[data-type-controls="${fieldId}"]`)) return;
+      const controls = document.createElement('div');
+      controls.className = 'type-controls';
+      controls.dataset.typeControls = fieldId;
+      const font = document.createElement('select');
+      font.setAttribute('aria-label', `Select font for ${fieldId}`);
+      fontOptions.forEach(([value,label]) => font.add(new Option(label,value)));
+      font.value = state.typography?.[fieldId]?.font || defaultState.typography[fieldId]?.font || 'serif';
+      const size = document.createElement('select');
+      size.setAttribute('aria-label', `Select font size for ${fieldId}`);
+      [['small','Small'],['medium','Medium'],['large','Large'],['xlarge','Extra large']].forEach(([value,label]) => size.add(new Option(label,value)));
+      size.value = state.typography?.[fieldId]?.size || defaultState.typography[fieldId]?.size || 'medium';
+      const fontLabel = document.createElement('label'); fontLabel.textContent = 'Font'; fontLabel.appendChild(font);
+      const sizeLabel = document.createElement('label'); sizeLabel.textContent = 'Size'; sizeLabel.appendChild(size);
+      controls.append(fontLabel,sizeLabel); field.appendChild(controls);
+      const updateType = () => {
+        const typography = { ...(state.typography || {}), [fieldId]: { font: font.value, size: size.value } };
+        updateState({ typography });
+      };
+      font.addEventListener('change', updateType); size.addEventListener('change', updateType);
+    });
 
     const bindings = {
       recipientSelect: 'recipient', occasionLabel: 'occasionLabel', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
@@ -2046,7 +2145,10 @@ Create your own card: ${cleanUrl}`);
     generateMessages(false);
     syncControls();
     queueRender();
+    if (document.fonts?.ready) document.fonts.ready.then(queueRender);
     initFloatingPreview();
+    placeStageGuard();
+    window.addEventListener('resize', placeStageGuard, { passive: true });
     window.setInterval(persist, 5000);
     window.addEventListener('pagehide', persist);
     window.addEventListener('resize', () => requestAnimationFrame(fitPreviewCanvas), { passive: true });
