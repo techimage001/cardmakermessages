@@ -1,16 +1,19 @@
 {
   "name": "card-maker-messages",
-  "version": "1.24.1",
+  "version": "1.9.0",
   "private": true,
-  "description": "Corrected GPTV24 card maker with compact occasion dropdowns and preserved typography controls.",
+  "description": "A premium client-side card and invitation maker with original messages and printable folded PDFs.",
   "scripts": {
     "build": "node tools/build.js",
     "test": "node tools/tests.js",
-    "check": "npm run build && npm run test && npm run test:share",
-    "serve": "python3 -m http.server 8080",
-    "test:share": "node tools/gpt21-share-unit.js"
+    "check": "npm run build && npm run test",
+    "serve": "python3 -m http.server 8080"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "canvas": "^3.2.3",
+    "jsdom": "^29.1.1"
   }
 }

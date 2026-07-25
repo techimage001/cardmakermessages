@@ -1,0 +1,39 @@
+Card Maker Messages ClaudeV22
+
+Card layout, occasion label, and workflow corrections. Every card-drawing change
+in this release was verified by rendering real card images before packaging.
+
+Card drawing:
+- The star and sparkle accent no longer sits on the message or the sender name.
+  It now sits at the very bottom of the card, is scaled by the smaller card
+  dimension, and is hidden on wide cards where there is no room for it.
+- Photo cards on wide and landscape sizes no longer overflow the card. The photo
+  frame now adapts its height to the card shape instead of assuming a portrait
+  card, so the photo, occasion label and text all sit correctly.
+- Corner decorations were confirmed clear of the sender sign-off band on the
+  framed and floral designs, on both portrait and landscape.
+
+Occasion label:
+- The occasion label above the title is now editable. It pre-fills with a
+  natural default per occasion (Birthday becomes "Birthday Wishes", and so on)
+  and can be changed to anything, for example "Happy 40th" or "Birthday Wishes".
+  Capped at 30 characters. When the occasion is switched, a custom label the user
+  has typed is kept; the label only auto-updates while it has not been edited.
+
+Workflow:
+- A compact stage strip (1 to 5) now sits inside the preview card itself, so the
+  current stage travels with the card as it stays in view, with completed stages
+  marked. Each is tappable to jump.
+
+Cache:
+- All asset version queries bumped to v22.
+- cmm-build meta and service worker VERSION bumped to 22.
+
+Unchanged:
+- All ClaudeV21 functionality: recipient name on single cards, sender sizing,
+  clean folded backs, sticky stage tabs, the pinned guard reminder, the share
+  and save options, folded exports, email verification, SMTP, admin dashboard,
+  SEO pages, c.php and og.php share previews.
+- Sharing is unchanged: no-photo cards share as a link with a preview; photo
+  cards share as an image. The optional Cloudinary photo-link path remains off
+  unless configured.
