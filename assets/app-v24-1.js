@@ -1206,7 +1206,7 @@
       m: state.frontMessage, c: state.coverMessage, s: state.senderName,
       rf: state.typography?.recipientName?.font || 'allura',
       rs: state.typography?.recipientName?.size || 'large',
-      v: '24'
+      v: '25'
     };
     Object.entries(params).forEach(([key, value]) => {
       const clean = String(value || '').trim();
@@ -1242,10 +1242,8 @@ ${shareCardUrl()}`;
 
   const shareButtonLabels = {
     shareImage: 'Share card link with preview',
-    shareSingleImage: 'Share card link with preview',
-    shareSinglePdf: 'Share PDF + website link',
-    shareFoldedSheets: 'Share both images + website link',
-    shareFoldedPdf: 'Share folded PDF + website link'
+    shareSingleImage: 'Share card preview + clickable link',
+    shareFoldedSheets: 'Share folded card preview + clickable link'
   };
 
   function shareStateKey() {
@@ -1258,8 +1256,8 @@ ${shareCardUrl()}`;
   }
 
   function relevantShareButtonIds(mode = state.outputMode) {
-    if (mode === 'single-print') return ['shareSingleImage', 'shareSinglePdf'];
-    if (mode === 'folded') return ['shareFoldedSheets', 'shareFoldedPdf'];
+    if (mode === 'single-print') return ['shareSingleImage'];
+    if (mode === 'folded') return ['shareFoldedSheets'];
     return ['shareImage'];
   }
 
@@ -1289,18 +1287,7 @@ ${shareCardUrl()}`;
   }
 
   function scheduleShareAssetPreparation() {
-    const key = shareStateKey();
-    if ((preparedShare.assets || preparedShare.promise) && preparedShare.key === key) return;
-    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
-    const mode = state.outputMode;
-    setShareButtonsPreparing(mode, true);
-    sharePreparationTimer = window.setTimeout(() => {
-      sharePreparationTimer = 0;
-      prepareShareAssets().catch(error => {
-        console.error(error);
-        setShareButtonsPreparing(mode, false);
-      });
-    }, 20);
+    setShareButtonsPreparing(state.outputMode, false);
   }
 
   async function prepareShareAssets() {
@@ -1521,19 +1508,11 @@ ${shareCardUrl()}`;
   }
 
   function shareSinglePrintImage() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
-    });
+    return shareRichCardLink();
   }
 
   function shareSinglePagePdf() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.pdfFile) return shareNotReady();
-    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} printable card`, async () => {
-      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
-    });
+    return shareRichCardLink();
   }
 
   async function downloadFoldedSheet(sheet, type) {
@@ -1546,20 +1525,11 @@ ${shareCardUrl()}`;
   }
 
   function shareFoldedSheets() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], sheetFilename('outside', 'png'));
-      window.setTimeout(() => window.CardPDF.downloadBlob(assets.imageBlobs[1], sheetFilename('inside', 'png')), 180);
-    });
+    return shareRichCardLink();
   }
 
   function shareFoldedPdf() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.pdfFile) return shareNotReady();
-    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
-    });
+    return shareRichCardLink();
   }
 
   async function copyMessage() {

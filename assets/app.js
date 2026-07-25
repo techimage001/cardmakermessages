@@ -1972,16 +1972,31 @@ ${shareCardUrl()}`;
 
     const occasionCategory = document.getElementById('occasionCategory');
     const occasionSearch = document.getElementById('occasionSearch');
+
+    const occasionCategoryChips = [...document.querySelectorAll('[data-occasion-category]')];
+    const occasionResultCount = document.getElementById('occasionResultCount');
     const applyOccasionFilter = () => {
-      const category = occasionCategory?.value || 'all';
+      const category = occasionCategory?.value || 'popular';
       const query = (occasionSearch?.value || '').trim().toLowerCase();
+      let visibleCount = 0;
       document.querySelectorAll('.occasion-choice[data-kind="card"]').forEach(button => {
-        const matchesCategory = category === 'all' || button.dataset.category === category || button.dataset.occasion === 'custom';
+        const matchesCategory = category === 'all' || (category === 'popular' && button.dataset.popular === 'true') || button.dataset.category === category || button.dataset.occasion === 'custom';
         const matchesQuery = !query || button.textContent.toLowerCase().includes(query);
         button.hidden = !(matchesCategory && matchesQuery);
+        if (!button.hidden) visibleCount += 1;
       });
+      occasionCategoryChips.forEach(chip => {
+        const active = chip.dataset.occasionCategory === category;
+        chip.classList.toggle('is-active', active);
+        chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      if (occasionResultCount) occasionResultCount.textContent = `${visibleCount} card${visibleCount === 1 ? '' : 's'}`;
     };
     occasionCategory?.addEventListener('change', applyOccasionFilter);
+    occasionCategoryChips.forEach(chip => chip.addEventListener('click', () => {
+      if (occasionCategory) occasionCategory.value = chip.dataset.occasionCategory || 'popular';
+      applyOccasionFilter();
+    }));
     occasionSearch?.addEventListener('input', applyOccasionFilter);
     applyOccasionFilter();
 
