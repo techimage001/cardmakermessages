@@ -1,0 +1,23 @@
+CARD MAKER MESSAGES — GPT23
+
+Premium typography
+- Recipient dedication now defaults to the open-source Allura calligraphy typeface.
+- Every principal wording field has Font and Size controls.
+- Curated font collection: Allura, Parisienne, Great Vibes, Alex Brush, Playfair Display, Cormorant Garamond, Montserrat, Inter, Nunito, Classic Serif and Clean Sans.
+- Text still auto-fits to protect the card layout.
+
+Responsive reminder
+- Desktop guard reminders appear at the top of the right editing panel.
+- Mobile guard reminders remain above the five-stage sticky preview.
+
+Rich card-link sharing
+- Non-photo cards share a URL rather than attaching an image file.
+- c.php supplies Open Graph metadata to WhatsApp, Facebook and LinkedIn.
+- og.php creates a real 1200 x 630 PNG preview using PHP GD, with a static fallback when GD is unavailable.
+- Download image/PDF actions remain separate.
+- Personal card pages use noindex, nofollow.
+
+Deployment note
+- Upload c.php and og.php with the rest of the website.
+- Hostinger PHP GD should be enabled for generated previews. If unavailable, the existing static Open Graph image is used.
+- WhatsApp caches previews; use a newly generated card URL when testing changes.
