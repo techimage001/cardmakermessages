@@ -1,0 +1,63 @@
+Card Maker Messages ClaudeV23
+
+Categories, per-line typography and the full occasion expansion.
+
+Occasions and categories:
+- Expanded from 22 to 63 occasions, with 246 new card messages written across
+  heartfelt, short, funny, formal, religious, inspirational and romantic tones.
+- Added 7 categories covering 60 occasion slots: Celebrate, Love and
+  relationships, New beginnings, Support and care, Family and faith, Seasonal
+  and cultural, Work and appreciation.
+- New occasions include good luck, exam success, driving test, engagement,
+  friendship, apology, new beginnings after divorce, pregnancy, baby shower,
+  adoption, new home, housewarming, new job, starting university, welcome back,
+  thinking of you, sympathy, pet loss, pregnancy loss, serious illness,
+  encouragement, difficult times, baptism, christening, First Holy Communion,
+  confirmation, pastor appreciation, church anniversary, New Year, Eid al-Fitr,
+  Eid al-Adha, Ramadan, Diwali, Hanukkah, Lunar New Year, Vaisakhi, farewell,
+  teacher, colleague, boss and volunteer appreciation.
+- Category and occasion dropdowns added to the Message step. Pick a category and
+  the occasion list filters to it. The live card updates immediately on both.
+- Every one of the 63 occasions was rendered and checked during the build.
+
+Text style for each line:
+- Each line on the card now has its own font and size control, laid out beside
+  the line name: occasion label, recipient dedication, front heading, front
+  message, inside message, closing wish, sender and back message.
+- Seven font choices, all standard system font stacks with no licensing or
+  copyright risk: design default, serif, sans, classic, modern, typewriter and
+  handwritten. Six sizes from small to largest, clamped so extreme values cannot
+  break the layout.
+- The closing wish and the sender are now drawn as separate lines rather than one
+  block, so each can be styled on its own.
+- All twelve controls were verified by rendering the card before and after each
+  change and confirming the output actually differs.
+
+Search and internal linking:
+- 51 new pages generated: 7 category pages and 44 occasion message pages, each
+  with its own title, description, canonical, Open Graph tags and BreadcrumbList
+  structured data.
+- Every occasion page links to its category, to sibling occasions in that
+  category and into the card maker with the occasion preselected. Every category
+  page links to all of its occasions and across to the other categories.
+- The 7 categories now appear in the footer of all 101 pages.
+- Sitemap regenerated with 100 URLs.
+- All 7429 internal page links were checked. None are broken.
+
+Workflow:
+- The step strip on the floating live card now shows the step names, not just
+  numbers, so the current stage is always readable while the card stays in view.
+  Names collapse to numbers on very narrow screens.
+
+Cache:
+- All asset version queries bumped to v23.
+- cmm-build meta and service worker VERSION bumped to 23.
+
+Unchanged:
+- All ClaudeV22 functionality: recipient dedication on single cards, sender
+  sizing, motif clearance, aspect-aware photo frames, editable occasion label,
+  clean folded backs, the pinned guard reminder, review share and save options,
+  folded exports, email verification, SMTP, admin dashboard, and the c.php and
+  og.php share previews.
+- Sharing is unchanged: cards without a photo share as a link with a preview;
+  cards with a photo share as an image.
