@@ -63,8 +63,11 @@
   const defaultState = {
     step: 1,
     creationType: 'card',
+    category: 'celebrate',
     occasion: 'birthday',
-    occasionLabel: 'Birthday Wishes',
+    occasionLabel: 'Birthday',
+    occasionLabelText: '',
+    occasionLabelEdited: false,
     customOccasion: '',
     recipient: 'Friend',
     tone: 'heartfelt',
@@ -89,16 +92,14 @@
     background: '',
     textColour: '',
     font: 'serif',
-    typography: {
-      occasionLabel: { font: 'montserrat', size: 'large' },
-      recipientName: { font: 'allura', size: 'xlarge' },
-      frontHeading: { font: 'playfair', size: 'large' },
-      frontMessage: { font: 'cormorant', size: 'large' },
-      mainMessage: { font: 'cormorant', size: 'large' },
-      coverMessage: { font: 'cormorant', size: 'small' },
-      senderName: { font: 'allura', size: 'medium' },
-      backMessage: { font: 'cormorant', size: 'large' }
-    },
+    typoFont_label: '', typoSize_label: 1,
+    typoFont_dedication: '', typoSize_dedication: 1,
+    typoFont_heading: '', typoSize_heading: 1,
+    typoFont_frontMsg: '', typoSize_frontMsg: 1,
+    typoFont_insideMsg: '', typoSize_insideMsg: 1,
+    typoFont_closing: '', typoSize_closing: 1,
+    typoFont_sender: '', typoSize_sender: 1,
+    typoFont_backMsg: '', typoSize_backMsg: 1,
     frame: 'classic',
     illustration: 'none',
     accent: 'sparkles',
@@ -114,7 +115,7 @@
     printPaper: 'A4',
     printQuality: 'home',
     showFoldMarks: true,
-    showWebsite: false,
+    showWebsite: true,
     reviewed: false,
     savedAt: 0,
     sizeSelected: false,
@@ -122,12 +123,10 @@
   };
 
   const storedAppState = Store.load().app || {};
-  let state = { ...defaultState, ...storedAppState, typography: { ...defaultState.typography, ...(storedAppState.typography || {}) }, sizeSelected: storedAppState.sizeSelected === true };
+  let state = { ...defaultState, ...storedAppState, sizeSelected: storedAppState.sizeSelected === true };
   let photoImage = null;
   let messageOptions = [];
   let renderQueued = false;
-  let preparedShare = { key: '', promise: null, assets: null, error: null };
-  let sharePreparationTimer = 0;
 
   function announce(text) {
     if (!live) return;
@@ -142,7 +141,6 @@
 
   function updateState(patch, options = {}) {
     const reviewSensitive = Object.keys(patch).some(key => !['step', 'activePanel', 'reviewed'].includes(key));
-    if (reviewSensitive) clearPreparedShareAssets();
     state = { ...state, ...patch, ...(reviewSensitive ? { reviewed: false } : {}) };
     syncControls();
     if (options.persist !== false) persist();
@@ -172,7 +170,7 @@
     else if (legacySizeMap[size]) { patch.size = legacySizeMap[size]; patch.sizeSelected = true; }
     if (occasion && DATA.occasions[occasion]) {
       patch.occasion = occasion;
-      patch.occasionLabel = defaultOccasionLabel(occasion);
+      patch.occasionLabel = DATA.occasions[occasion].label;
       patch.coverMessage = defaultCover(occasion);
       patch.frontMessage = defaultFrontMessage(occasion);
       patch.frontHeading = DATA.occasions[occasion].front || DATA.occasions[occasion].label;
@@ -183,17 +181,128 @@
     if (Object.keys(patch).length) state = { ...state, ...patch };
   }
 
-  function defaultOccasionLabel(occasion) {
+
+
+  function buildTypographyControls() {
+    const host = document.getElementById('typographyControls');
+    if (!host || host.dataset.built === '1') return;
+    const fontOptions = [
+      ['', 'Design default'], ['serif', 'Serif'], ['sans', 'Sans'],
+      ['classic', 'Classic'], ['modern', 'Modern'], ['mono', 'Typewriter'], ['handwritten', 'Handwritten']
+    ];
+    const sizeOptions = [['0.8', 'Small'], ['0.9', 'Reduced'], ['1', 'Normal'], ['1.15', 'Large'], ['1.3', 'Larger'], ['1.5', 'Largest']];
+    TYPO_FIELDS.forEach(([id, label]) => {
+      const row = document.createElement('div');
+      row.className = 'typo-row';
+      const name = document.createElement('span');
+      name.className = 'typo-name';
+      name.textContent = label;
+      row.appendChild(name);
+      const fontSel = document.createElement('select');
+      fontSel.className = 'typo-select';
+      fontSel.id = 'typoFont_' + id;
+      fontSel.setAttribute('aria-label', label + ' font');
+      fontOptions.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; fontSel.appendChild(o); });
+      const sizeSel = document.createElement('select');
+      sizeSel.className = 'typo-select';
+      sizeSel.id = 'typoSize_' + id;
+      sizeSel.setAttribute('aria-label', label + ' size');
+      sizeOptions.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sizeSel.appendChild(o); });
+      fontSel.addEventListener('change', () => updateState({ ['typoFont_' + id]: fontSel.value }));
+      sizeSel.addEventListener('change', () => updateState({ ['typoSize_' + id]: Number(sizeSel.value) }));
+      row.appendChild(fontSel);
+      row.appendChild(sizeSel);
+      host.appendChild(row);
+    });
+    host.dataset.built = '1';
+  }
+
+  function syncTypographyControls() {
+    TYPO_FIELDS.forEach(([id]) => {
+      const f = document.getElementById('typoFont_' + id);
+      const s = document.getElementById('typoSize_' + id);
+      if (f && f.value !== (state['typoFont_' + id] || '')) f.value = state['typoFont_' + id] || '';
+      if (s) {
+        const want = String(state['typoSize_' + id] || 1);
+        if (s.value !== want) s.value = want;
+      }
+    });
+  }
+
+  function categoryForOccasion(occasion) {
+    const cats = DATA.categories || [];
+    const hit = cats.find(c => c.occasions.includes(occasion));
+    return hit ? hit.id : (cats[0] ? cats[0].id : '');
+  }
+
+  function applyOccasion(occasion, kind) {
+    if (!occasion) return;
+    state.creationType = kind || state.creationType;
+    state.occasion = occasion;
+    state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : (DATA.occasions[occasion]?.label || 'Special Occasion');
+    state.coverMessage = defaultCover(occasion);
+    state.frontMessage = defaultFrontMessage(occasion);
+    state.frontHeading = DATA.occasions[occasion]?.front || (occasion === 'custom' ? 'For Your Special Occasion' : DATA.occasions[occasion]?.label) || 'For You';
+    state.occasionLabelText = '';
+    state.occasionLabelEdited = false;
+    state.reviewed = false;
+    const catId = categoryForOccasion(occasion);
+    if (catId) state.category = catId;
+    const eventTitles = { 'birthday-invitation': 'A Birthday Celebration', 'party-invitation': 'A Special Celebration', 'wedding-invitation': 'Our Wedding Celebration', 'christmas-invitation': 'A Christmas Gathering' };
+    if (eventTitles[occasion]) state.eventTitle = eventTitles[occasion];
+    generateMessages(); syncControls();
+  }
+
+  function populateCategorySelects() {
+    const catSelect = document.getElementById('categorySelect');
+    const occSelect = document.getElementById('categoryOccasionSelect');
+    if (!catSelect || !occSelect) return;
+    const cats = DATA.categories || [];
+    if (!catSelect.options.length) {
+      cats.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id; opt.textContent = c.label;
+        catSelect.appendChild(opt);
+      });
+    }
+    if (catSelect.value !== state.category) catSelect.value = state.category;
+    const current = cats.find(c => c.id === state.category) || cats[0];
+    const wanted = current ? current.occasions : [];
+    const rendered = Array.from(occSelect.options).map(o => o.value).join('|');
+    if (rendered !== wanted.join('|')) {
+      occSelect.textContent = '';
+      wanted.forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = DATA.occasions[key]?.label || key;
+        occSelect.appendChild(opt);
+      });
+    }
+    if (wanted.includes(state.occasion)) occSelect.value = state.occasion;
+  }
+
+  function defaultOccasionLabel(occasion, renderState) {
+    if (occasion === 'custom') {
+      const c = (renderState && renderState.customOccasion || '').trim();
+      return c || 'Special Occasion';
+    }
     const labels = {
-      birthday: 'Birthday Wishes', christmas: 'Christmas Wishes', wedding: 'Wedding Wishes', anniversary: 'Anniversary Wishes',
-      easter: 'Easter Wishes', thanks: 'With Thanks', congratulations: 'Congratulations', 'new-baby': 'New Baby Wishes',
-      retirement: 'Retirement Wishes', 'get-well': 'Get Well Wishes', valentine: 'Valentine’s Wishes', graduation: 'Graduation Wishes',
-      'mothers-day': 'Mother’s Day Wishes', 'fathers-day': 'Father’s Day Wishes', 'child-naming': 'Naming Ceremony Wishes',
-      'job-promotion': 'Promotion Wishes', custom: 'Special Occasion', 'birthday-invitation': 'You’re Invited',
-      'party-invitation': 'You’re Invited', 'wedding-invitation': 'Wedding Invitation', 'christmas-invitation': 'Christmas Invitation',
-      postcard: 'A Note For You'
+      birthday: 'Birthday Wishes', christmas: 'Season\u2019s Greetings', wedding: 'Congratulations',
+      anniversary: 'Happy Anniversary', easter: 'Easter Wishes', thanks: 'With Thanks',
+      congratulations: 'Congratulations', 'new-baby': 'Welcome, Baby', retirement: 'Happy Retirement',
+      'get-well': 'Get Well Soon', valentine: 'With Love', graduation: 'Congratulations, Graduate',
+      'mothers-day': 'Happy Mother\u2019s Day', 'fathers-day': 'Happy Father\u2019s Day', 'child-naming': 'A Special Blessing',
+      'job-promotion': 'Congratulations', 'birthday-invitation': 'You\u2019re Invited', 'party-invitation': 'You\u2019re Invited',
+      'wedding-invitation': 'You\u2019re Invited', 'christmas-invitation': 'You\u2019re Invited', postcard: 'A Note For You', 'good-luck': 'Good Luck', 'exam-success': 'Exam Success', 'driving-test': 'Driving Test Passed', 'engagement': 'Engagement', 'friendship': 'Friendship', 'sorry-apology': 'Sorry and Apology', 'divorce-new-beginnings': 'Divorce and New Beginnings', 'pregnancy': 'Pregnancy', 'baby-shower': 'Baby Shower', 'adoption': 'Adoption', 'new-home': 'New Home', 'housewarming': 'Housewarming', 'new-job': 'New Job', 'starting-university': 'Starting University', 'welcome-back': 'Welcome Back', 'thinking-of-you': 'Thinking of You', 'sympathy': 'Sympathy and Bereavement', 'pet-loss': 'Pet Loss Sympathy', 'pregnancy-loss': 'Pregnancy Loss Support', 'serious-illness': 'Serious Illness Support', 'encouragement': 'Encouragement', 'difficult-times': 'Difficult Times', 'baptism': 'Baptism', 'christening': 'Christening', 'first-communion': 'First Holy Communion', 'confirmation': 'Confirmation', 'pastor-appreciation': 'Pastor Appreciation', 'church-anniversary': 'Church Anniversary', 'new-year': 'New Year', 'eid-al-fitr': 'Eid al-Fitr', 'eid-al-adha': 'Eid al-Adha', 'ramadan': 'Ramadan', 'diwali': 'Diwali', 'hanukkah': 'Hanukkah', 'lunar-new-year': 'Lunar New Year', 'vaisakhi': 'Vaisakhi', 'leaving-farewell': 'Leaving and Farewell', 'teacher-appreciation': 'Teacher Appreciation', 'colleague-appreciation': 'Colleague Appreciation', 'boss-appreciation': 'Boss Appreciation', 'volunteer-appreciation': 'Volunteer Appreciation'
     };
-    return labels[occasion] || DATA.occasions[occasion]?.label || 'Special Occasion';
+    return labels[occasion] || (DATA.occasions[occasion]?.label || 'Special Occasion');
+  }
+
+  function currentOccasionLabel(renderState) {
+    if (renderState.occasionLabelEdited && renderState.occasionLabelText.trim()) {
+      return renderState.occasionLabelText.trim();
+    }
+    return defaultOccasionLabel(renderState.occasion, renderState);
   }
 
   function defaultCover(occasion) {
@@ -203,7 +312,7 @@
       congratulations: 'You did something wonderful', 'new-baby': 'A beautiful new beginning', retirement: 'Enjoy your next chapter',
       'get-well': 'Sending care and warm wishes', valentine: 'With all my love', graduation: 'Your future starts here',
       'mothers-day': 'With love and gratitude', 'fathers-day': 'With appreciation and love', 'child-naming': 'Welcome, little one', 'job-promotion': 'A well-earned next step', custom: 'Made especially for this occasion', 'birthday-invitation': 'You’re invited', 'party-invitation': 'Let’s celebrate',
-      'wedding-invitation': 'Together with joy', 'christmas-invitation': 'A festive invitation', postcard: 'A little note from me'
+      'wedding-invitation': 'Together with joy', 'christmas-invitation': 'A festive invitation', postcard: 'A little note from me', 'good-luck': 'Wishing you every success', 'exam-success': 'Congratulations on your results', 'driving-test': 'Congratulations on passing', 'engagement': 'With love on your engagement', 'friendship': 'Glad to have you as a friend', 'sorry-apology': 'With a sincere apology', 'divorce-new-beginnings': 'Here is to what comes next', 'pregnancy': 'Wonderful news', 'baby-shower': 'Celebrating the little one', 'adoption': 'Welcome to the family', 'new-home': 'Wishing you happy years here', 'housewarming': 'Welcome to your new home', 'new-job': 'Congratulations on the new role', 'starting-university': 'Wishing you a brilliant start', 'welcome-back': 'Good to have you back', 'thinking-of-you': 'With warm thoughts', 'sympathy': 'With heartfelt sympathy', 'pet-loss': 'Thinking of you', 'pregnancy-loss': 'Holding you in my thoughts', 'serious-illness': 'With care and warm wishes', 'encouragement': 'Cheering you on', 'difficult-times': 'Here for you', 'baptism': 'On your baptism day', 'christening': 'On this special day', 'first-communion': 'On your First Holy Communion', 'confirmation': 'On your Confirmation', 'pastor-appreciation': 'With gratitude', 'church-anniversary': 'Celebrating together', 'new-year': 'Wishing you a bright year', 'eid-al-fitr': 'Eid Mubarak', 'eid-al-adha': 'Eid Mubarak', 'ramadan': 'Ramadan Mubarak', 'diwali': 'Happy Diwali', 'hanukkah': 'Happy Hanukkah', 'lunar-new-year': 'Happy Lunar New Year', 'vaisakhi': 'Happy Vaisakhi', 'leaving-farewell': 'Wishing you well', 'teacher-appreciation': 'With sincere thanks', 'colleague-appreciation': 'With appreciation', 'boss-appreciation': 'With appreciation', 'volunteer-appreciation': 'With heartfelt thanks'
     };
     return cover[occasion] || 'Made especially for you';
   }
@@ -220,7 +329,7 @@
       'child-naming': 'Celebrating a precious name and a beautiful new beginning.', 'job-promotion': 'Congratulations on a well-earned achievement and an exciting next step.',
       custom: 'A special message created especially for this meaningful occasion.', 'birthday-invitation': 'Please join us to celebrate a very special birthday.',
       'party-invitation': 'Come and celebrate with us for a joyful and memorable occasion.', 'wedding-invitation': 'Please join us as we celebrate love and begin our life together.',
-      'christmas-invitation': 'Please join us for a warm and joyful Christmas gathering.'
+      'christmas-invitation': 'Please join us for a warm and joyful Christmas gathering.', 'good-luck': 'Wishing you confidence, calm and every success in what comes next.', 'exam-success': 'Congratulations on results that reflect real effort, focus and determination.', 'driving-test': 'Congratulations on passing your driving test and earning a whole new freedom.', 'engagement': 'Congratulations on your engagement and the beautiful future you are building together.', 'friendship': 'A small note to say how much your friendship means and how glad I am to have you.', 'sorry-apology': 'A sincere apology, and a hope that we can put this right together.', 'divorce-new-beginnings': 'Thinking of you as you begin a new chapter, with strength and quiet hope.', 'pregnancy': 'Congratulations on your wonderful news and the exciting months ahead.', 'baby-shower': 'Celebrating you and the little one on the way, with love and warm wishes.', 'adoption': 'Congratulations on welcoming a new member into your family and into your hearts.', 'new-home': 'Wishing you many happy years and warm memories in your new home.', 'housewarming': 'Wishing you warmth, laughter and good company in your new home.', 'new-job': 'Congratulations on your new role and the opportunities it will bring.', 'starting-university': 'Wishing you a brilliant start, good friends and a rewarding time ahead.', 'welcome-back': 'It is good to have you back. You were missed more than you know.', 'thinking-of-you': 'Thinking of you today and sending warm thoughts your way.', 'sympathy': 'With heartfelt sympathy for your loss, and warm thoughts for you and your family.', 'pet-loss': 'Thinking of you as you grieve a much loved companion who gave so much.', 'pregnancy-loss': 'Holding you gently in my thoughts, with love and without expectation.', 'serious-illness': 'Thinking of you with care, and sending strength for the days ahead.', 'encouragement': 'Cheering you on, and reminding you how capable you have always been.', 'difficult-times': 'Thinking of you through a difficult time, and here for whatever you need.', 'baptism': 'Celebrating this special day and the beginning of a faith-filled journey.', 'christening': 'Celebrating a precious christening day with love, prayer and warm wishes.', 'first-communion': 'Celebrating your First Holy Communion with prayer, pride and warm wishes.', 'confirmation': 'Celebrating your Confirmation and the faith you are choosing for yourself.', 'pastor-appreciation': 'With sincere gratitude for your faithful service, teaching and care.', 'church-anniversary': 'Celebrating years of faith, fellowship and service together.', 'new-year': 'Wishing you health, happiness and good things in the year ahead.', 'eid-al-fitr': 'Wishing you and your family a joyful Eid filled with peace and blessing.', 'eid-al-adha': 'Wishing you a blessed Eid al-Adha filled with peace, family and gratitude.', 'ramadan': 'Wishing you a blessed and peaceful Ramadan of reflection and generosity.', 'diwali': 'Wishing you a bright Diwali filled with light, prosperity and happiness.', 'hanukkah': 'Wishing you a warm and joyful Hanukkah with family and light.', 'lunar-new-year': 'Wishing you prosperity, good health and happiness in the new year.', 'vaisakhi': 'Wishing you a joyful Vaisakhi filled with community, gratitude and celebration.', 'leaving-farewell': 'Wishing you every success and happiness in whatever comes next.', 'teacher-appreciation': 'Thank you for the patience, encouragement and difference you make every day.', 'colleague-appreciation': 'Thank you for your support, reliability and good humour at work.', 'boss-appreciation': 'Thank you for your leadership, guidance and support.', 'volunteer-appreciation': 'Thank you for giving your time so generously and asking for nothing back.'
     };
     return messages[occasion] || 'A thoughtful message created especially for this occasion.';
   }
@@ -282,8 +391,10 @@
 
   function syncControls() {
     document.querySelectorAll('[data-step]').forEach(button => {
-      const active = Number(button.dataset.step) === state.step;
+      const stepNum = Number(button.dataset.step);
+      const active = stepNum === state.step;
       button.classList.toggle('active', active);
+      button.classList.toggle('done', stepNum < state.step);
       button.setAttribute('aria-current', active ? 'step' : 'false');
     });
     document.querySelectorAll('[data-step-panel]').forEach(panel => {
@@ -301,7 +412,6 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
-    if (window.syncOccasionPicker) window.syncOccasionPicker();
     document.querySelectorAll('[data-tone]').forEach(button => {
       const active = button.dataset.tone === state.tone;
       button.classList.toggle('active', active);
@@ -393,7 +503,6 @@
     if (downloadWorkspace) downloadWorkspace.hidden = !state.reviewed;
     const inputs = {
       recipientSelect: state.recipient,
-      occasionLabel: state.occasionLabel,
       customOccasion: state.customOccasion,
       recipientName: state.recipientName,
       senderName: state.senderName,
@@ -430,6 +539,14 @@
     if (customOccasionField) customOccasionField.hidden = state.occasion !== 'custom';
     const customOccasion = document.getElementById('customOccasion');
     if (customOccasion && customOccasion.value !== state.customOccasion) customOccasion.value = state.customOccasion;
+    populateCategorySelects();
+    buildTypographyControls();
+    syncTypographyControls();
+    const occasionLabelInput = document.getElementById('occasionLabelText');
+    if (occasionLabelInput) {
+      const shown = state.occasionLabelEdited && state.occasionLabelText ? state.occasionLabelText : defaultOccasionLabel(state.occasion, state);
+      if (document.activeElement !== occasionLabelInput && occasionLabelInput.value !== shown) occasionLabelInput.value = shown;
+    }
     const editor = document.getElementById('persistentMessageEditor');
     const slot = document.querySelector(`[data-editor-slot="${state.step}"]`);
     if (editor && slot && editor.parentElement !== slot) slot.appendChild(editor);
@@ -444,8 +561,12 @@
       if (button.dataset.panel !== 'front') button.hidden = !foldedPanelsAvailable;
     });
     if (!foldedPanelsAvailable && state.activePanel !== 'front') state.activePanel = 'front';
+    const website = document.getElementById('showWebsite');
     const marks = document.getElementById('showFoldMarks');
+    if (website) website.checked = state.showWebsite;
     if (marks) marks.checked = state.showFoldMarks;
+    const selectedOccasion = DATA.occasions[state.occasion];
+    state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
     const format = selectedFormat();
     const reviewButton = document.getElementById('reviewCard');
     const downloadSummary = document.getElementById('downloadSummary');
@@ -458,7 +579,6 @@
     const reviewReadyState = document.getElementById('reviewReadyState');
     if (noSizeReviewState) noSizeReviewState.hidden = state.sizeSelected;
     if (reviewReadyState) reviewReadyState.hidden = !state.sizeSelected;
-    if (state.reviewed && state.step === 5) scheduleShareAssetPreparation();
   }
 
   function roundedRect(context, x, y, width, height, radius) {
@@ -500,7 +620,7 @@
     const motif = p.motif || renderState.preset;
     if (motif === 'floral') {
       drawLeafSprig(context, x + width * .08, y + height * .1, width * .16, p.accent, -0.4);
-      drawLeafSprig(context, x + width * .9, y + height * .88, width * .18, p.accent, 2.7);
+      drawLeafSprig(context, x + width * .92, y + height * .93, width * .15, p.accent, 2.7);
       context.strokeStyle = hexToRgba(p.accent, .24);
       context.lineWidth = Math.max(3, width * .005);
       context.beginPath(); context.arc(x + width * .08, y + height * .08, width * .17, 0, Math.PI * 2); context.stroke();
@@ -555,7 +675,7 @@
       context.fillStyle = hexToRgba(p.soft, .3); context.beginPath(); context.arc(x + width * .5, y + height * 1.02, width * .65, Math.PI, Math.PI * 2); context.fill();
     } else if (motif === 'botanical') {
       drawLeafSprig(context, x + width * .07, y + height * .15, width * .24, p.ink, -.2);
-      drawLeafSprig(context, x + width * .93, y + height * .83, width * .28, p.ink, 2.9);
+      drawLeafSprig(context, x + width * .94, y + height * .93, width * .22, p.ink, 2.9);
       context.fillStyle = hexToRgba(p.accent, .16); context.fillRect(x + width * .05, y + height * .05, width * .9, height * .9);
       context.fillStyle = p.bg; context.fillRect(x + width * .065, y + height * .065, width * .87, height * .87);
     } else if (motif === 'cute') {
@@ -653,11 +773,13 @@
   }
 
   function frontPhotoRegion(width, height) {
+    const aspect = width / height;
+    const regionHeight = aspect > 1.15 ? height * .42 : height * .255;
     return {
       x: width * .09,
       y: height * .055,
       width: width * .82,
-      height: height * .255,
+      height: regionHeight,
       radius: Math.min(width, height) * .028
     };
   }
@@ -672,33 +794,43 @@
     return null;
   }
 
-  const FONT_FAMILIES = {
-    allura: '"Allura", cursive',
-    parisienne: '"Parisienne", cursive',
-    greatvibes: '"Great Vibes", cursive',
-    alexbrush: '"Alex Brush", cursive',
-    playfair: '"Playfair Display", Georgia, serif',
-    cormorant: '"Cormorant Garamond", Georgia, serif',
-    montserrat: '"Montserrat", Arial, sans-serif',
-    inter: '"Inter", Arial, sans-serif',
-    nunito: '"Nunito", Arial, sans-serif',
-    serif: 'Georgia, Times New Roman, serif',
-    sans: 'Arial, Helvetica, sans-serif'
-  };
-  const FONT_SIZE_SCALE = { small: .86, medium: 1, large: 1.18, xlarge: 1.38 };
 
-  function fontFamily(renderState, p) {
-    if (renderState.font === 'handwritten') return FONT_FAMILIES.allura;
-    if (renderState.font === 'sans' || p.font === 'sans') return FONT_FAMILIES.sans;
-    return FONT_FAMILIES.serif;
+  const TYPO_FONTS = {
+    '': null,
+    serif: 'Georgia, "Times New Roman", Times, serif',
+    sans: 'Arial, Helvetica, sans-serif',
+    classic: '"Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif',
+    modern: '"Trebuchet MS", "Segoe UI", Tahoma, sans-serif',
+    mono: '"Courier New", Courier, monospace',
+    handwritten: 'cursive'
+  };
+
+  const TYPO_FIELDS = [
+    ['label', 'Occasion label'],
+    ['dedication', 'Recipient dedication'],
+    ['heading', 'Front heading'],
+    ['frontMsg', 'Front message'],
+    ['insideMsg', 'Inside message'],
+    ['closing', 'Closing wish'],
+    ['sender', 'Sender'],
+    ['backMsg', 'Back message']
+  ];
+
+  function typoFamily(renderState, id, fallback) {
+    const choice = renderState['typoFont_' + id];
+    return (choice && TYPO_FONTS[choice]) ? TYPO_FONTS[choice] : fallback;
   }
 
-  function fieldTypography(renderState, field, fallbackFamily, fallbackScale = 1) {
-    const setting = renderState.typography?.[field] || {};
-    return {
-      family: FONT_FAMILIES[setting.font] || fallbackFamily,
-      scale: (FONT_SIZE_SCALE[setting.size] || 1) * fallbackScale
-    };
+  function typoScale(renderState, id) {
+    const value = Number(renderState['typoSize_' + id]);
+    if (!value || Number.isNaN(value)) return 1;
+    return Math.min(1.6, Math.max(0.7, value));
+  }
+
+  function fontFamily(renderState, p) {
+    if (renderState.font === 'handwritten') return 'cursive';
+    if (renderState.font === 'sans' || p.font === 'sans') return 'Arial, Helvetica, sans-serif';
+    return 'Georgia, Times New Roman, serif';
   }
 
   function wrapLines(context, text, maxWidth) {
@@ -829,7 +961,7 @@
       }
     } else if (type === 'botanical') {
       drawLeafSprig(context, x + width * .14, y + height * .18, width * .22, p.accent, -.45);
-      drawLeafSprig(context, x + width * .86, y + height * .82, width * .24, p.accent, 2.7);
+      drawLeafSprig(context, x + width * .9, y + height * .93, width * .2, p.accent, 2.7);
     } else if (type === 'confetti') {
       drawConfetti(context, x, y, width, height, p.accent, p.soft);
     } else if (type === 'dove') {
@@ -847,9 +979,11 @@
   function drawLittleAccent(context, x, y, width, height, renderState, p) {
     const type = renderState.accent || 'none';
     if (type === 'none') return;
+    const aspect = width / height;
+    if (aspect > 1.15) return;
     const cx = x + width * .5;
-    const cy = y + height * .89;
-    const size = width * .028;
+    const cy = y + height * .935;
+    const size = Math.min(width, height) * .026;
     context.save();
     context.strokeStyle = p.accent; context.fillStyle = p.accent; context.lineWidth = Math.max(2, width * .003);
     if (type === 'heart') drawHeart(context, cx, cy, size, p.accent, .88);
@@ -890,7 +1024,7 @@
       context.lineWidth = Math.max(3, width * .004); roundedRect(context,left,top,w,h,width*.018); context.stroke();
       const d=width*.035; [[left,top],[left+w,top],[left,top+h],[left+w,top+h]].forEach(([cx,cy],i)=>{context.save();context.translate(cx,cy);context.rotate((i%2?1:-1)*Math.PI/4);context.strokeRect(-d/2,-d/2,d,d);context.restore();});
     } else if (frame === 'botanical') {
-      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.08,width*.15,p.accent,-.55); drawLeafSprig(context,left+w-width*.02,top+h-height*.07,width*.16,p.accent,2.55);
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.06,width*.14,p.accent,-.55); drawLeafSprig(context,left+w-width*.015,top+h-height*.03,width*.13,p.accent,2.55);
     } else if (frame === 'ribbon') {
       roundedRect(context,left,top,w,h,width*.018); context.stroke(); context.fillStyle=hexToRgba(p.accent,.18); context.fillRect(left, y+height*.12, w, height*.055); context.fillRect(left, y+height*.83, w, height*.055);
     } else if (frame === 'inset') {
@@ -991,63 +1125,65 @@
     } else if (panel === 'front') {
       const digital = renderState.outputMode === 'digital' && !folded;
       const hasPhoto = drawPhotoTopArea(context, x, y, width, height, renderState, p);
-      // Decorative accents are painted before all wording so they can never cover names or the sign-off.
-      drawLittleAccent(context, x, y, width, height, renderState, p);
-
-      const labelY = hasPhoto ? .355 : .145;
-      const dedicationY = hasPhoto ? .405 : .205;
-      const titleY = hasPhoto ? .445 : .275;
-      const copyY = hasPhoto ? .585 : .465;
-
       context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      const occasionType = fieldTypography(renderState, 'occasionLabel', FONT_FAMILIES.sans);
-      context.font = `700 ${Math.max(18, width * .027) * occasionType.scale}px ${occasionType.family}`;
-      context.fillText((renderState.occasionLabel || defaultOccasionLabel(renderState.occasion)).toUpperCase(), x + width / 2, y + height * labelY, width * .76);
+      context.font = `700 ${Math.max(20, width * .03 * typoScale(renderState, 'label'))}px ${typoFamily(renderState, 'label', 'Arial, Helvetica, sans-serif')}`;
+      context.fillText(currentOccasionLabel(renderState).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
 
-      // Single cards use a prominent dedication directly beneath the occasion label.
-      if (!folded && renderState.recipientName.trim()) {
+      if (!folded && renderState.recipientName) {
         context.fillStyle = p.accent;
-        const recipientType = fieldTypography(renderState, 'recipientName', FONT_FAMILIES.allura);
-        context.font = `500 ${Math.max(25, width * .048) * recipientType.scale}px ${recipientType.family}`;
-        context.fillText(`To ${renderState.recipientName.trim()}`, x + width / 2, y + height * dedicationY, width * .74);
+        context.font = `600 ${Math.max(15, width * .036 * typoScale(renderState, 'dedication'))}px ${typoFamily(renderState, 'dedication', family)}`;
+        context.fillText(`To ${renderState.recipientName}`, x + width / 2, y + height * (hasPhoto ? .40 : .225), width * .74);
       }
 
+      const titleY = hasPhoto ? .435 : (renderState.recipientName ? .285 : .245);
       let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
-        x: x + pad, y: y + height * (titleY + (!folded && !renderState.recipientName.trim() ? -.025 : 0)), width: width - pad * 2, height: height * (hasPhoto ? .135 : .16)
+        x: x + pad, y: y + height * titleY, width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
       }, {
-        colour: p.ink, family: fieldTypography(renderState, 'frontHeading', family).family, startSize: width * .082 * fieldTypography(renderState, 'frontHeading', family).scale, minSize: width * .037,
-        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.12, maxLines: 3
+        colour: p.ink, family: typoFamily(renderState, 'heading', family), startSize: width * .085 * typoScale(renderState, 'heading'), minSize: width * .038,
+        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
       });
+
 
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
       drawTextBlock(context, frontCopy, {
-        x: x + pad * 1.05, y: y + height * copyY, width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .20)
+        x: x + pad * 1.05, y: y + height * (hasPhoto ? .58 : (renderState.recipientName ? .47 : .43)), width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .2)
       }, {
-        colour: p.ink, family: fieldTypography(renderState, 'frontMessage', family).family, startSize: width * .041 * fieldTypography(renderState, 'frontMessage', family).scale, minSize: width * .024,
-        weight: 500, lineHeight: 1.3, maxLines: 6
+        colour: p.ink, family: typoFamily(renderState, 'frontMsg', family), startSize: width * .042 * typoScale(renderState, 'frontMsg'), minSize: width * .025,
+        weight: 500, lineHeight: 1.32, maxLines: 6
       });
 
-      // Reserve the bottom band for a quiet sign-off. Decorations remain behind it and outside the text hierarchy.
-      if (!folded && (renderState.coverMessage || renderState.senderName)) {
-        if (renderState.coverMessage) {
-          drawTextBlock(context, renderState.coverMessage, {
-            x: x + width * .2, y: y + height * (hasPhoto ? .78 : .735), width: width * .6, height: height * .055
-          }, { colour: p.ink, family: fieldTypography(renderState, 'coverMessage', family).family, startSize: width * .026 * fieldTypography(renderState, 'coverMessage', family).scale, minSize: width * .019, weight: 500, lineHeight: 1.2, maxLines: 2 });
-        }
-        if (renderState.senderName) {
-          drawTextBlock(context, renderState.senderName, {
-            x: x + width * .22, y: y + height * (hasPhoto ? .845 : .805), width: width * .56, height: height * .05
-          }, { colour: p.ink, family: fieldTypography(renderState, 'senderName', family).family, startSize: width * .023 * fieldTypography(renderState, 'senderName', family).scale, minSize: width * .017, weight: 400, lineHeight: 1.18, maxLines: 2 });
-        }
-      }
       if (renderState.textStyle === 'underline') {
         context.strokeStyle = p.accent; context.lineWidth = Math.max(3, width * .004);
         context.beginPath(); context.moveTo(x + width * .31, y + height * .64); context.lineTo(x + width * .69, y + height * .64); context.stroke();
+      }
+      drawLittleAccent(context, x, y, width, height, renderState, p);
+
+      if (!folded) {
+        const signColour = (p.motif || renderState.preset) === 'photo' ? '#ffffff' : p.ink;
+        const signTop = height * (hasPhoto ? .80 : .74);
+        const signBand = height * (hasPhoto ? .11 : .13);
+        if (renderState.coverMessage) {
+          drawTextBlock(context, renderState.coverMessage, {
+            x: x + pad, y: y + signTop, width: width - pad * 2, height: signBand * (renderState.senderName ? .55 : 1)
+          }, {
+            colour: signColour, family: typoFamily(renderState, 'closing', family), startSize: width * .026 * typoScale(renderState, 'closing'), minSize: width * .018,
+            weight: 500, lineHeight: 1.26, maxLines: 2
+          });
+        }
+        if (renderState.senderName) {
+          const senderTop = signTop + (renderState.coverMessage ? signBand * .6 : 0);
+          drawTextBlock(context, renderState.senderName, {
+            x: x + pad, y: y + senderTop, width: width - pad * 2, height: signBand * (renderState.coverMessage ? .45 : 1)
+          }, {
+            colour: signColour, family: typoFamily(renderState, 'sender', family), startSize: width * .026 * typoScale(renderState, 'sender'), minSize: width * .018,
+            weight: 500, lineHeight: 1.24, maxLines: 2
+          });
+        }
       }
     } else if (panel === 'inside-left') {
       if (renderState.insideLeftMode === 'photo' && photoImage) {
@@ -1074,22 +1210,30 @@
       const greeting = renderState.recipientName ? `Dear ${renderState.recipientName},` : '';
       if (greeting) {
         context.fillStyle = p.ink; context.textAlign = 'left'; context.textBaseline = 'top';
-        context.font = `600 ${width * .038}px ${family}`;
+        context.font = `600 ${width * .038 * typoScale(renderState, 'dedication')}px ${typoFamily(renderState, 'dedication', family)}`;
         context.fillText(greeting, x + pad, y + height * .16, width - pad * 2);
       }
       drawTextBlock(context, renderState.mainMessage, {
         x: x + pad, y: y + height * (greeting ? .23 : .15), width: width - pad * 2, height: height * .47
-      }, { colour: p.ink, family, startSize: width * .048, minSize: width * .027, weight: 500, lineHeight: 1.42, maxLines: 11, align: 'left' });
-      const closing = [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
-      if (closing) {
-        drawTextBlock(context, closing, {
-          x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * .14
-        }, { colour: p.ink, family, startSize: width * .032, minSize: width * .022, weight: 400, lineHeight: 1.35, maxLines: 3, align: 'left' });
+      }, { colour: p.ink, family: typoFamily(renderState, 'insideMsg', family), startSize: width * .048 * typoScale(renderState, 'insideMsg'), minSize: width * .027, weight: 500, lineHeight: 1.42, maxLines: 11, align: 'left' });
+      if (renderState.coverMessage) {
+        drawTextBlock(context, renderState.coverMessage, {
+          x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * (renderState.senderName ? .07 : .14)
+        }, { colour: p.ink, family: typoFamily(renderState, 'closing', family), startSize: width * .038 * typoScale(renderState, 'closing'), minSize: width * .025, weight: 600, lineHeight: 1.3, maxLines: 2, align: 'left' });
+      }
+      if (renderState.senderName) {
+        drawTextBlock(context, renderState.senderName, {
+          x: x + pad, y: y + height * (renderState.coverMessage ? .795 : .72), width: width - pad * 2, height: height * .07
+        }, { colour: p.ink, family: typoFamily(renderState, 'sender', family), startSize: width * .038 * typoScale(renderState, 'sender'), minSize: width * .025, weight: 600, lineHeight: 1.3, maxLines: 2, align: 'left' });
       }
     } else if (panel === 'back') {
       context.textAlign = 'center'; context.textBaseline = 'middle';
-      context.fillStyle = p.ink; context.font = `600 ${width * .038}px ${family}`;
+      context.fillStyle = p.ink; context.font = `600 ${width * .038 * typoScale(renderState, 'backMsg')}px ${typoFamily(renderState, 'backMsg', family)}`;
       if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
+      if (renderState.showWebsite && renderState.outputMode !== 'folded') {
+        context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
+        context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
+      }
     }
 
     context.restore();
@@ -1162,24 +1306,10 @@
     return output;
   }
 
-  function canvasToBlob(canvasElement, type = 'image/png', quality = .95) {
-    return new Promise((resolve, reject) => canvasElement.toBlob(
-      blob => blob ? resolve(blob) : reject(new Error('Could not create image.')),
-      type,
-      quality
-    ));
-  }
-
   async function canvasBlob(type = 'image/png', quality = .95) {
     const selected = sizes[state.size] || sizes['instagram-square'];
     const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return canvasToBlob(output, type, quality);
-  }
-
-  async function singlePrintCanvasBlob(type = 'image/png', quality = .95) {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return canvasToBlob(output, type, quality);
+    return new Promise((resolve, reject) => output.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
   }
 
   function slug(value) {
@@ -1188,239 +1318,6 @@
 
   function filename(ext) {
     return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-card.${ext}`;
-  }
-
-  function sheetFilename(sheet, ext) {
-    return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-${sheet}-sheet.${ext}`;
-  }
-
-  function shareWebsiteUrl() {
-    return 'https://cardmakermessages.com';
-  }
-
-  function shareCardUrl() {
-    const base = document.documentElement.dataset.siteDomain ? `https://${document.documentElement.dataset.siteDomain}` : location.origin;
-    const url = new URL('/c.php', base);
-    const params = {
-      o: state.occasion, t: state.preset, ol: state.occasionLabel,
-      r: state.recipientName, h: state.frontHeading,
-      m: state.frontMessage, c: state.coverMessage, s: state.senderName,
-      rf: state.typography?.recipientName?.font || 'allura',
-      rs: state.typography?.recipientName?.size || 'large',
-      v: '26'
-    };
-    Object.entries(params).forEach(([key, value]) => {
-      const clean = String(value || '').trim();
-      if (clean) url.searchParams.set(key, clean.slice(0, key === 'm' ? 220 : 80));
-    });
-    return url.toString();
-  }
-
-  function shareCaption() {
-    const forName = state.recipientName ? ` for ${state.recipientName}` : '';
-    return `${state.occasionLabel || 'A personalised'} card${forName}. View it here:`;
-  }
-
-  function shareMessage() {
-    return `${shareCaption()}
-${shareCardUrl()}`;
-  }
-
-  async function shareRichCardLink() {
-    const link = shareCardUrl();
-    const data = { title: `${state.occasionLabel} card`, text: shareCaption(), url: link };
-    if (navigator.share) {
-      await navigator.share(data);
-      announce('The card link was shared with its preview.');
-    } else {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareCaption()}\n${link}`)}`;
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      announce('WhatsApp opened with the card preview link ready to send.');
-    }
-    return true;
-  }
-
-  const shareButtonLabels = {
-    shareImage: 'Share card link with preview',
-    shareSingleImage: 'Share card link with preview',
-    shareSinglePdf: 'Share PDF + website link',
-    shareFoldedSheets: 'Share both images + website link',
-    shareFoldedPdf: 'Share folded PDF + website link'
-  };
-
-  function shareStateKey() {
-    const stable = { ...state };
-    delete stable.step;
-    delete stable.activePanel;
-    delete stable.reviewed;
-    delete stable.savedAt;
-    return JSON.stringify(stable);
-  }
-
-  function relevantShareButtonIds(mode = state.outputMode) {
-    if (mode === 'single-print') return ['shareSingleImage', 'shareSinglePdf'];
-    if (mode === 'folded') return ['shareFoldedSheets', 'shareFoldedPdf'];
-    return ['shareImage'];
-  }
-
-  function setShareButtonsPreparing(mode, preparing) {
-    relevantShareButtonIds(mode).forEach(id => {
-      const button = document.getElementById(id);
-      if (!button) return;
-      button.disabled = Boolean(preparing);
-      button.setAttribute('aria-busy', String(Boolean(preparing)));
-      button.textContent = preparing
-        ? (id.toLowerCase().includes('pdf') ? 'Preparing PDF…' : 'Preparing image + link…')
-        : (shareButtonLabels[id] || button.textContent);
-    });
-  }
-
-  function clearPreparedShareAssets() {
-    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
-    sharePreparationTimer = 0;
-    preparedShare = { key: '', promise: null, assets: null, error: null };
-    Object.keys(shareButtonLabels).forEach(id => {
-      const button = document.getElementById(id);
-      if (!button) return;
-      button.disabled = false;
-      button.removeAttribute('aria-busy');
-      button.textContent = shareButtonLabels[id];
-    });
-  }
-
-  function scheduleShareAssetPreparation() {
-    const key = shareStateKey();
-    if ((preparedShare.assets || preparedShare.promise) && preparedShare.key === key) return;
-    if (sharePreparationTimer) window.clearTimeout(sharePreparationTimer);
-    const mode = state.outputMode;
-    setShareButtonsPreparing(mode, true);
-    sharePreparationTimer = window.setTimeout(() => {
-      sharePreparationTimer = 0;
-      prepareShareAssets().catch(error => {
-        console.error(error);
-        setShareButtonsPreparing(mode, false);
-      });
-    }, 20);
-  }
-
-  async function prepareShareAssets() {
-    const key = shareStateKey();
-    if (preparedShare.key === key && preparedShare.assets) return preparedShare.assets;
-    if (preparedShare.key === key && preparedShare.promise) return preparedShare.promise;
-
-    const mode = state.outputMode;
-    setShareButtonsPreparing(mode, true);
-    const promise = (async () => {
-      if (mode === 'single-print') {
-        const [imageBlob, pdfBlob] = await Promise.all([
-          singlePrintCanvasBlob('image/png'),
-          createSinglePagePdfBlob()
-        ]);
-        return {
-          mode,
-          imageBlobs: [imageBlob],
-          imageFiles: [new File([imageBlob], filename('png'), { type: 'image/png' })],
-          pdfBlob,
-          pdfFile: new File([pdfBlob], filename('pdf'), { type: 'application/pdf' })
-        };
-      }
-      if (mode === 'folded') {
-        const { outside, inside, spec } = createFoldedSheetCanvases();
-        const [outsideBlob, insideBlob, pdfBlob] = await Promise.all([
-          canvasToBlob(outside, 'image/png'),
-          canvasToBlob(inside, 'image/png'),
-          window.CardPDF.canvasesToPdf([outside, inside], spec.pdf)
-        ]);
-        return {
-          mode,
-          imageBlobs: [outsideBlob, insideBlob],
-          imageFiles: [
-            new File([outsideBlob], sheetFilename('outside', 'png'), { type: 'image/png' }),
-            new File([insideBlob], sheetFilename('inside', 'png'), { type: 'image/png' })
-          ],
-          pdfBlob,
-          pdfFile: new File([pdfBlob], filename('pdf'), { type: 'application/pdf' })
-        };
-      }
-      const imageBlob = await canvasBlob('image/png');
-      return {
-        mode,
-        imageBlobs: [imageBlob],
-        imageFiles: [new File([imageBlob], filename('png'), { type: 'image/png' })],
-        pdfBlob: null,
-        pdfFile: null
-      };
-    })();
-
-    preparedShare = { key, promise, assets: null, error: null };
-    try {
-      const assets = await promise;
-      if (preparedShare.key === key) {
-        preparedShare = { key, promise: null, assets, error: null };
-        setShareButtonsPreparing(mode, false);
-      }
-      return assets;
-    } catch (error) {
-      if (preparedShare.key === key) {
-        preparedShare = { key, promise: null, assets: null, error };
-        setShareButtonsPreparing(mode, false);
-      }
-      throw error;
-    }
-  }
-
-  function currentPreparedShareAssets() {
-    return preparedShare.key === shareStateKey() ? preparedShare.assets : null;
-  }
-
-  function canSharePayload(payload) {
-    if (!navigator.share) return false;
-    if (!payload.files?.length) return true;
-    if (!navigator.canShare) return false;
-    try { return navigator.canShare(payload); } catch (_) { return false; }
-  }
-
-  function bestFileSharePayload(files, title) {
-    const candidates = [
-      { files, title, text: shareCaption(), url: shareWebsiteUrl() },
-      { files, title, text: shareMessage() },
-      { files, title }
-    ];
-    return candidates.find(canSharePayload) || null;
-  }
-
-  async function runShareFallback(fallback) {
-    await fallback();
-    announce('The card was downloaded. Share it from your device.');
-    return false;
-  }
-
-  function sharePreparedFiles(files, title, fallback) {
-    const payload = bestFileSharePayload(files, title);
-    if (!payload) return runShareFallback(fallback);
-
-    let result;
-    try {
-      // Files are prepared before the click, so navigator.share is called
-      // immediately while the browser still recognises the user gesture.
-      result = navigator.share(payload);
-    } catch (_) {
-      return runShareFallback(fallback);
-    }
-
-    return Promise.resolve(result).then(() => {
-      announce('Your card and website link were sent to the sharing app.');
-      return true;
-    }).catch(error => {
-      if (error?.name === 'AbortError') return false;
-      return runShareFallback(fallback);
-    });
-  }
-
-  function shareNotReady() {
-    scheduleShareAssetPreparation();
-    announce('Your card is still being prepared. The share button will be ready in a moment.');
-    return Promise.resolve(false);
   }
 
   async function openImage(type) {
@@ -1438,38 +1335,123 @@ ${shareCardUrl()}`;
     return url.toString();
   }
 
-  function shareImage() {
-    return shareRichCardLink();
+  function shareCaption() {
+    return `Made with ${canonicalAppUrl()} I made this card there, create yours too`;
   }
 
-  async function copyImage() {
-    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
-      announce('Image copying is not supported in this browser.');
+  function shareCardUrl() {
+    const configuredHost = document.documentElement.dataset.siteDomain;
+    const base = configuredHost ? `https://${configuredHost}` : location.origin;
+    const url = new URL('/c.php', base);
+    url.searchParams.set('o', state.occasion);
+    url.searchParams.set('t', state.preset);
+    const headline = (state.occasion === 'custom' && state.customOccasion.trim())
+      ? state.customOccasion.trim()
+      : (DATA.occasions[state.occasion]?.front || state.occasionLabel || '');
+    if (headline) url.searchParams.set('h', headline.slice(0, 60));
+    if (state.coverMessage) url.searchParams.set('m', state.coverMessage.slice(0, 180));
+    return url.toString();
+  }
+
+  async function shareWebCard() {
+    const url = shareCardUrl();
+    const text = `${state.occasionLabel} card. View it here: ${url}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `${state.occasionLabel} card`, text });
+        announce('Card link shared. The recipient sees a preview and can make their own.');
+        return true;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return true;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      announce('Share link copied. Paste it into any chat or social app to send the card preview.');
+    } catch (_) {
+      announce('Share link ready: ' + url);
+    }
+    return true;
+  }
+
+  function cloudinaryConfig() {
+    const cloud = document.documentElement.dataset.cloudinaryCloud;
+    const preset = document.documentElement.dataset.cloudinaryPreset;
+    return cloud && preset ? { cloud, preset } : null;
+  }
+
+  async function sharePhotoWebCard() {
+    const cfg = cloudinaryConfig();
+    if (!cfg) return false;
+    const consent = window.confirm('Create a shareable link that includes your card image?\n\nThe finished card, including your photo, will be uploaded so the recipient sees a preview. You are responsible for the content you create. The link expires automatically. Continue?');
+    if (!consent) return true;
+    announce('Preparing your shareable card link.');
+    try {
+      const blob = await canvasBlob('image/jpeg');
+      const form = new FormData();
+      form.append('file', blob);
+      form.append('upload_preset', cfg.preset);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cfg.cloud}/image/upload`, { method: 'POST', body: form });
+      if (!res.ok) throw new Error('upload failed');
+      const data = await res.json();
+      if (!data.secure_url) throw new Error('no url');
+      const base = document.documentElement.dataset.siteDomain ? `https://${document.documentElement.dataset.siteDomain}` : location.origin;
+      const url = new URL('/c.php', base);
+      url.searchParams.set('o', state.occasion);
+      url.searchParams.set('t', state.preset);
+      const headline = (state.occasion === 'custom' && state.customOccasion.trim()) ? state.customOccasion.trim() : (DATA.occasions[state.occasion]?.front || state.occasionLabel || '');
+      if (headline) url.searchParams.set('h', headline.slice(0, 60));
+      if (state.coverMessage) url.searchParams.set('m', state.coverMessage.slice(0, 180));
+      url.searchParams.set('img', data.secure_url);
+      const link = url.toString();
+      const text = `${state.occasionLabel} card. View it here: ${link}`;
+      if (navigator.share) {
+        try { await navigator.share({ title: `${state.occasionLabel} card`, text }); announce('Card link shared with your photo preview.'); return true; } catch (err) { if (err && err.name === 'AbortError') return true; }
+      }
+      try { await navigator.clipboard.writeText(link); announce('Shareable card link copied. Paste it into any chat to send the photo preview.'); } catch (_) { announce('Shareable link ready: ' + link); }
+      return true;
+    } catch (_) {
+      announce('The shareable link could not be created. Sharing the image directly instead.');
+      return false;
+    }
+  }
+
+  async function shareImage() {
+    if (!state.photoData) {
+      await shareWebCard();
       return;
     }
+    if (cloudinaryConfig()) {
+      const done = await sharePhotoWebCard();
+      if (done) return;
+    }
     const blob = await canvasBlob('image/png');
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    announce('Card image copied.');
+    const file = new File([blob], filename('png'), { type: 'image/png' });
+    const appUrl = canonicalAppUrl();
+    const shareText = shareCaption();
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: `${state.occasionLabel} card`,
+        text: shareText
+      });
+      announce('Card shared.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(appUrl);
+      announce('Card link copied. The finished image will now open for saving.');
+    } catch (_) {
+      announce('The finished image will open for saving.');
+    }
+    window.CardPDF.openBlob(blob, filename('png'));
   }
 
-  async function createSinglePagePdfBlob() {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const output = createPanelCanvas('front', selected.width, selected.height, false);
-    return window.CardPDF.canvasesToPdf([output], selected.pdf);
-  }
-
-  async function createSinglePagePdf() {
-    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
-    const pdf = await createSinglePagePdfBlob();
-    window.CardPDF.downloadBlob(pdf, filename('pdf'));
-    announce(`${selected.label} was downloaded.`);
-  }
-
-  function createFoldedSheetCanvases() {
+  function foldedSheetCanvases() {
     const specs = {
-      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
-      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
-      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
+      A4: { pageWidth: 3508, pageHeight: 2480 },
+      A5: { pageWidth: 2480, pageHeight: 1748 },
+      Letter: { pageWidth: 3300, pageHeight: 2550 }
     };
     const spec = specs[state.printPaper] || specs.A4;
     const { pageWidth, pageHeight } = spec;
@@ -1484,11 +1466,94 @@ ${shareCardUrl()}`;
     const outCtx = outside.getContext('2d');
     const inCtx = inside.getContext('2d');
     [outCtx, inCtx].forEach(context => { context.fillStyle = '#ffffff'; context.fillRect(0, 0, pageWidth, pageHeight); });
-
     drawPanel(outCtx, margin, margin, panelWidth, panelHeight, 'back', state, true);
     drawPanel(outCtx, half + margin, margin, panelWidth, panelHeight, 'front', state, true);
     drawPanel(inCtx, margin, margin, panelWidth, panelHeight, 'inside-left', state, true);
     drawPanel(inCtx, half + margin, margin, panelWidth, panelHeight, 'inside-right', state, true);
+    return { outside, inside };
+  }
+
+  function canvasToBlob(source, type, quality) {
+    return new Promise((resolve, reject) => source.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image.')), type, quality));
+  }
+
+  function sheetFilename(sheet, ext) {
+    return `${slug(state.occasionLabel)}-${slug(state.recipientName || state.recipient)}-${sheet}-sheet.${ext}`;
+  }
+
+  async function saveFoldedSheet(sheet, type) {
+    const sheets = foldedSheetCanvases();
+    const source = sheet === 'inside' ? sheets.inside : sheets.outside;
+    const ext = type === 'image/png' ? 'png' : 'jpg';
+    const blob = await canvasToBlob(source, type, .94);
+    window.CardPDF.downloadBlob(blob, sheetFilename(sheet, ext));
+    announce(`The ${sheet} sheet was downloaded.`);
+  }
+
+  async function shareFoldedSheets() {
+    const sheets = foldedSheetCanvases();
+    const outsideBlob = await canvasToBlob(sheets.outside, 'image/png', .94);
+    const insideBlob = await canvasToBlob(sheets.inside, 'image/png', .94);
+    const files = [
+      new File([outsideBlob], sheetFilename('outside', 'png'), { type: 'image/png' }),
+      new File([insideBlob], sheetFilename('inside', 'png'), { type: 'image/png' })
+    ];
+    const shareText = shareCaption();
+    if (navigator.share && navigator.canShare?.({ files })) {
+      await navigator.share({ files, title: `${state.occasionLabel} card`, text: shareText });
+      announce('Both sheets were shared.');
+      return;
+    }
+    if (navigator.share && navigator.canShare?.({ files: [files[0]] })) {
+      await navigator.share({ files: [files[0]], title: `${state.occasionLabel} card`, text: shareText });
+      announce('This device shares one file at a time. The outside sheet was shared. Save the inside sheet below and send it separately.');
+      return;
+    }
+    window.CardPDF.downloadBlob(outsideBlob, sheetFilename('outside', 'png'));
+    window.CardPDF.downloadBlob(insideBlob, sheetFilename('inside', 'png'));
+    announce('Sharing is not supported in this browser. Both sheets were downloaded instead.');
+  }
+
+  async function reviewSaveImage(type) {
+    if (state.outputMode === 'folded') { await saveFoldedSheet('outside', type); return; }
+    await openImage(type);
+  }
+
+  async function reviewSavePdf() {
+    if (state.outputMode === 'folded') { await createFoldedPdf(); return; }
+    await createSinglePagePdf();
+  }
+
+  async function copyImage() {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      announce('Image copying is not supported in this browser.');
+      return;
+    }
+    const blob = await canvasBlob('image/png');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    announce('Card image copied.');
+  }
+
+  async function createSinglePagePdf() {
+    const selected = printSizes[state.singlePrintSize] || printSizes.A5;
+    const output = createPanelCanvas('front', selected.width, selected.height, false);
+    const pdf = await window.CardPDF.canvasesToPdf([output], selected.pdf);
+    window.CardPDF.downloadBlob(pdf, filename('pdf'));
+    announce(`${selected.label} was downloaded.`);
+  }
+
+  async function createFoldedPdf() {
+    const specs = {
+      A4: { pageWidth: 3508, pageHeight: 2480, pdf: 'A4' },
+      A5: { pageWidth: 2480, pageHeight: 1748, pdf: 'A5L' },
+      Letter: { pageWidth: 3300, pageHeight: 2550, pdf: 'LETTER' }
+    };
+    const spec = specs[state.printPaper] || specs.A4;
+    const { pageWidth, pageHeight } = spec;
+    const half = pageWidth / 2;
+    const { outside, inside } = foldedSheetCanvases();
+    const outCtx = outside.getContext('2d');
+    const inCtx = inside.getContext('2d');
 
     if (state.showFoldMarks && state.printQuality === 'home') {
       [outCtx, inCtx].forEach(context => {
@@ -1499,67 +1564,9 @@ ${shareCardUrl()}`;
       });
     }
 
-    return { outside, inside, spec };
-  }
-
-  async function createFoldedPdfBlob() {
-    const { outside, inside, spec } = createFoldedSheetCanvases();
-    return window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
-  }
-
-  async function createFoldedPdf() {
-    const pdf = await createFoldedPdfBlob();
+    const pdf = await window.CardPDF.canvasesToPdf([outside, inside], spec.pdf);
     window.CardPDF.downloadBlob(pdf, filename('pdf'));
     announce('Your folded card PDF was downloaded.');
-  }
-
-  async function downloadSinglePrintImage(type) {
-    const blob = await singlePrintCanvasBlob(type, .94);
-    const ext = type === 'image/png' ? 'png' : 'jpg';
-    window.CardPDF.downloadBlob(blob, filename(ext));
-    announce(`Your ${ext === 'png' ? 'PNG' : 'JPEG'} card was downloaded.`);
-  }
-
-  function shareSinglePrintImage() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], filename('png'));
-    });
-  }
-
-  function shareSinglePagePdf() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.pdfFile) return shareNotReady();
-    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} printable card`, async () => {
-      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
-    });
-  }
-
-  async function downloadFoldedSheet(sheet, type) {
-    const canvases = createFoldedSheetCanvases();
-    const canvasElement = sheet === 'inside' ? canvases.inside : canvases.outside;
-    const blob = await canvasToBlob(canvasElement, type, .94);
-    const ext = type === 'image/png' ? 'png' : 'jpg';
-    window.CardPDF.downloadBlob(blob, sheetFilename(sheet, ext));
-    announce(`${sheet === 'inside' ? 'Inside' : 'Outside'} sheet ${ext === 'png' ? 'PNG' : 'JPEG'} was downloaded.`);
-  }
-
-  function shareFoldedSheets() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.imageFiles?.length) return shareNotReady();
-    return sharePreparedFiles(assets.imageFiles, `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(assets.imageBlobs[0], sheetFilename('outside', 'png'));
-      window.setTimeout(() => window.CardPDF.downloadBlob(assets.imageBlobs[1], sheetFilename('inside', 'png')), 180);
-    });
-  }
-
-  function shareFoldedPdf() {
-    const assets = currentPreparedShareAssets();
-    if (!assets?.pdfFile) return shareNotReady();
-    return sharePreparedFiles([assets.pdfFile], `${state.occasionLabel} folded card`, async () => {
-      window.CardPDF.downloadBlob(assets.pdfBlob, filename('pdf'));
-    });
   }
 
   async function copyMessage() {
@@ -1568,7 +1575,13 @@ ${shareCardUrl()}`;
   }
 
   async function shareLink() {
-    return shareRichCardLink();
+    const appUrl = canonicalAppUrl();
+    const shareData = { title: `${state.occasionLabel} card maker`, text: 'Create a personalised card for free.', url: appUrl };
+    if (navigator.share) await navigator.share(shareData);
+    else {
+      await navigator.clipboard.writeText(appUrl);
+      announce('Permanent card-maker link copied.');
+    }
   }
 
   function surprise() {
@@ -1626,11 +1639,7 @@ ${shareCardUrl()}`;
   function restorePhoto() {
     if (!state.photoData) return;
     photoImage = new Image();
-    photoImage.onload = () => {
-      clearPreparedShareAssets();
-      queueRender();
-      if (state.reviewed && state.step === 5) scheduleShareAssetPreparation();
-    };
+    photoImage.onload = queueRender;
     photoImage.src = state.photoData;
   }
 
@@ -1642,6 +1651,11 @@ ${shareCardUrl()}`;
     if (summary) summary.textContent = `Reviewing: ${format.label} · ${format.detail}`;
     const reviewFigureCaption = document.getElementById('reviewFigureCaption');
     if (reviewFigureCaption) reviewFigureCaption.textContent = `${format.label} · ${format.detail}`;
+
+    const flatShare = document.getElementById('reviewFlatShare');
+    const foldedShare = document.getElementById('reviewFoldedShare');
+    if (flatShare) flatShare.hidden = format.kind === 'folded';
+    if (foldedShare) foldedShare.hidden = format.kind !== 'folded';
 
     if (format.kind === 'folded') {
       if (singleWrap) singleWrap.hidden = true;
@@ -1765,19 +1779,9 @@ ${shareCardUrl()}`;
 
   function hideStageGuard() {
     const prompt = document.getElementById('stageGuardPrompt');
-    if (prompt) prompt.hidden = true;
+    if (prompt) { prompt.hidden = true; prompt.classList.remove('stage-guard-pinned'); }
   }
 
-
-  function placeStageGuard() {
-    const prompt = document.getElementById('stageGuardPrompt');
-    const previewCard = document.querySelector('.preview-card');
-    const controls = document.querySelector('.control-panel');
-    if (!prompt || !previewCard || !controls) return;
-    const desktop = window.matchMedia('(min-width: 900px)').matches;
-    const target = desktop ? controls : previewCard;
-    if (prompt.parentElement !== target) target.insertBefore(prompt, target.firstChild);
-  }
   function showStageGuard(title, message, actionLabel, destinationStep) {
     const prompt = document.getElementById('stageGuardPrompt');
     const heading = document.getElementById('stageGuardTitle');
@@ -1788,10 +1792,11 @@ ${shareCardUrl()}`;
     body.textContent = message;
     action.textContent = actionLabel;
     action.dataset.destinationStep = String(destinationStep);
-    placeStageGuard();
     prompt.hidden = false;
+    const pinned = window.matchMedia('(max-width: 900px)').matches;
+    prompt.classList.toggle('stage-guard-pinned', pinned);
     window.requestAnimationFrame(() => {
-      if (window.matchMedia('(max-width: 899px)').matches) prompt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!pinned) prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
       action.focus({ preventScroll: true });
     });
   }
@@ -1835,9 +1840,11 @@ ${shareCardUrl()}`;
   }
 
   function openSocialLink(network) {
-    const cleanUrl = shareCardUrl();
+    const cleanUrl = canonicalAppUrl();
     const url = encodeURIComponent(cleanUrl);
-    const text = encodeURIComponent(`${shareCaption()} ${cleanUrl}`);
+    const text = encodeURIComponent(`${state.mainMessage}
+
+Create your own card: ${cleanUrl}`);
     const targets = {
       whatsapp: `https://wa.me/?text=${text}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
@@ -1878,54 +1885,6 @@ ${shareCardUrl()}`;
     update();
   }
 
-  const occasionCategories = {"celebrate": [["birthday", "Birthday"], ["anniversary", "Anniversary"], ["congratulations", "Congratulations"], ["graduation", "Graduation"], ["retirement", "Retirement"], ["good-luck", "Good luck"], ["exam-success", "Exam success"], ["driving-test-passed", "Driving test passed"]], "love": [["wedding", "Wedding"], ["engagement", "Engagement"], ["valentine", "Valentine’s Day"], ["friendship", "Friendship"], ["sorry-apology", "Sorry and apology"], ["divorce-new-beginnings", "Divorce, breakup and new beginnings"]], "new-beginnings": [["new-baby", "New baby"], ["pregnancy", "Pregnancy"], ["baby-shower", "Baby shower"], ["adoption", "Adoption"], ["new-home", "New home"], ["housewarming", "Housewarming"], ["new-job", "New job"], ["job-promotion", "Job promotion"], ["starting-university", "Starting university"], ["welcome-back", "Welcome back"]], "support": [["get-well", "Get well"], ["thinking-of-you", "Thinking of you"], ["sympathy", "Sympathy and bereavement"], ["pet-loss", "Pet loss sympathy"], ["pregnancy-loss", "Pregnancy loss support"], ["serious-illness", "Serious illness support"], ["encouragement", "Encouragement"], ["difficult-times", "Difficult times"]], "family-faith": [["mothers-day", "Mother’s Day"], ["fathers-day", "Father’s Day"], ["child-naming", "Child naming ceremony"], ["baptism", "Baptism"], ["christening", "Christening"], ["first-communion", "First Holy Communion"], ["confirmation", "Confirmation"], ["pastor-appreciation", "Pastor appreciation"], ["church-anniversary", "Church anniversary"]], "seasonal": [["christmas", "Christmas"], ["easter", "Easter"], ["new-year", "New Year"], ["eid-fitr", "Eid al-Fitr"], ["eid-adha", "Eid al-Adha"], ["ramadan", "Ramadan"], ["diwali", "Diwali"], ["hanukkah", "Hanukkah"], ["lunar-new-year", "Lunar New Year"], ["vaisakhi", "Vaisakhi"]], "work-thanks": [["thanks", "Thank you"], ["leaving-farewell", "Leaving and farewell"], ["teacher-appreciation", "Teacher appreciation"], ["colleague-appreciation", "Colleague appreciation"], ["boss-appreciation", "Boss appreciation"], ["volunteer-appreciation", "Volunteer appreciation"], ["new-job", "New job"], ["job-promotion", "Job promotion"], ["retirement", "Retirement"]]};
-  const occasionCategoryLabels = {"celebrate": "Celebrate", "love": "Love and relationships", "new-beginnings": "New beginnings", "support": "Support and care", "family-faith": "Family and faith", "seasonal": "Seasonal and cultural", "work-thanks": "Work and appreciation"};
-
-  function categoryForOccasion(occasion) {
-    for (const [category, items] of Object.entries(occasionCategories)) {
-      if (items.some(item => item[0] === occasion)) return category;
-    }
-    return 'celebrate';
-  }
-
-  function selectOccasionFromPicker(occasion) {
-    const button = document.querySelector(`[data-kind="card"][data-occasion="${CSS.escape(occasion)}"]`);
-    if (button) button.click();
-  }
-
-  function initOccasionPicker() {
-    const category = document.getElementById('occasionCategory');
-    const occasion = document.getElementById('occasionSelect');
-    const search = document.getElementById('occasionSearch');
-    if (!category || !occasion || !search) return;
-    category.innerHTML = Object.entries(occasionCategoryLabels).map(([value,label]) => `<option value="${value}">${label}</option>`).join('');
-    const populate = (categoryValue, preferred = '') => {
-      const items = occasionCategories[categoryValue] || occasionCategories.celebrate;
-      occasion.innerHTML = items.map(([value,label]) => `<option value="${value}">${label}</option>`).join('');
-      const selected = items.some(item => item[0] === preferred) ? preferred : items[0][0];
-      occasion.value = selected;
-      return selected;
-    };
-    const syncPicker = () => {
-      const cat = categoryForOccasion(state.occasion);
-      category.value = cat;
-      populate(cat, state.occasion);
-    };
-    category.addEventListener('change', () => { const first = populate(category.value); selectOccasionFromPicker(first); });
-    occasion.addEventListener('change', () => selectOccasionFromPicker(occasion.value));
-    search.addEventListener('input', () => {
-      const q = search.value.trim().toLowerCase();
-      if (!q) { syncPicker(); return; }
-      const matches = [];
-      Object.values(occasionCategories).flat().forEach(([value,label]) => { if (label.toLowerCase().includes(q) && !matches.some(x => x[0] === value)) matches.push([value,label]); });
-      occasion.innerHTML = matches.length ? matches.map(([value,label]) => `<option value="${value}">${label}</option>`).join('') : '<option value="">No matching occasion</option>';
-    });
-    search.addEventListener('keydown', event => { if (event.key === 'Enter' && occasion.value) { event.preventDefault(); selectOccasionFromPicker(occasion.value); } });
-    document.querySelectorAll('[data-popular-occasion]').forEach(button => button.addEventListener('click', () => selectOccasionFromPicker(button.dataset.popularOccasion)));
-    window.syncOccasionPicker = syncPicker;
-    syncPicker();
-  }
-
   function initControls() {
     const recipientSelect = document.getElementById('recipientSelect');
     DATA.recipients.forEach(recipient => {
@@ -1935,14 +1894,14 @@ ${shareCardUrl()}`;
     document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
     document.querySelectorAll('[data-jump-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.jumpStep))));
     document.getElementById('stageGuardAction')?.addEventListener('click', () => goToStep(Number(document.getElementById('stageGuardAction')?.dataset.destinationStep || 1)));
-    document.querySelector('[data-guard-close]')?.addEventListener('click', hideStageGuard);
+    document.getElementById('stageGuardClose')?.addEventListener('click', hideStageGuard);
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };
       const occasion = defaults[creationType];
       state.creationType = creationType;
       state.occasion = occasion;
-      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Special Occasion') : defaultOccasionLabel(occasion);
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
       state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || DATA.occasions[occasion]?.label || 'For You';
@@ -1953,18 +1912,18 @@ ${shareCardUrl()}`;
     document.querySelectorAll('[data-next-step]').forEach(button => button.addEventListener('click', () => goToStep(state.step + 1)));
     document.querySelectorAll('[data-prev-step]').forEach(button => button.addEventListener('click', () => goToStep(state.step - 1)));
     document.querySelectorAll('[data-occasion]').forEach(button => button.addEventListener('click', () => {
-      const occasion = button.dataset.occasion;
-      state.creationType = button.dataset.kind || state.creationType;
-      state.occasion = occasion;
-      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Special Occasion') : defaultOccasionLabel(occasion);
-      state.coverMessage = defaultCover(occasion);
-      state.frontMessage = defaultFrontMessage(occasion);
-      state.frontHeading = DATA.occasions[occasion]?.front || (occasion === 'custom' ? 'For Your Special Occasion' : DATA.occasions[occasion]?.label) || 'For You';
-      state.reviewed = false;
-      const eventTitles = { 'birthday-invitation': 'A Birthday Celebration', 'party-invitation': 'A Special Celebration', 'wedding-invitation': 'Our Wedding Celebration', 'christmas-invitation': 'A Christmas Gathering' };
-      if (eventTitles[occasion]) state.eventTitle = eventTitles[occasion];
-      generateMessages(); syncControls();
+      applyOccasion(button.dataset.occasion, button.dataset.kind);
     }));
+    document.getElementById('categorySelect')?.addEventListener('change', event => {
+      state.category = event.target.value;
+      const cat = (DATA.categories || []).find(c => c.id === state.category);
+      if (cat && cat.occasions.length && !cat.occasions.includes(state.occasion)) {
+        applyOccasion(cat.occasions[0], 'card');
+      } else { syncControls(); }
+    });
+    document.getElementById('categoryOccasionSelect')?.addEventListener('change', event => {
+      applyOccasion(event.target.value, 'card');
+    });
     document.querySelectorAll('[data-tone]').forEach(button => button.addEventListener('click', () => { state.tone = button.dataset.tone; generateMessages(); syncControls(); }));
     document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => { const chosen = presets[button.dataset.preset] || presets.floral; updateState({ designVisited: true, preset: button.dataset.preset, background: '', textColour: '', font: chosen.font, frame: chosen.frame || state.frame, illustration: chosen.illustration || 'none', accent: chosen.accentChoice || state.accent, textStyle: chosen.textStyle || state.textStyle }); }));
     document.querySelectorAll('[data-frame]').forEach(button => button.addEventListener('click', () => updateState({ designVisited: true, frame: button.dataset.frame })));
@@ -1985,39 +1944,8 @@ ${shareCardUrl()}`;
       button.classList.add('active'); updateState({ designVisited: true, font: button.dataset.font });
     }));
 
-    const fontOptions = [
-      ['allura','Allura'], ['parisienne','Parisienne'], ['greatvibes','Great Vibes'], ['alexbrush','Alex Brush'],
-      ['playfair','Playfair Display'], ['cormorant','Cormorant Garamond'], ['montserrat','Montserrat'],
-      ['inter','Inter'], ['nunito','Nunito'], ['serif','Classic Serif'], ['sans','Clean Sans']
-    ];
-    const typeFields = ['occasionLabel','recipientName','frontHeading','frontMessage','mainMessage','coverMessage','senderName','backMessage'];
-    typeFields.forEach(fieldId => {
-      const input = document.getElementById(fieldId);
-      const field = input?.closest('.field');
-      if (!input || !field || field.querySelector(`[data-type-controls="${fieldId}"]`)) return;
-      const controls = document.createElement('div');
-      controls.className = 'type-controls';
-      controls.dataset.typeControls = fieldId;
-      const font = document.createElement('select');
-      font.setAttribute('aria-label', `Select font for ${fieldId}`);
-      fontOptions.forEach(([value,label]) => font.add(new Option(label,value)));
-      font.value = state.typography?.[fieldId]?.font || defaultState.typography[fieldId]?.font || 'serif';
-      const size = document.createElement('select');
-      size.setAttribute('aria-label', `Select font size for ${fieldId}`);
-      [['small','Small'],['medium','Medium'],['large','Large'],['xlarge','Extra large']].forEach(([value,label]) => size.add(new Option(label,value)));
-      size.value = state.typography?.[fieldId]?.size || defaultState.typography[fieldId]?.size || 'medium';
-      const fontLabel = document.createElement('label'); fontLabel.textContent = 'Font'; fontLabel.appendChild(font);
-      const sizeLabel = document.createElement('label'); sizeLabel.textContent = 'Size'; sizeLabel.appendChild(size);
-      controls.append(fontLabel,sizeLabel); field.appendChild(controls);
-      const updateType = () => {
-        const typography = { ...(state.typography || {}), [fieldId]: { font: font.value, size: size.value } };
-        updateState({ typography });
-      };
-      font.addEventListener('change', updateType); size.addEventListener('change', updateType);
-    });
-
     const bindings = {
-      recipientSelect: 'recipient', occasionLabel: 'occasionLabel', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
+      recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
       eventTitle: 'eventTitle', eventDate: 'eventDate', eventTime: 'eventTime', eventVenue: 'eventVenue', eventRsvp: 'eventRsvp', eventHost: 'eventHost',
       mainMessage: 'mainMessage', frontHeading: 'frontHeading', frontMessage: 'frontMessage', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
       backgroundPicker: 'background', textColourPicker: 'textColour'
@@ -2026,13 +1954,17 @@ ${shareCardUrl()}`;
       document.getElementById(id)?.addEventListener('input', event => {
         const patch = { [key]: event.target.value };
         if (key === 'customOccasion') {
-          patch.occasionLabel = event.target.value.trim() || 'Special Occasion';
+          patch.occasionLabel = event.target.value.trim() || 'Custom Occasion';
           patch.coverMessage = event.target.value.trim() ? `Celebrating ${event.target.value.trim()}` : 'Made especially for this occasion';
           patch.frontMessage = event.target.value.trim() ? `A special message for ${event.target.value.trim()}.` : defaultFrontMessage('custom');
           patch.frontHeading = event.target.value.trim() || 'For Your Special Occasion';
         }
         updateState(patch);
       });
+    });
+
+    document.getElementById('occasionLabelText')?.addEventListener('input', event => {
+      updateState({ occasionLabelText: event.target.value, occasionLabelEdited: true });
     });
 
     document.getElementById('generateMessages')?.addEventListener('click', () => {
@@ -2132,18 +2064,20 @@ ${shareCardUrl()}`;
     document.getElementById('downloadPng')?.addEventListener('click', () => withUsageGate(() => openImage('image/png')).catch(handleError));
     document.getElementById('downloadJpg')?.addEventListener('click', () => withUsageGate(() => openImage('image/jpeg')).catch(handleError));
     document.getElementById('downloadSinglePdf')?.addEventListener('click', () => withUsageGate(createSinglePagePdf).catch(handleError));
-    document.getElementById('downloadSinglePng')?.addEventListener('click', () => withUsageGate(() => downloadSinglePrintImage('image/png')).catch(handleError));
-    document.getElementById('downloadSingleJpeg')?.addEventListener('click', () => withUsageGate(() => downloadSinglePrintImage('image/jpeg')).catch(handleError));
     document.getElementById('downloadPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
     document.getElementById('shareImage')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
-    document.getElementById('shareSingleImage')?.addEventListener('click', () => withUsageGate(shareSinglePrintImage).catch(handleError));
-    document.getElementById('shareSinglePdf')?.addEventListener('click', () => withUsageGate(shareSinglePagePdf).catch(handleError));
-    document.getElementById('shareFoldedSheets')?.addEventListener('click', () => withUsageGate(shareFoldedSheets).catch(handleError));
-    document.getElementById('shareFoldedPdf')?.addEventListener('click', () => withUsageGate(shareFoldedPdf).catch(handleError));
-    document.getElementById('downloadFoldedOutsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/png')).catch(handleError));
-    document.getElementById('downloadFoldedInsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/png')).catch(handleError));
-    document.getElementById('downloadFoldedOutsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/jpeg')).catch(handleError));
-    document.getElementById('downloadFoldedInsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/jpeg')).catch(handleError));
+    document.getElementById('reviewShareCard')?.addEventListener('click', () => withUsageGate(shareImage).catch(handleError));
+    document.getElementById('reviewSavePng')?.addEventListener('click', () => withUsageGate(() => reviewSaveImage('image/png')).catch(handleError));
+    document.getElementById('reviewSaveJpeg')?.addEventListener('click', () => withUsageGate(() => reviewSaveImage('image/jpeg')).catch(handleError));
+    document.getElementById('reviewSavePdf')?.addEventListener('click', () => withUsageGate(reviewSavePdf).catch(handleError));
+    document.getElementById('reviewFoldedPdf')?.addEventListener('click', () => withUsageGate(createFoldedPdf).catch(handleError));
+    document.getElementById('reviewShareSheets')?.addEventListener('click', () => withUsageGate(shareFoldedSheets).catch(handleError));
+    document.querySelectorAll('[data-sheet-save]').forEach(button => {
+      button.addEventListener('click', () => withUsageGate(() => saveFoldedSheet(button.dataset.sheetSave, button.dataset.sheetType === 'jpeg' ? 'image/jpeg' : 'image/png')).catch(handleError));
+    });
+    document.querySelectorAll('[data-sheet-group]').forEach(summary => {
+      summary.addEventListener('click', () => {});
+    });
     document.getElementById('shareLink')?.addEventListener('click', () => shareLink().catch(handleError));
     document.getElementById('copyImage')?.addEventListener('click', () => copyImage().catch(handleError));
     document.getElementById('copyMessage')?.addEventListener('click', () => copyMessage().catch(handleError));
@@ -2170,6 +2104,7 @@ ${shareCardUrl()}`;
     document.getElementById('reviewContinueHint')?.addEventListener('click', openReview);
     document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true, step: 5 }); closeReview(); window.setTimeout(scrollToWorkspace, 60); });
     document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
+    document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
   }
 
@@ -2182,9 +2117,7 @@ ${shareCardUrl()}`;
     if (legacySizeMap[state.size]) state.size = legacySizeMap[state.size];
     if (!sizes[state.size]) state.size = 'instagram-square';
     queryDefaults();
-    if (!DATA.occasions[state.occasion]) { state = { ...state, occasion: 'birthday', creationType: 'card', occasionLabel: 'Birthday Wishes', frontHeading: 'Happy Birthday', frontMessage: defaultFrontMessage('birthday'), coverMessage: defaultCover('birthday') }; }
     initControls();
-    initOccasionPicker();
     restorePhoto();
     const hasSaved = Boolean(Store.load().app?.savedAt);
     if (hasSaved) {
@@ -2196,10 +2129,7 @@ ${shareCardUrl()}`;
     generateMessages(false);
     syncControls();
     queueRender();
-    if (document.fonts?.ready) document.fonts.ready.then(queueRender);
     initFloatingPreview();
-    placeStageGuard();
-    window.addEventListener('resize', placeStageGuard, { passive: true });
     window.setInterval(persist, 5000);
     window.addEventListener('pagehide', persist);
     window.addEventListener('resize', () => requestAnimationFrame(fitPreviewCanvas), { passive: true });

@@ -256,384 +256,6 @@
         ['formal','With warm regards and best wishes for this memorable occasion.']
       ]
     },
-    'good-luck': {
-      label: "Good luck", front: "Good Luck", icon: '♡',
-      messages: [
-        ['heartfelt',"Sending you every good wish for confidence, success and a wonderful result."],
-        ['short',"Sending you every good wish for confidence, success and a wonderful result."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'exam-success': {
-      label: "Exam success", front: "Congratulations", icon: '♡',
-      messages: [
-        ['heartfelt',"Congratulations on a result that reflects your hard work and determination."],
-        ['short',"Congratulations on a result that reflects your hard work and determination."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'driving-test-passed': {
-      label: "Driving test passed", front: "You Passed!", icon: '♡',
-      messages: [
-        ['heartfelt',"Congratulations on passing your driving test and reaching an exciting new milestone."],
-        ['short',"Congratulations on passing your driving test and reaching an exciting new milestone."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'engagement': {
-      label: "Engagement", front: "Congratulations", icon: '♡',
-      messages: [
-        ['heartfelt',"Congratulations on your engagement. Wishing you a joyful future filled with love."],
-        ['short',"Congratulations on your engagement."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'friendship': {
-      label: "Friendship", front: "For a Wonderful Friend", icon: '♡',
-      messages: [
-        ['heartfelt',"Thank you for being the kind of friend who makes life brighter and easier."],
-        ['short',"Thank you for being the kind of friend who makes life brighter and easier."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'sorry-apology': {
-      label: "Sorry and apology", front: "I’m Sorry", icon: '♡',
-      messages: [
-        ['heartfelt',"I am truly sorry. Your feelings matter to me, and I hope we can make things right."],
-        ['short',"I am truly sorry."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'divorce-new-beginnings': {
-      label: "Divorce, breakup and new beginnings", front: "A New Chapter", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you strength, peace and brighter days as you begin a new chapter."],
-        ['short',"Wishing you strength, peace and brighter days as you begin a new chapter."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'pregnancy': {
-      label: "Pregnancy", front: "Wonderful News", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'baby-shower': {
-      label: "Baby shower", front: "For Your Baby Shower", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'adoption': {
-      label: "Adoption", front: "Welcome to the Family", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'new-home': {
-      label: "New home", front: "Congratulations on Your New Home", icon: '♡',
-      messages: [
-        ['heartfelt',"May your new home be filled with happiness, comfort and beautiful memories."],
-        ['short',"May your new home be filled with happiness, comfort and beautiful memories."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'housewarming': {
-      label: "Housewarming", front: "Happy New Home", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'new-job': {
-      label: "New job", front: "Congratulations on Your New Job", icon: '♡',
-      messages: [
-        ['heartfelt',"Congratulations on your new job. Wishing you confidence, fulfilment and success."],
-        ['short',"Congratulations on your new job."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'starting-university': {
-      label: "Starting university", front: "A New Adventure Begins", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'welcome-back': {
-      label: "Welcome back", front: "Welcome Back", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'thinking-of-you': {
-      label: "Thinking of you", front: "Thinking of You", icon: '♡',
-      messages: [
-        ['heartfelt',"Just a little reminder that you are cared for and often in my thoughts."],
-        ['short',"Just a little reminder that you are cared for and often in my thoughts."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'sympathy': {
-      label: "Sympathy and bereavement", front: "With Deepest Sympathy", icon: '♡',
-      messages: [
-        ['heartfelt',"Thinking of you with heartfelt sympathy and wishing you comfort in the days ahead."],
-        ['short',"Thinking of you with heartfelt sympathy and wishing you comfort in the days ahead."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'pet-loss': {
-      label: "Pet loss sympathy", front: "Remembering a Beloved Friend", icon: '♡',
-      messages: [
-        ['heartfelt',"Remembering the love, companionship and happy memories your beloved pet brought."],
-        ['short',"Remembering the love, companionship and happy memories your beloved pet brought."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'pregnancy-loss': {
-      label: "Pregnancy loss support", front: "With Love and Care", icon: '♡',
-      messages: [
-        ['heartfelt',"Holding you gently in my thoughts and sending love without expectation or pressure."],
-        ['short',"Holding you gently in my thoughts and sending love without expectation or pressure."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'serious-illness': {
-      label: "Serious illness support", front: "Thinking of You", icon: '♡',
-      messages: [
-        ['heartfelt',"Thinking of you and sending strength, comfort and steady support for each day."],
-        ['short',"Thinking of you and sending strength, comfort and steady support for each day."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'encouragement': {
-      label: "Encouragement", front: "You’ve Got This", icon: '♡',
-      messages: [
-        ['heartfelt',"Keep going. Your courage, effort and progress matter more than you may realise."],
-        ['short',"Keep going."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'difficult-times': {
-      label: "Difficult times", front: "Here for You", icon: '♡',
-      messages: [
-        ['heartfelt',"You do not have to face this alone. I am here for you in whatever way helps."],
-        ['short',"You do not have to face this alone."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'baptism': {
-      label: "Baptism", front: "Blessings on Your Baptism", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'christening': {
-      label: "Christening", front: "Blessings on Your Christening", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'first-communion': {
-      label: "First Holy Communion", front: "First Holy Communion Blessings", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'confirmation': {
-      label: "Confirmation", front: "Confirmation Blessings", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'pastor-appreciation': {
-      label: "Pastor appreciation", front: "With Appreciation", icon: '♡',
-      messages: [
-        ['heartfelt',"Thank you for your faithful service, encouragement and care for others."],
-        ['short',"Thank you for your faithful service, encouragement and care for others."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'church-anniversary': {
-      label: "Church anniversary", front: "Celebrating Our Church", icon: '♡',
-      messages: [
-        ['heartfelt',"Celebrating years of faith, fellowship, service and shared purpose."],
-        ['short',"Celebrating years of faith, fellowship, service and shared purpose."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'new-year': {
-      label: "New Year", front: "Happy New Year", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'eid-fitr': {
-      label: "Eid al-Fitr", front: "Eid Mubarak", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'eid-adha': {
-      label: "Eid al-Adha", front: "Eid Mubarak", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'ramadan': {
-      label: "Ramadan", front: "Ramadan Mubarak", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'diwali': {
-      label: "Diwali", front: "Happy Diwali", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'hanukkah': {
-      label: "Hanukkah", front: "Happy Hanukkah", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'lunar-new-year': {
-      label: "Lunar New Year", front: "Happy Lunar New Year", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'vaisakhi': {
-      label: "Vaisakhi", front: "Happy Vaisakhi", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['short',"Wishing you warmth, happiness and every good thing as you mark this special occasion."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'leaving-farewell': {
-      label: "Leaving and farewell", front: "Wishing You Well", icon: '♡',
-      messages: [
-        ['heartfelt',"Wishing you happiness and success as you begin your next chapter."],
-        ['short',"Wishing you happiness and success as you begin your next chapter."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'teacher-appreciation': {
-      label: "Teacher appreciation", front: "Thank You, Teacher", icon: '♡',
-      messages: [
-        ['heartfelt',"Thank you for your patience, encouragement and the difference you make every day."],
-        ['short',"Thank you for your patience, encouragement and the difference you make every day."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'colleague-appreciation': {
-      label: "Colleague appreciation", front: "With Appreciation", icon: '♡',
-      messages: [
-        ['heartfelt',"Thank you for your support, professionalism and the positive difference you make."],
-        ['short',"Thank you for your support, professionalism and the positive difference you make."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'boss-appreciation': {
-      label: "Boss appreciation", front: "Thank You", icon: '♡',
-      messages: [
-        ['heartfelt',"Thank you for your leadership, support and encouragement."],
-        ['short',"Thank you for your leadership, support and encouragement."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'volunteer-appreciation': {
-      label: "Volunteer appreciation", front: "Thank You for Making a Difference", icon: '♡',
-      messages: [
-        ['heartfelt',"Thank you for giving your time, energy and kindness so generously."],
-        ['short',"Thank you for giving your time, energy and kindness so generously."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
-    'new-job': {
-      label: "New job", front: "Congratulations on Your New Job", icon: '♡',
-      messages: [
-        ['heartfelt',"Congratulations on your new job. Wishing you confidence, fulfilment and success."],
-        ['short',"Congratulations on your new job."],
-        ['formal',"Warm wishes and every good hope for this meaningful occasion."],
-        ['inspirational',"May this moment bring renewed hope, confidence and many good things ahead."]
-      ]
-    },
     'birthday-invitation': {
       label: 'Birthday Invitation', front: 'You’re Invited', icon: '✦',
       messages: [
@@ -708,8 +330,469 @@
         ['formal','With warm thoughts and sincere good wishes.'],
         ['funny','I came, I saw, I took far too many photos.']
       ]
+    },
+    'good-luck': {
+      label: 'Good Luck', front: 'Good Luck', icon: '✦',
+      messages: [
+        ['heartfelt','You have prepared well and you are more ready than you feel. Wishing you every success.'],
+        ['heartfelt','Whatever happens, the effort you have put in already says a great deal about you.'],
+        ['short','Good luck. You have got this.'],
+        ['short','Wishing you the very best of luck.'],
+        ['formal','Wishing you every success in this next undertaking.'],
+        ['inspirational','Trust your preparation, steady your nerves and let your ability speak for itself.']
+      ]
+    },
+    'exam-success': {
+      label: 'Exam Success', front: 'Well Done', icon: '★',
+      messages: [
+        ['heartfelt','Your results reflect months of steady work and genuine determination. Very well done.'],
+        ['heartfelt','Congratulations. You earned this through effort that nobody else could have done for you.'],
+        ['short','Well done on your exam results.'],
+        ['short','Congratulations on a brilliant result.'],
+        ['formal','Congratulations on an excellent set of examination results.'],
+        ['inspirational','This result is proof of what focus and persistence can achieve. On to the next chapter.']
+      ]
+    },
+    'driving-test': {
+      label: 'Driving Test Passed', front: 'Congratulations', icon: '✦',
+      messages: [
+        ['heartfelt','Congratulations on passing. All those lessons and nervous practice runs were worth it.'],
+        ['short','You passed. Congratulations.'],
+        ['short','Well done on passing your driving test.'],
+        ['funny','Congratulations on passing. The roads will never be the same again.'],
+        ['formal','Congratulations on successfully passing your driving test.'],
+        ['inspirational','A new licence and a new freedom. Enjoy every mile of it.']
+      ]
+    },
+    'engagement': {
+      label: 'Engagement', front: 'Congratulations', icon: '♡',
+      messages: [
+        ['heartfelt','Congratulations on your engagement. Wishing you a long and happy life together.'],
+        ['heartfelt','What a joy to see two people so well suited choosing a future together.'],
+        ['short','Congratulations on your engagement.'],
+        ['short','So happy for you both.'],
+        ['romantic','Here is to the love you have found and the life you are about to build.'],
+        ['formal','Warmest congratulations to you both on your engagement.']
+      ]
+    },
+    'friendship': {
+      label: 'Friendship', front: 'Thinking of You', icon: '♥',
+      messages: [
+        ['heartfelt','Thank you for being the kind of friend who shows up, listens and stays.'],
+        ['heartfelt','Friendship like yours is rare and I do not take a moment of it for granted.'],
+        ['short','Just a note to say I am glad we are friends.'],
+        ['short','Thinking of you and grateful for you.'],
+        ['funny','You are the friend who knows too much about me to ever be allowed to leave.'],
+        ['inspirational','Good friendship makes hard days lighter and good days better. Thank you for both.']
+      ]
+    },
+    'sorry-apology': {
+      label: 'Sorry and Apology', front: 'I Am Sorry', icon: '✿',
+      messages: [
+        ['heartfelt','I am truly sorry. I value you and I want to put this right.'],
+        ['heartfelt','I have thought about it properly and I understand why it hurt. I am sorry.'],
+        ['short','I am sorry. Truly.'],
+        ['short','Please accept my sincere apology.'],
+        ['formal','Please accept my sincere apologies for any difficulty this has caused.'],
+        ['inspirational','Getting it wrong matters less than what we choose to do next. I want to do better.']
+      ]
+    },
+    'divorce-new-beginnings': {
+      label: 'Divorce and New Beginnings', front: 'A New Chapter', icon: '✧',
+      messages: [
+        ['heartfelt','This has not been easy and you have handled it with more grace than you know.'],
+        ['heartfelt','A new chapter is still a beginning. I am here for whatever it brings.'],
+        ['short','Thinking of you. Here for you.'],
+        ['short','Here is to a brighter chapter ahead.'],
+        ['inspirational','Endings can be the quiet beginning of something better. Take your time.'],
+        ['formal','Wishing you strength and steadiness in this new chapter.']
+      ]
+    },
+    'pregnancy': {
+      label: 'Pregnancy', front: 'Congratulations', icon: '✧',
+      messages: [
+        ['heartfelt','What wonderful news. Wishing you a healthy, happy pregnancy.'],
+        ['heartfelt','Congratulations. What an exciting time this must be for you both.'],
+        ['short','Congratulations on your lovely news.'],
+        ['short','So happy for you both.'],
+        ['formal','Warmest congratulations on your happy news.'],
+        ['religious','May God bless you with a safe and healthy pregnancy and a joyful arrival.']
+      ]
+    },
+    'baby-shower': {
+      label: 'Baby Shower', front: 'Welcome, Little One', icon: '✧',
+      messages: [
+        ['heartfelt','Wishing you every joy as you prepare to welcome your little one.'],
+        ['short','Congratulations. Enjoy every moment.'],
+        ['short','So excited for you both.'],
+        ['funny','Enjoy the sleep while you still can. Congratulations.'],
+        ['formal','Warmest wishes as you prepare to welcome your baby.'],
+        ['religious','May your little one be blessed with health, joy and a loving home.']
+      ]
+    },
+    'adoption': {
+      label: 'Adoption', front: 'Welcome Home', icon: '♡',
+      messages: [
+        ['heartfelt','Congratulations. A family is built by love and you have built a wonderful one.'],
+        ['heartfelt','What a beautiful thing, to open your home and your heart this way.'],
+        ['short','Congratulations on your new arrival.'],
+        ['short','Welcome home, little one.'],
+        ['religious','May God bless your growing family with love, patience and joy.'],
+        ['inspirational','Family is chosen as much as it is given. Congratulations on choosing so well.']
+      ]
+    },
+    'new-home': {
+      label: 'New Home', front: 'Happy New Home', icon: '⌂',
+      messages: [
+        ['heartfelt','Wishing you every happiness in the home you will fill with memories.'],
+        ['short','Congratulations on your new home.'],
+        ['short','Happy new home.'],
+        ['funny','Congratulations on the new home and the many trips to the hardware shop ahead.'],
+        ['formal','Warmest congratulations on your new home.'],
+        ['religious','May your new home be blessed with peace, warmth and happiness.']
+      ]
+    },
+    'housewarming': {
+      label: 'Housewarming', front: 'Happy Housewarming', icon: '⌂',
+      messages: [
+        ['heartfelt','May this house be filled with laughter, good food and better company.'],
+        ['short','Happy housewarming.'],
+        ['short','Congratulations on the new place.'],
+        ['funny','A new home means new rooms in which to lose things. Congratulations.'],
+        ['formal','Warmest wishes on your new home.'],
+        ['religious','May peace and blessing rest on this home and everyone within it.']
+      ]
+    },
+    'new-job': {
+      label: 'New Job', front: 'Congratulations', icon: '↑',
+      messages: [
+        ['heartfelt','Congratulations. They are fortunate to have someone with your ability joining them.'],
+        ['heartfelt','A well-deserved step forward. Wishing you every success in the new role.'],
+        ['short','Congratulations on the new job.'],
+        ['short','Good luck in the new role.'],
+        ['formal','Congratulations on your appointment and best wishes for continued success.'],
+        ['inspirational','New rooms, new people, same capable you. Go and do well.']
+      ]
+    },
+    'starting-university': {
+      label: 'Starting University', front: 'Good Luck', icon: '✦',
+      messages: [
+        ['heartfelt','Wishing you a wonderful start, good friends and plenty of good memories.'],
+        ['short','Good luck at university.'],
+        ['short','Enjoy every moment of it.'],
+        ['funny','Study hard, sleep occasionally and learn to cook at least two meals.'],
+        ['formal','Best wishes as you begin your university studies.'],
+        ['inspirational','New city, new ideas, new version of you. Make the most of all three.']
+      ]
+    },
+    'welcome-back': {
+      label: 'Welcome Back', front: 'Welcome Back', icon: '✦',
+      messages: [
+        ['heartfelt','It is genuinely good to have you back. You were missed.'],
+        ['short','Welcome back.'],
+        ['short','Good to have you back with us.'],
+        ['formal','Welcome back. We are glad to have you with us again.'],
+        ['funny','Welcome back. Your chair has been guarded fiercely in your absence.'],
+        ['inspirational','Whatever took you away, it is good to see you return stronger.']
+      ]
+    },
+    'thinking-of-you': {
+      label: 'Thinking of You', front: 'Thinking of You', icon: '✿',
+      messages: [
+        ['heartfelt','Just a note to say you are in my thoughts and I am here if you need anything.'],
+        ['heartfelt','No need to reply. I simply wanted you to know you are being thought of.'],
+        ['short','Thinking of you.'],
+        ['short','You are in my thoughts.'],
+        ['religious','Praying for you and holding you in my thoughts today.'],
+        ['inspirational','On the heavy days, remember that you are not carrying it alone.']
+      ]
+    },
+    'sympathy': {
+      label: 'Sympathy and Bereavement', front: 'With Deepest Sympathy', icon: '✿',
+      messages: [
+        ['heartfelt','I am so sorry for your loss. Please know you are being thought of with great care.'],
+        ['heartfelt','There are no right words. I am simply here, and thinking of you.'],
+        ['short','With deepest sympathy.'],
+        ['short','So very sorry for your loss.'],
+        ['formal','Please accept my sincere condolences on your loss.'],
+        ['religious','May God comfort you and your family and grant you peace in this time.']
+      ]
+    },
+    'pet-loss': {
+      label: 'Pet Loss Sympathy', front: 'With Sympathy', icon: '✿',
+      messages: [
+        ['heartfelt','I am so sorry. They were family, and the loss is real and deep.'],
+        ['heartfelt','What a lucky animal, to have been loved as well as that one was.'],
+        ['short','So sorry for your loss.'],
+        ['short','Thinking of you both.'],
+        ['inspirational','The years of loyalty and comfort they gave do not disappear. They stay with you.'],
+        ['formal','With sincere sympathy on the loss of your companion.']
+      ]
+    },
+    'pregnancy-loss': {
+      label: 'Pregnancy Loss Support', front: 'Thinking of You', icon: '✿',
+      messages: [
+        ['heartfelt','I am so deeply sorry. There is nothing to fix and nothing you need to say.'],
+        ['heartfelt','Thinking of you both, with love, and for as long as you need.'],
+        ['short','Thinking of you both.'],
+        ['short','So very sorry. Here for you.'],
+        ['religious','Praying for comfort, gentleness and peace for you both.'],
+        ['formal','With heartfelt sympathy and warm thoughts for you both.']
+      ]
+    },
+    'serious-illness': {
+      label: 'Serious Illness Support', front: 'Thinking of You', icon: '✿',
+      messages: [
+        ['heartfelt','Thinking of you and sending strength. I am here for whatever helps.'],
+        ['heartfelt','No pressure to respond. Just know that you are cared for and thought of daily.'],
+        ['short','Thinking of you.'],
+        ['short','Sending strength and love.'],
+        ['religious','Praying for comfort, courage and healing for you.'],
+        ['inspirational','One day at a time is not a small thing. It is exactly the right pace.']
+      ]
+    },
+    'encouragement': {
+      label: 'Encouragement', front: 'You Can Do This', icon: '✦',
+      messages: [
+        ['heartfelt','You have come through harder than this before and you will come through again.'],
+        ['heartfelt','Do not measure yourself by your hardest week. You are doing better than you think.'],
+        ['short','You have got this.'],
+        ['short','Cheering you on.'],
+        ['inspirational','Progress is rarely tidy. Keep going anyway.'],
+        ['religious','May God give you strength, patience and peace for what lies ahead.']
+      ]
+    },
+    'difficult-times': {
+      label: 'Difficult Times', front: 'Thinking of You', icon: '✿',
+      messages: [
+        ['heartfelt','Difficult seasons do not last, even when they feel endless. I am here.'],
+        ['heartfelt','You do not have to be strong for anyone right now, least of all me.'],
+        ['short','Here for you, always.'],
+        ['short','Thinking of you.'],
+        ['religious','May you find comfort, strength and peace in this difficult time.'],
+        ['inspirational','Take it one hour at a time if a day feels too long.']
+      ]
+    },
+    'baptism': {
+      label: 'Baptism', front: 'God Bless You', icon: '✝',
+      messages: [
+        ['religious','May God bless you today and always as you begin this journey of faith.'],
+        ['religious','Wishing you every blessing on your baptism and in the years ahead.'],
+        ['heartfelt','What a special day. Wishing you joy and blessing always.'],
+        ['short','God bless you on your baptism.'],
+        ['short','Congratulations on this special day.'],
+        ['formal','Warmest wishes and blessings on the occasion of your baptism.']
+      ]
+    },
+    'christening': {
+      label: 'Christening', front: 'God Bless', icon: '✝',
+      messages: [
+        ['religious','May God watch over this precious child and bless them all their days.'],
+        ['religious','Wishing your family every blessing on this special christening day.'],
+        ['heartfelt','What a beautiful day for a beautiful little one. Congratulations.'],
+        ['short','God bless the little one.'],
+        ['short','Congratulations on the christening.'],
+        ['formal','Warmest wishes and blessings on your child\'s christening.']
+      ]
+    },
+    'first-communion': {
+      label: 'First Holy Communion', front: 'God Bless You', icon: '✝',
+      messages: [
+        ['religious','May this day be the beginning of a lifetime of faith, grace and peace.'],
+        ['religious','God bless you on your First Holy Communion and always.'],
+        ['heartfelt','So proud of you on this very special day.'],
+        ['short','Congratulations on your First Communion.'],
+        ['short','God bless you today.'],
+        ['formal','Warmest wishes on the occasion of your First Holy Communion.']
+      ]
+    },
+    'confirmation': {
+      label: 'Confirmation', front: 'God Bless You', icon: '✝',
+      messages: [
+        ['religious','May the Holy Spirit guide, strengthen and bless you all your life.'],
+        ['religious','God bless you on your Confirmation and in every day that follows.'],
+        ['heartfelt','So proud of you for choosing this path for yourself.'],
+        ['short','Congratulations on your Confirmation.'],
+        ['short','God bless you always.'],
+        ['formal','Warmest wishes and blessings on your Confirmation.']
+      ]
+    },
+    'pastor-appreciation': {
+      label: 'Pastor Appreciation', front: 'Thank You', icon: '✝',
+      messages: [
+        ['religious','Thank you for your faithful service and for shepherding us with such care.'],
+        ['heartfelt','Your teaching and kindness have made a real difference to many. Thank you.'],
+        ['short','Thank you for all you do.'],
+        ['short','With gratitude for your ministry.'],
+        ['formal','With sincere appreciation for your dedicated service and leadership.'],
+        ['inspirational','The quiet work you do shapes more lives than you will ever count.']
+      ]
+    },
+    'church-anniversary': {
+      label: 'Church Anniversary', front: 'Happy Anniversary', icon: '✝',
+      messages: [
+        ['religious','Celebrating God\'s faithfulness through every year of this church\'s life.'],
+        ['heartfelt','Congratulations on years of fellowship, service and community.'],
+        ['short','Happy church anniversary.'],
+        ['short','Celebrating with you.'],
+        ['formal','Warmest congratulations on this milestone anniversary.'],
+        ['inspirational','Years of faithful service, and many more still to come.']
+      ]
+    },
+    'new-year': {
+      label: 'New Year', front: 'Happy New Year', icon: '✦',
+      messages: [
+        ['heartfelt','Wishing you a year of good health, real joy and quiet contentment.'],
+        ['short','Happy New Year.'],
+        ['short','Wishing you a wonderful year ahead.'],
+        ['funny','New year, same you, slightly more optimistic. Happy New Year.'],
+        ['formal','Best wishes for a prosperous and healthy New Year.'],
+        ['religious','May God bless your year with peace, provision and joy.']
+      ]
+    },
+    'eid-al-fitr': {
+      label: 'Eid al-Fitr', front: 'Eid Mubarak', icon: '✧',
+      messages: [
+        ['religious','Eid Mubarak. May your fast be accepted and your home filled with blessing.'],
+        ['heartfelt','Wishing you and your family a joyful and peaceful Eid al-Fitr.'],
+        ['short','Eid Mubarak.'],
+        ['short','Wishing you a blessed Eid.'],
+        ['formal','Warmest wishes to you and your family on Eid al-Fitr.'],
+        ['inspirational','May the discipline of the month carry its peace into the year.']
+      ]
+    },
+    'eid-al-adha': {
+      label: 'Eid al-Adha', front: 'Eid Mubarak', icon: '✧',
+      messages: [
+        ['religious','Eid Mubarak. May your sacrifice and prayers be accepted and richly blessed.'],
+        ['heartfelt','Wishing you and your loved ones a peaceful and joyful Eid al-Adha.'],
+        ['short','Eid Mubarak.'],
+        ['short','Blessed Eid to you and your family.'],
+        ['formal','Warmest wishes on the occasion of Eid al-Adha.'],
+        ['inspirational','May the spirit of generosity in this festival stay with you all year.']
+      ]
+    },
+    'ramadan': {
+      label: 'Ramadan', front: 'Ramadan Mubarak', icon: '✧',
+      messages: [
+        ['religious','Ramadan Mubarak. May your fasting and prayers be accepted and blessed.'],
+        ['heartfelt','Wishing you a peaceful, reflective and blessed month of Ramadan.'],
+        ['short','Ramadan Mubarak.'],
+        ['short','Wishing you a blessed Ramadan.'],
+        ['formal','Warmest wishes for a blessed and peaceful Ramadan.'],
+        ['inspirational','May this month bring stillness, clarity and a generous heart.']
+      ]
+    },
+    'diwali': {
+      label: 'Diwali', front: 'Happy Diwali', icon: '✦',
+      messages: [
+        ['heartfelt','Wishing you and your family a Diwali full of light, joy and prosperity.'],
+        ['short','Happy Diwali.'],
+        ['short','Wishing you a bright and joyful Diwali.'],
+        ['formal','Warmest wishes to you and your family this Diwali.'],
+        ['inspirational','May light overcome darkness in every corner of your year.'],
+        ['religious','May this festival of lights bring blessing, peace and prosperity to your home.']
+      ]
+    },
+    'hanukkah': {
+      label: 'Hanukkah', front: 'Happy Hanukkah', icon: '✧',
+      messages: [
+        ['heartfelt','Wishing you eight nights of light, warmth and good company.'],
+        ['short','Happy Hanukkah.'],
+        ['short','Chag Sameach.'],
+        ['formal','Warmest wishes to you and your family this Hanukkah.'],
+        ['religious','May the lights of Hanukkah bring blessing and peace to your home.'],
+        ['inspirational','A small light, faithfully kept, outlasts a long darkness.']
+      ]
+    },
+    'lunar-new-year': {
+      label: 'Lunar New Year', front: 'Happy Lunar New Year', icon: '✦',
+      messages: [
+        ['heartfelt','Wishing you and your family prosperity, health and happiness in the new year.'],
+        ['short','Happy Lunar New Year.'],
+        ['short','Wishing you good fortune and health.'],
+        ['formal','Warmest wishes for prosperity and good health in the new year.'],
+        ['inspirational','A new year, a fresh page and every reason for hope.'],
+        ['religious','May the new year bring blessing, peace and abundance to your family.']
+      ]
+    },
+    'vaisakhi': {
+      label: 'Vaisakhi', front: 'Happy Vaisakhi', icon: '✦',
+      messages: [
+        ['heartfelt','Wishing you and your family a joyful and blessed Vaisakhi.'],
+        ['short','Happy Vaisakhi.'],
+        ['short','Vaisakhi greetings to you and yours.'],
+        ['formal','Warmest wishes on the occasion of Vaisakhi.'],
+        ['religious','May this Vaisakhi bring blessing, courage and gratitude to your home.'],
+        ['inspirational','A season of harvest and renewal. May yours be plentiful.']
+      ]
+    },
+    'leaving-farewell': {
+      label: 'Leaving and Farewell', front: 'Farewell and Good Luck', icon: '✦',
+      messages: [
+        ['heartfelt','You will be genuinely missed. Wishing you every success in what comes next.'],
+        ['heartfelt','Thank you for everything you brought here. It will not be forgotten.'],
+        ['short','Farewell and good luck.'],
+        ['short','You will be missed.'],
+        ['funny','We would say we will manage without you, but that remains to be tested.'],
+        ['formal','With sincere thanks for your contribution and best wishes for the future.']
+      ]
+    },
+    'teacher-appreciation': {
+      label: 'Teacher Appreciation', front: 'Thank You', icon: '★',
+      messages: [
+        ['heartfelt','Thank you for your patience, encouragement and belief. It made a real difference.'],
+        ['heartfelt','Good teachers are remembered for life. You are one of them.'],
+        ['short','Thank you for everything.'],
+        ['short','With sincere thanks.'],
+        ['formal','With sincere appreciation for your dedication and commitment.'],
+        ['inspirational','You shape more futures than you will ever get to see. Thank you.']
+      ]
+    },
+    'colleague-appreciation': {
+      label: 'Colleague Appreciation', front: 'Thank You', icon: '★',
+      messages: [
+        ['heartfelt','Thank you for your support and steadiness. You make the work better.'],
+        ['short','Thank you for everything.'],
+        ['short','Really appreciate you.'],
+        ['funny','Thank you for being the reason meetings are occasionally bearable.'],
+        ['formal','With sincere appreciation for your professionalism and support.'],
+        ['inspirational','The quiet reliability you bring is noticed more than you think.']
+      ]
+    },
+    'boss-appreciation': {
+      label: 'Boss Appreciation', front: 'Thank You', icon: '★',
+      messages: [
+        ['heartfelt','Thank you for your guidance and for backing the team when it mattered.'],
+        ['short','Thank you for your support.'],
+        ['short','With sincere appreciation.'],
+        ['formal','With sincere thanks for your leadership and continued support.'],
+        ['inspirational','Good leadership is felt long after the day ends. Thank you for yours.'],
+        ['funny','Thank you for the guidance, the patience and the occasional coffee.']
+      ]
+    },
+    'volunteer-appreciation': {
+      label: 'Volunteer Appreciation', front: 'Thank You', icon: '♥',
+      messages: [
+        ['heartfelt','Thank you for giving your time so freely. It has made a real difference.'],
+        ['heartfelt','Volunteers hold things together quietly. Thank you for being one of them.'],
+        ['short','Thank you for all you do.'],
+        ['short','With heartfelt thanks.'],
+        ['formal','With sincere appreciation for your generous and valued contribution.'],
+        ['religious','May God bless you for the kindness and service you give so freely.']
+      ]
     }
   };
+
+  const categories = [
+    { id: 'celebrate', label: 'Celebrate', description: 'Cards for milestones, achievements and moments worth marking.', occasions: ['birthday', 'anniversary', 'congratulations', 'graduation', 'retirement', 'good-luck', 'exam-success', 'driving-test'] },
+    { id: 'love-and-relationships', label: 'Love and relationships', description: 'Cards for love, commitment, friendship and putting things right.', occasions: ['wedding', 'engagement', 'valentine', 'friendship', 'sorry-apology', 'divorce-new-beginnings'] },
+    { id: 'new-beginnings', label: 'New beginnings', description: 'Cards for new arrivals, new homes and new chapters.', occasions: ['new-baby', 'pregnancy', 'baby-shower', 'adoption', 'new-home', 'housewarming', 'new-job', 'job-promotion', 'starting-university', 'welcome-back'] },
+    { id: 'support-and-care', label: 'Support and care', description: 'Cards for illness, loss and the times when words are hard to find.', occasions: ['get-well', 'thinking-of-you', 'sympathy', 'pet-loss', 'pregnancy-loss', 'serious-illness', 'encouragement', 'difficult-times'] },
+    { id: 'family-and-faith', label: 'Family and faith', description: 'Cards for family celebrations and moments of faith.', occasions: ['mothers-day', 'fathers-day', 'child-naming', 'baptism', 'christening', 'first-communion', 'confirmation', 'pastor-appreciation', 'church-anniversary'] },
+    { id: 'seasonal-and-cultural', label: 'Seasonal and cultural', description: 'Cards for festivals and celebrations through the year.', occasions: ['christmas', 'easter', 'new-year', 'eid-al-fitr', 'eid-al-adha', 'ramadan', 'diwali', 'hanukkah', 'lunar-new-year', 'vaisakhi'] },
+    { id: 'work-and-appreciation', label: 'Work and appreciation', description: 'Cards for thanks, farewells and recognition at work.', occasions: ['thanks', 'leaving-farewell', 'teacher-appreciation', 'colleague-appreciation', 'boss-appreciation', 'volunteer-appreciation', 'new-job', 'job-promotion', 'retirement'] }
+  ];
 
   const recipients = [
     'Mum','Dad','Husband','Wife','Partner','Son','Daughter','Sister','Brother',
@@ -737,5 +820,5 @@
     return [...new Set(selected)].slice(0, 6);
   }
 
-  window.CardMessageData = { occasions, recipients, tones, chooseMessages };
+  window.CardMessageData = { occasions, categories, recipients, tones, chooseMessages };
 })();
