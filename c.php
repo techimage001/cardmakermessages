@@ -7,7 +7,7 @@ function clean(string $key, int $limit=180): string {
 }
 $o=clean('o',40); $t=clean('t',30); $ol=clean('ol',60); $r=clean('r',60);
 $h=clean('h',80) ?: 'A personalised card'; $m=clean('m',220); $c=clean('c',100); $s=clean('s',80);
-$rf=clean('rf',24); $rs=clean('rs',12); $v=clean('v',8) ?: '25';
+$rf=clean('rf',24); $rs=clean('rs',12); $v=clean('v',8) ?: '24';
 $params=['o'=>$o,'t'=>$t,'ol'=>$ol,'r'=>$r,'h'=>$h,'m'=>$m,'c'=>$c,'s'=>$s,'rf'=>$rf,'rs'=>$rs,'v'=>$v];
 $query=http_build_query(array_filter($params, fn($x)=>$x!==''));
 $scheme=(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http';
