@@ -256,8 +256,10 @@
 
   function syncControls() {
     document.querySelectorAll('[data-step]').forEach(button => {
-      const active = Number(button.dataset.step) === state.step;
+      const stepNum = Number(button.dataset.step);
+      const active = stepNum === state.step;
       button.classList.toggle('active', active);
+      button.classList.toggle('done', stepNum < state.step);
       button.setAttribute('aria-current', active ? 'step' : 'false');
     });
     document.querySelectorAll('[data-step-panel]').forEach(panel => {
@@ -475,7 +477,7 @@
     const motif = p.motif || renderState.preset;
     if (motif === 'floral') {
       drawLeafSprig(context, x + width * .08, y + height * .1, width * .16, p.accent, -0.4);
-      drawLeafSprig(context, x + width * .9, y + height * .88, width * .18, p.accent, 2.7);
+      drawLeafSprig(context, x + width * .92, y + height * .93, width * .15, p.accent, 2.7);
       context.strokeStyle = hexToRgba(p.accent, .24);
       context.lineWidth = Math.max(3, width * .005);
       context.beginPath(); context.arc(x + width * .08, y + height * .08, width * .17, 0, Math.PI * 2); context.stroke();
@@ -530,7 +532,7 @@
       context.fillStyle = hexToRgba(p.soft, .3); context.beginPath(); context.arc(x + width * .5, y + height * 1.02, width * .65, Math.PI, Math.PI * 2); context.fill();
     } else if (motif === 'botanical') {
       drawLeafSprig(context, x + width * .07, y + height * .15, width * .24, p.ink, -.2);
-      drawLeafSprig(context, x + width * .93, y + height * .83, width * .28, p.ink, 2.9);
+      drawLeafSprig(context, x + width * .94, y + height * .93, width * .22, p.ink, 2.9);
       context.fillStyle = hexToRgba(p.accent, .16); context.fillRect(x + width * .05, y + height * .05, width * .9, height * .9);
       context.fillStyle = p.bg; context.fillRect(x + width * .065, y + height * .065, width * .87, height * .87);
     } else if (motif === 'cute') {
@@ -781,7 +783,7 @@
       }
     } else if (type === 'botanical') {
       drawLeafSprig(context, x + width * .14, y + height * .18, width * .22, p.accent, -.45);
-      drawLeafSprig(context, x + width * .86, y + height * .82, width * .24, p.accent, 2.7);
+      drawLeafSprig(context, x + width * .9, y + height * .93, width * .2, p.accent, 2.7);
     } else if (type === 'confetti') {
       drawConfetti(context, x, y, width, height, p.accent, p.soft);
     } else if (type === 'dove') {
@@ -842,7 +844,7 @@
       context.lineWidth = Math.max(3, width * .004); roundedRect(context,left,top,w,h,width*.018); context.stroke();
       const d=width*.035; [[left,top],[left+w,top],[left,top+h],[left+w,top+h]].forEach(([cx,cy],i)=>{context.save();context.translate(cx,cy);context.rotate((i%2?1:-1)*Math.PI/4);context.strokeRect(-d/2,-d/2,d,d);context.restore();});
     } else if (frame === 'botanical') {
-      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.08,width*.15,p.accent,-.55); drawLeafSprig(context,left+w-width*.02,top+h-height*.07,width*.16,p.accent,2.55);
+      roundedRect(context,left,top,w,h,width*.018); context.stroke(); drawLeafSprig(context,left+width*.03,top+height*.06,width*.14,p.accent,-.55); drawLeafSprig(context,left+w-width*.015,top+h-height*.03,width*.13,p.accent,2.55);
     } else if (frame === 'ribbon') {
       roundedRect(context,left,top,w,h,width*.018); context.stroke(); context.fillStyle=hexToRgba(p.accent,.18); context.fillRect(left, y+height*.12, w, height*.055); context.fillRect(left, y+height*.83, w, height*.055);
     } else if (frame === 'inset') {
@@ -949,10 +951,17 @@
       context.font = `700 ${Math.max(20, width * .03)}px Arial, Helvetica, sans-serif`;
       context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
 
+      if (!folded && renderState.recipientName) {
+        context.fillStyle = p.accent;
+        context.font = `600 ${Math.max(15, width * .036)}px ${family}`;
+        context.fillText(`To ${renderState.recipientName}`, x + width / 2, y + height * (hasPhoto ? .40 : .225), width * .74);
+      }
+
+      const titleY = hasPhoto ? .435 : (renderState.recipientName ? .285 : .245);
       let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
-        x: x + pad, y: y + height * (hasPhoto ? .405 : .245), width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
+        x: x + pad, y: y + height * titleY, width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
       }, {
         colour: p.ink, family, startSize: width * .085, minSize: width * .038,
         weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
@@ -962,26 +971,27 @@
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
       drawTextBlock(context, frontCopy, {
-        x: x + pad * 1.05, y: y + height * (hasPhoto ? .555 : .43), width: width - pad * 2.1, height: height * (hasPhoto ? .18 : .22)
+        x: x + pad * 1.05, y: y + height * (hasPhoto ? .58 : (renderState.recipientName ? .47 : .43)), width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .2)
       }, {
         colour: p.ink, family, startSize: width * .042, minSize: width * .025,
         weight: 500, lineHeight: 1.32, maxLines: 6
       });
 
-      const lower = folded ? '' : [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
-      if (lower) {
-        drawTextBlock(context, lower, {
-          x: x + pad, y: y + height * (hasPhoto ? .78 : .70), width: width - pad * 2, height: height * (hasPhoto ? .13 : .15)
-        }, {
-          colour: (p.motif || renderState.preset) === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .032, minSize: width * .022,
-          weight: 600, lineHeight: 1.3, maxLines: 3
-        });
-      }
       if (renderState.textStyle === 'underline') {
         context.strokeStyle = p.accent; context.lineWidth = Math.max(3, width * .004);
         context.beginPath(); context.moveTo(x + width * .31, y + height * .64); context.lineTo(x + width * .69, y + height * .64); context.stroke();
       }
       drawLittleAccent(context, x, y, width, height, renderState, p);
+
+      const signoff = folded ? '' : [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
+      if (signoff) {
+        drawTextBlock(context, signoff, {
+          x: x + pad, y: y + height * (hasPhoto ? .80 : .74), width: width - pad * 2, height: height * (hasPhoto ? .11 : .13)
+        }, {
+          colour: (p.motif || renderState.preset) === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .026, minSize: width * .019,
+          weight: 500, lineHeight: 1.28, maxLines: 3
+        });
+      }
     } else if (panel === 'inside-left') {
       if (renderState.insideLeftMode === 'photo' && photoImage) {
         const margin = width * .1;
@@ -1023,7 +1033,7 @@
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038}px ${family}`;
       if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
-      if (renderState.showWebsite) {
+      if (renderState.showWebsite && renderState.outputMode !== 'folded') {
         context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
         context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
       }
@@ -1167,10 +1177,56 @@
     return true;
   }
 
+  function cloudinaryConfig() {
+    const cloud = document.documentElement.dataset.cloudinaryCloud;
+    const preset = document.documentElement.dataset.cloudinaryPreset;
+    return cloud && preset ? { cloud, preset } : null;
+  }
+
+  async function sharePhotoWebCard() {
+    const cfg = cloudinaryConfig();
+    if (!cfg) return false;
+    const consent = window.confirm('Create a shareable link that includes your card image?\n\nThe finished card, including your photo, will be uploaded so the recipient sees a preview. You are responsible for the content you create. The link expires automatically. Continue?');
+    if (!consent) return true;
+    announce('Preparing your shareable card link.');
+    try {
+      const blob = await canvasBlob('image/jpeg');
+      const form = new FormData();
+      form.append('file', blob);
+      form.append('upload_preset', cfg.preset);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cfg.cloud}/image/upload`, { method: 'POST', body: form });
+      if (!res.ok) throw new Error('upload failed');
+      const data = await res.json();
+      if (!data.secure_url) throw new Error('no url');
+      const base = document.documentElement.dataset.siteDomain ? `https://${document.documentElement.dataset.siteDomain}` : location.origin;
+      const url = new URL('/c.php', base);
+      url.searchParams.set('o', state.occasion);
+      url.searchParams.set('t', state.preset);
+      const headline = (state.occasion === 'custom' && state.customOccasion.trim()) ? state.customOccasion.trim() : (DATA.occasions[state.occasion]?.front || state.occasionLabel || '');
+      if (headline) url.searchParams.set('h', headline.slice(0, 60));
+      if (state.coverMessage) url.searchParams.set('m', state.coverMessage.slice(0, 180));
+      url.searchParams.set('img', data.secure_url);
+      const link = url.toString();
+      const text = `${state.occasionLabel} card. View it here: ${link}`;
+      if (navigator.share) {
+        try { await navigator.share({ title: `${state.occasionLabel} card`, text }); announce('Card link shared with your photo preview.'); return true; } catch (err) { if (err && err.name === 'AbortError') return true; }
+      }
+      try { await navigator.clipboard.writeText(link); announce('Shareable card link copied. Paste it into any chat to send the photo preview.'); } catch (_) { announce('Shareable link ready: ' + link); }
+      return true;
+    } catch (_) {
+      announce('The shareable link could not be created. Sharing the image directly instead.');
+      return false;
+    }
+  }
+
   async function shareImage() {
     if (!state.photoData) {
       await shareWebCard();
       return;
+    }
+    if (cloudinaryConfig()) {
+      const done = await sharePhotoWebCard();
+      if (done) return;
     }
     const blob = await canvasBlob('image/png');
     const file = new File([blob], filename('png'), { type: 'image/png' });
@@ -1526,7 +1582,7 @@
 
   function hideStageGuard() {
     const prompt = document.getElementById('stageGuardPrompt');
-    if (prompt) prompt.hidden = true;
+    if (prompt) { prompt.hidden = true; prompt.classList.remove('stage-guard-pinned'); }
   }
 
   function showStageGuard(title, message, actionLabel, destinationStep) {
@@ -1540,8 +1596,10 @@
     action.textContent = actionLabel;
     action.dataset.destinationStep = String(destinationStep);
     prompt.hidden = false;
+    const pinned = window.matchMedia('(max-width: 900px)').matches;
+    prompt.classList.toggle('stage-guard-pinned', pinned);
     window.requestAnimationFrame(() => {
-      prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!pinned) prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
       action.focus({ preventScroll: true });
     });
   }
@@ -1639,6 +1697,7 @@ Create your own card: ${cleanUrl}`);
     document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
     document.querySelectorAll('[data-jump-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.jumpStep))));
     document.getElementById('stageGuardAction')?.addEventListener('click', () => goToStep(Number(document.getElementById('stageGuardAction')?.dataset.destinationStep || 1)));
+    document.getElementById('stageGuardClose')?.addEventListener('click', hideStageGuard);
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };

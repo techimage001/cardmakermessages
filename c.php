@@ -29,14 +29,25 @@ $o = cmm_clean($_GET['o'] ?? 'custom', 40);
 $t = cmm_clean($_GET['t'] ?? 'floral', 40);
 $h = cmm_clean($_GET['h'] ?? '', 60);
 $m = cmm_clean($_GET['m'] ?? '', 180);
+$img = isset($_GET['img']) ? trim((string) $_GET['img']) : '';
 
 $occasionLabel = $OCCASION_LABELS[$o] ?? 'Special Occasion';
 if ($h === '') $h = $occasionLabel . ' card';
 
 $site = 'https://cardmakermessages.com';
 $query = http_build_query(array_filter(['o' => $o, 't' => $t, 'h' => $h, 'm' => $m], static fn($v) => $v !== ''));
-$ogImage = $site . '/api/og.php?' . $query;
-$shareUrl = $site . '/c.php?' . $query;
+
+$allowedImgHosts = ['res.cloudinary.com'];
+$hostedImage = '';
+if ($img !== '' && filter_var($img, FILTER_VALIDATE_URL)) {
+    $parts = parse_url($img);
+    if (($parts['scheme'] ?? '') === 'https' && in_array($parts['host'] ?? '', $allowedImgHosts, true)) {
+        $hostedImage = $img;
+    }
+}
+
+$ogImage = $hostedImage !== '' ? $hostedImage : ($site . '/api/og.php?' . $query);
+$shareUrl = $site . '/c.php?' . ($hostedImage !== '' ? $query . '&img=' . rawurlencode($hostedImage) : $query);
 $makeUrl = $site . '/app.html?occasion=' . rawurlencode($o);
 
 $title = $h . ' | Card Maker Messages';
@@ -67,7 +78,7 @@ $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
 <meta name="twitter:image" content="<?= $e($ogImage) ?>">
 <meta name="theme-color" content="#6d2942">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="stylesheet" href="/assets/site.css?v=20">
+<link rel="stylesheet" href="/assets/site.css?v=21">
 <style>
 .shared-wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; text-align: center; }
 .shared-preview { margin: 24px auto 28px; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.22); max-width: 480px; }
@@ -84,7 +95,7 @@ $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
   <div class="shared-preview"><img src="<?= $e($ogImage) ?>" alt="<?= $e($h) ?> preview" width="1200" height="630"></div>
   <?php if ($m !== ''): ?><p style="max-width:520px;margin:0 auto 24px;font-size:1.05rem;color:#4a2837;"><?= $e($m) ?></p><?php endif; ?>
   <a class="shared-cta" href="<?= $e($makeUrl) ?>">Make your own free card</a>
-  <p class="shared-note">This preview shows the card design and message. It does not include any personal photo, which stays private on the sender's device.</p>
+  <p class="shared-note"><?= $hostedImage !== '' ? 'This shared card was created with Card Maker Messages. Report a card at hello@cardmakermessages.com.' : 'This preview shows the card design and message. It does not include any personal photo, which stays private on the sender\'s device.' ?></p>
 </main>
 </body>
 </html>
