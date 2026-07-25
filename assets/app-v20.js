@@ -64,7 +64,7 @@
     step: 1,
     creationType: 'card',
     occasion: 'birthday',
-    occasionLabel: 'Birthday Wishes',
+    occasionLabel: 'Birthday',
     customOccasion: '',
     recipient: 'Friend',
     tone: 'heartfelt',
@@ -104,7 +104,7 @@
     printPaper: 'A4',
     printQuality: 'home',
     showFoldMarks: true,
-    showWebsite: false,
+    showWebsite: true,
     reviewed: false,
     savedAt: 0,
     sizeSelected: false,
@@ -162,7 +162,7 @@
     else if (legacySizeMap[size]) { patch.size = legacySizeMap[size]; patch.sizeSelected = true; }
     if (occasion && DATA.occasions[occasion]) {
       patch.occasion = occasion;
-      patch.occasionLabel = defaultOccasionLabel(occasion);
+      patch.occasionLabel = DATA.occasions[occasion].label;
       patch.coverMessage = defaultCover(occasion);
       patch.frontMessage = defaultFrontMessage(occasion);
       patch.frontHeading = DATA.occasions[occasion].front || DATA.occasions[occasion].label;
@@ -171,19 +171,6 @@
     if (recipient) patch.recipient = recipient;
     if (message) patch.mainMessage = message;
     if (Object.keys(patch).length) state = { ...state, ...patch };
-  }
-
-  function defaultOccasionLabel(occasion) {
-    const labels = {
-      birthday: 'Birthday Wishes', christmas: 'Christmas Wishes', wedding: 'Wedding Wishes', anniversary: 'Anniversary Wishes',
-      easter: 'Easter Wishes', thanks: 'With Thanks', congratulations: 'Congratulations', 'new-baby': 'New Baby Wishes',
-      retirement: 'Retirement Wishes', 'get-well': 'Get Well Wishes', valentine: 'Valentine’s Wishes', graduation: 'Graduation Wishes',
-      'mothers-day': 'Mother’s Day Wishes', 'fathers-day': 'Father’s Day Wishes', 'child-naming': 'Naming Ceremony Wishes',
-      'job-promotion': 'Promotion Wishes', custom: 'Special Occasion', 'birthday-invitation': 'You’re Invited',
-      'party-invitation': 'You’re Invited', 'wedding-invitation': 'Wedding Invitation', 'christmas-invitation': 'Christmas Invitation',
-      postcard: 'A Note For You'
-    };
-    return labels[occasion] || DATA.occasions[occasion]?.label || 'Special Occasion';
   }
 
   function defaultCover(occasion) {
@@ -382,7 +369,6 @@
     if (downloadWorkspace) downloadWorkspace.hidden = !state.reviewed;
     const inputs = {
       recipientSelect: state.recipient,
-      occasionLabel: state.occasionLabel,
       customOccasion: state.customOccasion,
       recipientName: state.recipientName,
       senderName: state.senderName,
@@ -433,8 +419,12 @@
       if (button.dataset.panel !== 'front') button.hidden = !foldedPanelsAvailable;
     });
     if (!foldedPanelsAvailable && state.activePanel !== 'front') state.activePanel = 'front';
+    const website = document.getElementById('showWebsite');
     const marks = document.getElementById('showFoldMarks');
+    if (website) website.checked = state.showWebsite;
     if (marks) marks.checked = state.showFoldMarks;
+    const selectedOccasion = DATA.occasions[state.occasion];
+    state.occasionLabel = state.occasion === 'custom' && state.customOccasion.trim() ? state.customOccasion.trim() : (selectedOccasion?.label || state.occasionLabel);
     const format = selectedFormat();
     const reviewButton = document.getElementById('reviewCard');
     const downloadSummary = document.getElementById('downloadSummary');
@@ -957,62 +947,45 @@
     } else if (panel === 'front') {
       const digital = renderState.outputMode === 'digital' && !folded;
       const hasPhoto = drawPhotoTopArea(context, x, y, width, height, renderState, p);
-      // Decorative accents are painted before all wording so they can never cover names or the sign-off.
-      drawLittleAccent(context, x, y, width, height, renderState, p);
-
-      const labelY = hasPhoto ? .355 : .145;
-      const dedicationY = hasPhoto ? .405 : .205;
-      const titleY = hasPhoto ? .445 : .275;
-      const copyY = hasPhoto ? .585 : .465;
-
       context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      context.font = `700 ${Math.max(18, width * .027)}px Arial, Helvetica, sans-serif`;
-      context.fillText((renderState.occasionLabel || defaultOccasionLabel(renderState.occasion)).toUpperCase(), x + width / 2, y + height * labelY, width * .76);
-
-      // Single cards use a prominent dedication directly beneath the occasion label.
-      if (!folded && renderState.recipientName.trim()) {
-        context.fillStyle = p.accent;
-        context.font = `600 ${Math.max(22, width * .039)}px ${family}`;
-        context.fillText(`To ${renderState.recipientName.trim()}`, x + width / 2, y + height * dedicationY, width * .74);
-      }
+      context.font = `700 ${Math.max(20, width * .03)}px Arial, Helvetica, sans-serif`;
+      context.fillText((renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.label || renderState.occasionLabel || 'Special Occasion')).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .365 : .18), width * .76);
 
       let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
       drawTextBlock(context, title, {
-        x: x + pad, y: y + height * (titleY + (!folded && !renderState.recipientName.trim() ? -.025 : 0)), width: width - pad * 2, height: height * (hasPhoto ? .135 : .16)
+        x: x + pad, y: y + height * (hasPhoto ? .405 : .245), width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
       }, {
-        colour: p.ink, family, startSize: width * .082, minSize: width * .037,
-        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.12, maxLines: 3
+        colour: p.ink, family, startSize: width * .085, minSize: width * .038,
+        weight: renderState.font === 'handwritten' ? 500 : 700, lineHeight: 1.14, maxLines: 3
       });
+
 
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
       drawTextBlock(context, frontCopy, {
-        x: x + pad * 1.05, y: y + height * copyY, width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .20)
+        x: x + pad * 1.05, y: y + height * (hasPhoto ? .555 : .43), width: width - pad * 2.1, height: height * (hasPhoto ? .18 : .22)
       }, {
-        colour: p.ink, family, startSize: width * .041, minSize: width * .024,
-        weight: 500, lineHeight: 1.3, maxLines: 6
+        colour: p.ink, family, startSize: width * .042, minSize: width * .025,
+        weight: 500, lineHeight: 1.32, maxLines: 6
       });
 
-      // Reserve the bottom band for a quiet sign-off. Decorations remain behind it and outside the text hierarchy.
-      if (!folded && (renderState.coverMessage || renderState.senderName)) {
-        if (renderState.coverMessage) {
-          drawTextBlock(context, renderState.coverMessage, {
-            x: x + width * .2, y: y + height * (hasPhoto ? .78 : .735), width: width * .6, height: height * .055
-          }, { colour: p.ink, family, startSize: width * .026, minSize: width * .019, weight: 500, lineHeight: 1.2, maxLines: 2 });
-        }
-        if (renderState.senderName) {
-          drawTextBlock(context, renderState.senderName, {
-            x: x + width * .22, y: y + height * (hasPhoto ? .845 : .805), width: width * .56, height: height * .05
-          }, { colour: p.ink, family, startSize: width * .023, minSize: width * .017, weight: 400, lineHeight: 1.18, maxLines: 2 });
-        }
+      const lower = folded ? '' : [renderState.coverMessage, renderState.senderName].filter(Boolean).join('\n');
+      if (lower) {
+        drawTextBlock(context, lower, {
+          x: x + pad, y: y + height * (hasPhoto ? .78 : .70), width: width - pad * 2, height: height * (hasPhoto ? .13 : .15)
+        }, {
+          colour: (p.motif || renderState.preset) === 'photo' ? '#ffffff' : p.ink, family, startSize: width * .032, minSize: width * .022,
+          weight: 600, lineHeight: 1.3, maxLines: 3
+        });
       }
       if (renderState.textStyle === 'underline') {
         context.strokeStyle = p.accent; context.lineWidth = Math.max(3, width * .004);
         context.beginPath(); context.moveTo(x + width * .31, y + height * .64); context.lineTo(x + width * .69, y + height * .64); context.stroke();
       }
+      drawLittleAccent(context, x, y, width, height, renderState, p);
     } else if (panel === 'inside-left') {
       if (renderState.insideLeftMode === 'photo' && photoImage) {
         const margin = width * .1;
@@ -1048,12 +1021,16 @@
       if (closing) {
         drawTextBlock(context, closing, {
           x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * .14
-        }, { colour: p.ink, family, startSize: width * .032, minSize: width * .022, weight: 400, lineHeight: 1.35, maxLines: 3, align: 'left' });
+        }, { colour: p.ink, family, startSize: width * .038, minSize: width * .026, weight: 600, lineHeight: 1.35, maxLines: 3, align: 'left' });
       }
     } else if (panel === 'back') {
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038}px ${family}`;
       if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
+      if (renderState.showWebsite) {
+        context.fillStyle = hexToRgba(p.ink, .65); context.font = `500 ${width * .025}px Arial, Helvetica, sans-serif`;
+        context.fillText(document.documentElement.dataset.siteDomain || location.hostname, x + width / 2, y + height * .9, width * .75);
+      }
     }
 
     context.restore();
@@ -1168,6 +1145,31 @@
 
   function shareMessage() {
     return `${shareCaption()}\n${shareWebsiteUrl()}`;
+  }
+
+  async function copyShareMessage(silent = false) {
+    const text = shareMessage();
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand('copy');
+        field.remove();
+        if (!copied) throw new Error('Copy command was not accepted.');
+      }
+      if (!silent) announce('The backup website message was copied.');
+      return true;
+    } catch (_) {
+      if (!silent) announce('Your browser could not copy automatically. Select the message shown below the buttons and copy it manually.');
+      return false;
+    }
   }
 
   const shareButtonLabels = {
@@ -1320,8 +1322,11 @@
   }
 
   async function runShareFallback(fallback) {
+    const copied = await copyShareMessage(true);
     await fallback();
-    announce('The card was downloaded. Share it from your device.');
+    announce(copied
+      ? 'The card was downloaded and the website message was copied. Attach the card, then paste the copied message.'
+      : 'The card was downloaded. Attach it and add cardmakermessages.com to your message.');
     return false;
   }
 
@@ -1818,14 +1823,13 @@ Create your own card: ${cleanUrl}`);
     document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.step))));
     document.querySelectorAll('[data-jump-step]').forEach(button => button.addEventListener('click', () => goToStep(Number(button.dataset.jumpStep))));
     document.getElementById('stageGuardAction')?.addEventListener('click', () => goToStep(Number(document.getElementById('stageGuardAction')?.dataset.destinationStep || 1)));
-    document.querySelector('[data-guard-close]')?.addEventListener('click', hideStageGuard);
     document.querySelectorAll('[data-creation-type]').forEach(button => button.addEventListener('click', () => {
       const creationType = button.dataset.creationType;
       const defaults = { card: 'birthday', invitation: 'birthday-invitation', postcard: 'postcard' };
       const occasion = defaults[creationType];
       state.creationType = creationType;
       state.occasion = occasion;
-      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Special Occasion') : defaultOccasionLabel(occasion);
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
       state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || DATA.occasions[occasion]?.label || 'For You';
@@ -1839,7 +1843,7 @@ Create your own card: ${cleanUrl}`);
       const occasion = button.dataset.occasion;
       state.creationType = button.dataset.kind || state.creationType;
       state.occasion = occasion;
-      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Special Occasion') : defaultOccasionLabel(occasion);
+      state.occasionLabel = occasion === 'custom' ? (state.customOccasion.trim() || 'Custom Occasion') : DATA.occasions[occasion].label;
       state.coverMessage = defaultCover(occasion);
       state.frontMessage = defaultFrontMessage(occasion);
       state.frontHeading = DATA.occasions[occasion]?.front || (occasion === 'custom' ? 'For Your Special Occasion' : DATA.occasions[occasion]?.label) || 'For You';
@@ -1869,7 +1873,7 @@ Create your own card: ${cleanUrl}`);
     }));
 
     const bindings = {
-      recipientSelect: 'recipient', occasionLabel: 'occasionLabel', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
+      recipientSelect: 'recipient', customOccasion: 'customOccasion', recipientName: 'recipientName', senderName: 'senderName',
       eventTitle: 'eventTitle', eventDate: 'eventDate', eventTime: 'eventTime', eventVenue: 'eventVenue', eventRsvp: 'eventRsvp', eventHost: 'eventHost',
       mainMessage: 'mainMessage', frontHeading: 'frontHeading', frontMessage: 'frontMessage', coverMessage: 'coverMessage', backMessage: 'backMessage', insideLeftText: 'insideLeftText',
       backgroundPicker: 'background', textColourPicker: 'textColour'
@@ -1878,7 +1882,7 @@ Create your own card: ${cleanUrl}`);
       document.getElementById(id)?.addEventListener('input', event => {
         const patch = { [key]: event.target.value };
         if (key === 'customOccasion') {
-          patch.occasionLabel = event.target.value.trim() || 'Special Occasion';
+          patch.occasionLabel = event.target.value.trim() || 'Custom Occasion';
           patch.coverMessage = event.target.value.trim() ? `Celebrating ${event.target.value.trim()}` : 'Made especially for this occasion';
           patch.frontMessage = event.target.value.trim() ? `A special message for ${event.target.value.trim()}.` : defaultFrontMessage('custom');
           patch.frontHeading = event.target.value.trim() || 'For Your Special Occasion';
@@ -1996,6 +2000,7 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('downloadFoldedInsidePng')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/png')).catch(handleError));
     document.getElementById('downloadFoldedOutsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('outside', 'image/jpeg')).catch(handleError));
     document.getElementById('downloadFoldedInsideJpeg')?.addEventListener('click', () => withUsageGate(() => downloadFoldedSheet('inside', 'image/jpeg')).catch(handleError));
+    document.querySelectorAll('[data-copy-share-message]').forEach(button => button.addEventListener('click', () => copyShareMessage().catch(handleError)));
     document.getElementById('shareLink')?.addEventListener('click', () => shareLink().catch(handleError));
     document.getElementById('copyImage')?.addEventListener('click', () => copyImage().catch(handleError));
     document.getElementById('copyMessage')?.addEventListener('click', () => copyMessage().catch(handleError));
@@ -2022,6 +2027,7 @@ Create your own card: ${cleanUrl}`);
     document.getElementById('reviewContinueHint')?.addEventListener('click', openReview);
     document.getElementById('continueFromReview')?.addEventListener('click', () => { updateState({ reviewed: true, step: 5 }); closeReview(); window.setTimeout(scrollToWorkspace, 60); });
     document.getElementById('reviewModal')?.addEventListener('click', event => { if (event.target.id === 'reviewModal') closeReview(); });
+    document.getElementById('showWebsite')?.addEventListener('change', event => updateState({ showWebsite: event.target.checked }));
     document.getElementById('showFoldMarks')?.addEventListener('change', event => updateState({ showFoldMarks: event.target.checked }));
   }
 
