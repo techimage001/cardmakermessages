@@ -1466,3 +1466,23 @@ textarea { min-height:118px; }
   .type-controls { grid-template-columns:1fr 1fr; }
 }
 @media (max-width:430px) { .type-controls { grid-template-columns:1fr; } }
+
+
+/* GPTV26 compact occasion selector and approved message editor */
+.occasion-selector-card{border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:8px;background:var(--surface)}
+.occasion-selector-card h4{margin:0 0 12px;font-family:var(--font-display);font-size:1.15rem}
+.occasion-selector-grid{display:grid;grid-template-columns:1fr 1fr 1.45fr;gap:10px}
+.occasion-selector-grid label{display:grid;gap:6px;margin:0}
+.occasion-selector-grid label>span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.occasion-selector-grid select,.occasion-selector-grid input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:12px;padding:.65rem .75rem;background:var(--surface);color:var(--ink);font:inherit}
+.popular-occasions{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:10px;padding:9px 11px;border:1px solid #e9cf86;border-radius:10px;background:#fff9e7;font-size:.78rem;color:#5d4422}
+.popular-occasions button{border:0;background:transparent;padding:0;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.occasion-button-bank{display:none!important}
+.message-field-grid .field{display:grid;grid-template-columns:minmax(120px,.75fr) minmax(220px,1.55fr) minmax(210px,1fr);column-gap:12px;align-items:start}
+.message-field-grid .field>label:first-child{grid-column:1;align-self:center;margin-top:9px}
+.message-field-grid .field>input,.message-field-grid .field>textarea,.message-field-grid .field>select{grid-column:2}
+.message-field-grid .field>.field-note{grid-column:2}
+.message-field-grid .type-controls{grid-column:3;grid-row:1/4;display:grid;grid-template-columns:1fr .82fr;gap:8px;margin:0}
+.message-field-grid .type-controls label{display:grid;gap:5px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--muted)}
+.message-field-grid .type-controls select{min-width:0;width:100%;min-height:42px}
+@media(max-width:760px){.occasion-selector-grid{grid-template-columns:1fr}.message-field-grid .field{grid-template-columns:1fr}.message-field-grid .field>label:first-child,.message-field-grid .field>input,.message-field-grid .field>textarea,.message-field-grid .field>select,.message-field-grid .field>.field-note,.message-field-grid .type-controls{grid-column:1;grid-row:auto}.message-field-grid .type-controls{grid-template-columns:1fr 1fr;margin-top:8px}}

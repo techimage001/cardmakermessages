@@ -90,14 +90,14 @@
     textColour: '',
     font: 'serif',
     typography: {
-      occasionLabel: { font: 'montserrat', size: 'medium' },
-      recipientName: { font: 'allura', size: 'large' },
+      occasionLabel: { font: 'montserrat', size: 'large' },
+      recipientName: { font: 'allura', size: 'xlarge' },
       frontHeading: { font: 'playfair', size: 'large' },
-      frontMessage: { font: 'cormorant', size: 'medium' },
-      mainMessage: { font: 'cormorant', size: 'medium' },
+      frontMessage: { font: 'cormorant', size: 'large' },
+      mainMessage: { font: 'cormorant', size: 'large' },
       coverMessage: { font: 'cormorant', size: 'small' },
       senderName: { font: 'allura', size: 'medium' },
-      backMessage: { font: 'cormorant', size: 'medium' }
+      backMessage: { font: 'cormorant', size: 'large' }
     },
     frame: 'classic',
     illustration: 'none',
@@ -301,6 +301,7 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    if (window.syncOccasionPicker) window.syncOccasionPicker();
     document.querySelectorAll('[data-tone]').forEach(button => {
       const active = button.dataset.tone === state.tone;
       button.classList.toggle('active', active);
@@ -1206,7 +1207,7 @@
       m: state.frontMessage, c: state.coverMessage, s: state.senderName,
       rf: state.typography?.recipientName?.font || 'allura',
       rs: state.typography?.recipientName?.size || 'large',
-      v: '23'
+      v: '26'
     };
     Object.entries(params).forEach(([key, value]) => {
       const clean = String(value || '').trim();
@@ -1232,9 +1233,9 @@ ${shareCardUrl()}`;
       await navigator.share(data);
       announce('The card link was shared with its preview.');
     } else {
-      await navigator.clipboard.writeText(`${shareCaption()}
-${link}`);
-      announce('Card link copied. Paste it into WhatsApp to show the preview.');
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareCaption()}\n${link}`)}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      announce('WhatsApp opened with the card preview link ready to send.');
     }
     return true;
   }
@@ -1877,6 +1878,54 @@ ${link}`);
     update();
   }
 
+  const occasionCategories = {"celebrate": [["birthday", "Birthday"], ["anniversary", "Anniversary"], ["congratulations", "Congratulations"], ["graduation", "Graduation"], ["retirement", "Retirement"], ["good-luck", "Good luck"], ["exam-success", "Exam success"], ["driving-test-passed", "Driving test passed"]], "love": [["wedding", "Wedding"], ["engagement", "Engagement"], ["valentine", "Valentine’s Day"], ["friendship", "Friendship"], ["sorry-apology", "Sorry and apology"], ["divorce-new-beginnings", "Divorce, breakup and new beginnings"]], "new-beginnings": [["new-baby", "New baby"], ["pregnancy", "Pregnancy"], ["baby-shower", "Baby shower"], ["adoption", "Adoption"], ["new-home", "New home"], ["housewarming", "Housewarming"], ["new-job", "New job"], ["job-promotion", "Job promotion"], ["starting-university", "Starting university"], ["welcome-back", "Welcome back"]], "support": [["get-well", "Get well"], ["thinking-of-you", "Thinking of you"], ["sympathy", "Sympathy and bereavement"], ["pet-loss", "Pet loss sympathy"], ["pregnancy-loss", "Pregnancy loss support"], ["serious-illness", "Serious illness support"], ["encouragement", "Encouragement"], ["difficult-times", "Difficult times"]], "family-faith": [["mothers-day", "Mother’s Day"], ["fathers-day", "Father’s Day"], ["child-naming", "Child naming ceremony"], ["baptism", "Baptism"], ["christening", "Christening"], ["first-communion", "First Holy Communion"], ["confirmation", "Confirmation"], ["pastor-appreciation", "Pastor appreciation"], ["church-anniversary", "Church anniversary"]], "seasonal": [["christmas", "Christmas"], ["easter", "Easter"], ["new-year", "New Year"], ["eid-fitr", "Eid al-Fitr"], ["eid-adha", "Eid al-Adha"], ["ramadan", "Ramadan"], ["diwali", "Diwali"], ["hanukkah", "Hanukkah"], ["lunar-new-year", "Lunar New Year"], ["vaisakhi", "Vaisakhi"]], "work-thanks": [["thanks", "Thank you"], ["leaving-farewell", "Leaving and farewell"], ["teacher-appreciation", "Teacher appreciation"], ["colleague-appreciation", "Colleague appreciation"], ["boss-appreciation", "Boss appreciation"], ["volunteer-appreciation", "Volunteer appreciation"], ["new-job", "New job"], ["job-promotion", "Job promotion"], ["retirement", "Retirement"]]};
+  const occasionCategoryLabels = {"celebrate": "Celebrate", "love": "Love and relationships", "new-beginnings": "New beginnings", "support": "Support and care", "family-faith": "Family and faith", "seasonal": "Seasonal and cultural", "work-thanks": "Work and appreciation"};
+
+  function categoryForOccasion(occasion) {
+    for (const [category, items] of Object.entries(occasionCategories)) {
+      if (items.some(item => item[0] === occasion)) return category;
+    }
+    return 'celebrate';
+  }
+
+  function selectOccasionFromPicker(occasion) {
+    const button = document.querySelector(`[data-kind="card"][data-occasion="${CSS.escape(occasion)}"]`);
+    if (button) button.click();
+  }
+
+  function initOccasionPicker() {
+    const category = document.getElementById('occasionCategory');
+    const occasion = document.getElementById('occasionSelect');
+    const search = document.getElementById('occasionSearch');
+    if (!category || !occasion || !search) return;
+    category.innerHTML = Object.entries(occasionCategoryLabels).map(([value,label]) => `<option value="${value}">${label}</option>`).join('');
+    const populate = (categoryValue, preferred = '') => {
+      const items = occasionCategories[categoryValue] || occasionCategories.celebrate;
+      occasion.innerHTML = items.map(([value,label]) => `<option value="${value}">${label}</option>`).join('');
+      const selected = items.some(item => item[0] === preferred) ? preferred : items[0][0];
+      occasion.value = selected;
+      return selected;
+    };
+    const syncPicker = () => {
+      const cat = categoryForOccasion(state.occasion);
+      category.value = cat;
+      populate(cat, state.occasion);
+    };
+    category.addEventListener('change', () => { const first = populate(category.value); selectOccasionFromPicker(first); });
+    occasion.addEventListener('change', () => selectOccasionFromPicker(occasion.value));
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      if (!q) { syncPicker(); return; }
+      const matches = [];
+      Object.values(occasionCategories).flat().forEach(([value,label]) => { if (label.toLowerCase().includes(q) && !matches.some(x => x[0] === value)) matches.push([value,label]); });
+      occasion.innerHTML = matches.length ? matches.map(([value,label]) => `<option value="${value}">${label}</option>`).join('') : '<option value="">No matching occasion</option>';
+    });
+    search.addEventListener('keydown', event => { if (event.key === 'Enter' && occasion.value) { event.preventDefault(); selectOccasionFromPicker(occasion.value); } });
+    document.querySelectorAll('[data-popular-occasion]').forEach(button => button.addEventListener('click', () => selectOccasionFromPicker(button.dataset.popularOccasion)));
+    window.syncOccasionPicker = syncPicker;
+    syncPicker();
+  }
+
   function initControls() {
     const recipientSelect = document.getElementById('recipientSelect');
     DATA.recipients.forEach(recipient => {
@@ -2133,7 +2182,9 @@ ${link}`);
     if (legacySizeMap[state.size]) state.size = legacySizeMap[state.size];
     if (!sizes[state.size]) state.size = 'instagram-square';
     queryDefaults();
+    if (!DATA.occasions[state.occasion]) { state = { ...state, occasion: 'birthday', creationType: 'card', occasionLabel: 'Birthday Wishes', frontHeading: 'Happy Birthday', frontMessage: defaultFrontMessage('birthday'), coverMessage: defaultCover('birthday') }; }
     initControls();
+    initOccasionPicker();
     restorePhoto();
     const hasSaved = Boolean(Store.load().app?.savedAt);
     if (hasSaved) {
