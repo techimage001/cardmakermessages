@@ -1,0 +1,19 @@
+Card Maker Messages GPT20
+
+Scope
+- Updated from the existing V18.2 package without redesigning unrelated pages or card-making features.
+
+Sharing correction
+- The primary buttons now read Share image + website link, Share PDF + website link, and Share both images + website link.
+- The finished image/PDF files are generated locally before the user clicks Share, so navigator.share is called immediately from the click gesture.
+- The native share payload first attempts to send the file(s), exact promotional text, and https://cardmakermessages.com together.
+- Where a browser cannot accept that exact payload, GPT20 tries file(s) plus the full message containing the URL.
+- The copy control remains visible as Copy website message (backup), not as the main sharing action.
+- No image or completed card is uploaded to the website backend.
+
+Downloads
+- PNG, JPEG, one-page PDF, folded PDF, outside sheet and inside sheet downloads remain visible and connected.
+
+Deployment
+- GPT20 uses uniquely versioned /assets/*-v20 files to prevent mixed-version JavaScript.
+- Upload all files and folders from this package together and overwrite the existing files in public_html.

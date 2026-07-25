@@ -1,0 +1,9 @@
+Card Maker Messages GPT21
+
+Approved change only:
+- Removed the visible Copy website message (backup) button from digital, one-page print and folded-card download panels.
+- Removed the visible manual-copy fallback workflow.
+- Kept the primary Share image + website link, Share PDF + website link and Share both images + website link actions visible.
+- When native file sharing is unavailable, the selected file downloads automatically and the app displays: The card was downloaded. Share it from your device.
+- No card designs, editor controls, page content, backend storage, SEO pages or existing download formats were otherwise changed.
+- Assets are isolated under v21 filenames to prevent older JavaScript from being loaded.

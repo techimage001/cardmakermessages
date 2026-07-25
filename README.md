@@ -123,17 +123,3 @@ Never hand-edit generated HTML files at the repository root. Edit the source fil
 ## V7 photo positioning, email verification and deployment freshness
 
 V7 keeps the former cache-first service worker removed. HTML, CSS and JavaScript are served with no-cache headers, every asset uses version `7`, and the shared script removes old Card Maker Messages service-worker registrations and caches. After deploying the complete package, open the site once and reload if an older tab was already open.
-
-## GPTV18 subscriber dashboard
-
-The private subscriber dashboard is available at:
-
-`https://cardmakermessages.com/api/leads.php`
-
-Add this entry to `cmm_private/secrets.php`:
-
-```php
-'admin_password' => 'REPLACE_WITH_A_STRONG_ADMIN_PASSWORD',
-```
-
-The dashboard reads `cmm_private/leads.sqlite`, displays Verified and Pending records, exports verified subscribers only, and permanently deletes subscribers on request. It remains locked when private configuration is missing.

@@ -1,0 +1,16 @@
+CARD MAKER MESSAGES — GPT22
+
+Main corrections
+1. Added an editable Occasion label field (35-character limit), with clearer defaults such as “Birthday Wishes”.
+2. Added “To [Name]” recipient dedication to digital, social and one-page print cards.
+3. Improved name hierarchy: recipient is prominent; sender is smaller and quieter in a protected bottom sign-off area.
+4. Decorative accents now render behind wording and cannot cover the sender sign-off.
+5. Removed cardmakermessages.com from folded-card backs and removed the related editor toggle. User back-cover wording remains.
+6. Retained native image/PDF sharing with the website link where the receiving app supports files, text and URL together.
+7. Moved all five stages — Message, Size, Design, Review and Download — into the sticky preview panel.
+8. Moved validation reminders into the visible top of the sticky preview, with direct navigation to the required step and a dismiss control.
+
+QA
+- npm build: passed
+- Main QA suite: 6,008 assertions passed across 50 HTML pages
+- Native share unit QA: passed

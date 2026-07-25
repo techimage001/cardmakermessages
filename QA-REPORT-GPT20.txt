@@ -1,0 +1,20 @@
+Card Maker Messages GPT20 - QA Report
+
+Completed checks
+- npm run check completed successfully.
+- 6,007 automated assertions passed across 50 HTML pages.
+- All generated JavaScript files passed Node syntax validation.
+- Dedicated native-share unit QA passed using the actual GPT20 sharing functions.
+- Confirmed that the preferred payload contains:
+  * the generated image/PDF file(s)
+  * text: I made this card on CardMakerMessages.com. Create yours too:
+  * URL: https://cardmakermessages.com
+- Confirmed fallback payload contains the full message and URL in the text when a browser rejects file + URL together.
+- Confirmed navigator.share is called immediately with pre-generated files rather than after canvas generation.
+- Confirmed visible handlers for PNG, JPEG, one-page PDF, folded PDF, outside sheet, inside sheet and all sharing controls.
+- Confirmed all generated pages load versioned GPT20 assets: site-v20, messages-v20, pdf-v20 and app-v20.
+- Confirmed existing mobile-first export CSS, 44px minimum tap targets and narrow-screen layout rules remain in place.
+- Confirmed no backend upload or card-image storage was introduced.
+
+Important platform behaviour
+The app sends the image/file and website link together through the browser's native share system. The receiving application (for example WhatsApp, email or Messages) ultimately decides how it displays or retains the supplied text and URL. GPT20 includes the visible Copy website message (backup) option for destinations that remove the caption.
