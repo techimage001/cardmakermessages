@@ -1,0 +1,42 @@
+Card Maker Messages ClaudeV21
+
+Card layout and workflow corrections.
+
+Card drawing:
+- Recipient name now appears on single cards (digital and one-page print),
+  reading "To [Name]" as a dedication under the occasion label, matching the
+  folded card which already named the recipient inside.
+- Name hierarchy corrected. The recipient reads as a clear dedication near the
+  top; the sender name is now a small, quiet sign-off at the bottom, sized well
+  below the recipient and the headline, the way a real card is signed.
+- Decorative motifs no longer cover the sender name. Accents draw behind the
+  sign-off, and the corner sprigs on framed and floral designs were moved into
+  the corners, clear of the text band, on both mobile and desktop.
+- The website line was removed from the back of folded cards. The back is clean
+  by default. Any back message the user writes still appears.
+
+Workflow and mobile:
+- The stage tabs now stay visible on mobile as a sticky strip above the pinned
+  card preview, with completed stages marked, so the current stage is always
+  visible and tappable without scrolling back up.
+- When the app blocks moving to the next stage before a required step is done,
+  the reminder now appears as a banner pinned in view at the top on mobile,
+  rather than below the card where it was hidden. It has a dismiss button.
+
+Sharing (optional, off until configured):
+- Photo cards can now optionally share as a link with a real preview, uploading
+  the finished card from the browser to Cloudinary. Your server never receives
+  the photo. Requires a Cloudinary account and two config values. Off by
+  default, with the previous direct image share as the fallback. See
+  SHARE-PHOTO-SETUP.md. Cards without a photo are unchanged.
+- c.php now accepts a hosted image only from res.cloudinary.com and rejects any
+  other or malformed URL, falling back to the safe rendered preview.
+
+Cache:
+- All asset version queries bumped to v21.
+- cmm-build meta and service worker VERSION bumped to 21.
+
+Unchanged:
+- All ClaudeV20 functionality: rendering, five-stage workflow, review-screen
+  share and save, folded exports, email verification, SMTP, admin dashboard,
+  SEO pages, and the og.php preview renderer.
