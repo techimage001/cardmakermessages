@@ -1,0 +1,10 @@
+Card Maker Messages GPT24.1 correction
+
+- Rebuilt the occasion selector as a permanently visible category browser.
+- Added desktop category chips plus category dropdown and search.
+- Popular occasions show by default to reduce page length.
+- Added a visible result count.
+- Category chips and dropdown stay synchronised.
+- New occasion pages from GPT24 remain included and indexable.
+- Versioned assets changed to v24-1 to prevent older files being mixed with this release.
+- ZIP opens directly at the website root for GitHub upload.

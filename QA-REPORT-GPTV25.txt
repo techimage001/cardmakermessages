@@ -1,0 +1,15 @@
+CARD MAKER MESSAGES GPTV25 — VERIFIED QA
+
+PASS: app.html loads v25 CSS and JavaScript assets.
+PASS: category chips, dropdown, search field and result count are present.
+PASS: Valentine’s Day is categorised under Love & relationships.
+PASS: all 12 added SEO card-message pages remain present.
+PASS: sitemap.xml and robots.txt remain included.
+PASS: rich Share actions use a URL-only payload with title, text and URL.
+PASS: single-print and folded Share actions call the rich card-link function.
+PASS: misleading PDF/file + link share buttons are removed from the interface.
+PASS: image and PDF download controls remain available separately.
+PASS: JavaScript syntax checks passed.
+PASS: c.php and og.php PHP syntax checks passed.
+PASS: service worker release version is 25.
+PASS: font licence notice accurately describes official Google Fonts loading.

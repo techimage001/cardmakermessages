@@ -1,0 +1,11 @@
+CARD MAKER MESSAGES GPTV25
+
+Verified corrections
+- Valentine’s Day now appears under Love & relationships.
+- All visible Share actions use URL-only rich sharing so WhatsApp and other platforms can show one clickable card link with an Open Graph card preview.
+- Misleading PDF/file + link share buttons were removed; PDF and image files remain available as separate downloads.
+- Rich sharing never attaches a file, preventing WhatsApp from dropping the URL.
+- Category browser, search, added card occasions and 12 indexable SEO pages retained.
+- Large ready-made typography defaults and font/size controls retained.
+- Font licensing notice corrected: fonts load from the official Google Fonts service; no proprietary fonts are bundled.
+- Assets versioned as v25 and service worker version advanced to 25.
