@@ -1,0 +1,53 @@
+Card Maker Messages ClaudeV30
+
+Corrections to wording, accuracy and the category picker.
+
+Category dropdowns now read properly:
+- The picker was cramming seven columns across the page, which squeezed each
+  dropdown until "Choose occasion" was cut off mid word. It now sits four across
+  on desktop, three on tablet, two on phones and one on the narrowest screens,
+  so the text has room.
+- Each column now shows the chosen occasion in full on its own line beneath the
+  dropdown, wrapping onto as many rows as the name needs. A long name such as
+  Child Naming Ceremony is fully readable rather than truncated, on both desktop
+  and mobile.
+- The dropdown itself was restyled with a custom arrow and larger text.
+
+The word "free" has been removed:
+- 1678 occurrences of "free" and "free card maker" were removed or reworded
+  across all 101 pages, including titles, descriptions, headings, body copy,
+  FAQs, buttons and structured data, so nothing commits the site to being free
+  if pricing changes later.
+- The homepage focus keyword moved from "free card maker" to "online card
+  maker", and the app page to "card maker tool", keeping every page keyword
+  distinct.
+
+False claims about accounts removed:
+- 302 statements were corrected across 83 pages. Copy that said "no account is
+  needed at any point", "without giving an email address" or "no sign up wall"
+  was untrue given that an account will be required after a few uses. It now
+  says you can start straight away without signing up, which is accurate.
+- No page now claims an email address will never be requested.
+
+Filename text removed from visible copy:
+- A de-duplication pass in the previous build used each page's filename as its
+  subject when the page was not an occasion or a category. On the homepage that
+  produced phrases like "for a index", and similar nonsense appeared using
+  "app", "occasions" and "how it works". All 46 instances have been removed.
+  "index" is a web filename convention for a homepage file and should never have
+  reached a reader.
+
+Metadata rebuilt:
+- All 101 titles and descriptions regenerated: keyword first, properly
+  capitalised, within 150 characters, and free of the account claims and the
+  word removed above. 101 unique titles, 101 unique descriptions.
+
+Cache:
+- All asset version queries, cmm-build meta and service worker at v30.
+
+Verified before release:
+- 11 live DOM checks on the category picker, including selecting a long occasion
+  name and confirming it displays in full and clears correctly when another
+  category is chosen.
+- Zero remaining instances of the removed word, the false account claims, or
+  filename text in visible copy.

@@ -1,0 +1,49 @@
+Card Maker Messages ClaudeV31
+
+Letter case control, proofreading and honest messaging.
+
+New: letter case per line
+- Every line on the card now has a third control beside font and size: As typed,
+  UPPERCASE, lowercase or Title Case. That covers the occasion label, recipient
+  dedication, front heading, front message, inside message, closing wish, sender
+  and back message, on both flat and folded cards.
+- This was built before the claim was made anywhere on the site. All eight
+  controls were verified by rendering the card and confirming the pixels change.
+
+Capitalisation across the site
+- All 101 H1s and 781 statement headings now use Title Case, with articles,
+  conjunctions and short prepositions correctly kept lowercase, so headings read
+  as "Love and Relationships Card Messages" rather than "Love And Relationships".
+- Question headings deliberately stay in sentence case, because that is how
+  people phrase searches and how answer engines prefer to lift them. 122 question
+  headings, 414 statement headings.
+- Page titles and social titles were recapitalised to match.
+
+Proofreading after the price word was removed
+- 821 phrases were rewritten rather than patched. Constructions left behind by
+  the earlier removal, including "available to use", "open, with nothing held
+  back" and an orphaned fragment reading "What matters is this:", have been
+  rewritten so they read as though the word was never there.
+- Repeated phrasing was varied so the same substitute wording is not printed
+  dozens of times across the site.
+
+Watermark wording made specific
+- The site now states "no watermarks on downloaded cards" rather than a loose
+  "no watermark", which is precise and remains true if other things change.
+
+Sign-up explained as a benefit
+- Every page now carries wording explaining that after a few cards you will be
+  invited to create an account, that signing in lets you return and carry on
+  exactly where you left off, and that your cards and photographs stay on your
+  own device rather than on our servers.
+- The wording is varied per page so no two pages carry identical copy.
+
+Integrity after all of the above
+- 647 FAQ items, zero duplicate questions, zero duplicate answers.
+- FAQ schema matches the visible text word for word on all 95 pages that have
+  FAQs, rebuilt after every wording change.
+- Zero broken internal links.
+- Zero remaining instances of the price word, the false account claims, or
+  grammar faults found by the scan.
+
+Cache: all asset version queries, cmm-build meta and service worker at v31.

@@ -1,0 +1,33 @@
+Card Maker Messages ClaudeV32
+
+Contrast fix and product naming.
+
+Invisible text on dark hero sections fixed
+- The answer paragraph under the H1 was styled with a light panel background but
+  had no explicit text colour, so on the 23 pages where it sits inside the dark
+  hero it inherited the hero's light text and became light on light. It was
+  effectively invisible.
+- Two fixes were applied. The paragraph now sets its text colour explicitly, so
+  it can never inherit and disappear anywhere on the site. Separately, inside a
+  dark hero it now takes the hero treatment already used elsewhere in the design
+  system, a translucent panel with a gold left rule and light text, so it reads
+  correctly against the dark background rather than fighting it.
+- Every other element added in recent releases was checked for the same fault.
+  The footer category links correctly inherit the footer's light colour, and the
+  breadcrumb match was a false positive from the scan. The answer paragraph was
+  the only genuine case.
+
+Product naming
+- The tool is now called Card Maker Messages Tool in the visible headings on the
+  card maker page and the app, replacing the generic "Card maker".
+- The page titles and meta descriptions deliberately keep the phrase "card
+  maker", because that is the term people actually search for and the branded
+  name has no search volume of its own. This gives the brand its distinct name
+  where a visitor sees it, while keeping the generic term working where search
+  engines read it.
+
+Cache: all asset version queries, cmm-build meta and service worker at v32.
+
+Verified before release
+- 14 checks covering the contrast fix, the rename, description lengths, the app
+  booting with all 24 typography controls, FAQ uniqueness and internal links.
