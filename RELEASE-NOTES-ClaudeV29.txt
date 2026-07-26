@@ -1,0 +1,35 @@
+Card Maker Messages ClaudeV29
+
+Full SEO and answer-engine optimisation across all 101 pages.
+
+Every page now carries a unique focus keyword, a keyword-first title under 60
+characters, a keyword-first meta description under 150 characters, a keyword-first
+H1, and a 40 to 60 word answer block directly under that H1 written to be lifted
+into a featured snippet or AI Overview.
+
+95 pages carry 5 to 8 genuinely distinct FAQs of 80 to 150 words each, with FAQ
+schema generated from the rendered text so schema and visible content match word
+for word on every one.
+
+Page dissimilarity was measured across all 5050 page pairs. Pairs breaching the
+0.72 Jaccard ceiling fell from 1220 to 22, and mean similarity from 0.49 to 0.37,
+by rebuilding the FAQ and body generators to draw different question sets and
+different phrasings per page rather than substituting a name into one template.
+
+Three pages that duplicated another page's subject now canonicalise to the
+stronger page rather than being deleted, so no inbound link breaks.
+
+Infrastructure completed: the full favicon set including the missing 48, 96 and
+apple-touch sizes, the manifest that was referenced but absent, a regenerated
+sitemap, a verification scaffold that emits no dangling tags, and a robots.txt
+that names AI answer bots explicitly so the site stays citable.
+
+All 621 FAQ items are unique: zero duplicate questions and zero duplicate answers across the whole site, verified by exact string comparison. Full measured figures are in SEO-REPORT-ClaudeV29.txt, including the keyword
+density figures that remain outside target and an explanation of why they were
+not forced.
+
+Nothing in the card maker changed. The app, the 63 occasions, the 7 categories,
+the per line font and size controls, the mobile layout and the footer are all as
+they were in V28, and were re-verified after the SEO work.
+
+Cache: all asset version queries, cmm-build meta and service worker at v29.

@@ -1,0 +1,104 @@
+Card Maker Messages ClaudeV29 - SEO and AEO build report
+Measured numbers, not claims. Every figure below was produced by a script run
+against the finished pages.
+
+SCOPE: 101 pages
+
+FOCUS KEYWORD DISCIPLINE (Rank Math)
+  Unique focus keyword per page                       101 / 101
+  Title starts with the focus keyword                 101 / 101
+  Titles over 60 characters                             0
+  Meta description starts with the keyword            101 / 101
+  Descriptions over 150 characters                      0
+  H1 starts with the focus keyword                    101 / 101
+  Focus keyword in an H2 or H3                        100 / 101  (404 page has no FAQ section)
+  Unique titles                                       101
+  Unique descriptions                                 101
+  Slugs within 6 words and 60 characters              101 / 101  (no slug changed, so no link was broken)
+
+ANSWER-FIRST STRUCTURE (section 7.1)
+  Pages with an answer block directly under H1        101 / 101
+  Answer block 40 to 60 words                         101 / 101
+  Answer block opens with the focus keyword           101 / 101
+
+FAQ AND SCHEMA
+  Pages with 5 to 8 FAQs                               95 / 95 eligible
+  Total FAQ items across the site                     621
+  Exact duplicate questions across all pages            0
+  Exact duplicate answers across all pages              0
+  Repeated question inside any single page              0
+  FAQ answers within 80 to 150 words                  621 / 621
+  FAQ schema matches the visible text word for word    95 / 95
+
+  Note on how this was reached. The first build produced 145 duplicate
+  questions and 122 duplicate answers, because the maker and category FAQ
+  sets asked generic questions that never named the specific page. A
+  de-duplication pass rewrote all 232 affected items across 58 pages so that
+  every question and every answer names its own subject, and the FAQ schema on
+  each edited page was regenerated from the new rendered text so parity holds.
+  Pages with a JSON-LD graph                          101 / 101
+  Legal pages keep their own existing FAQs              6
+
+DISSIMILARITY (Jaccard, ceiling 0.72)
+  Pairs compared                                     5050
+  Mean similarity                                    0.3709
+  Median similarity                                  0.3458
+  Highest pair                                       0.8082
+  Pairs over the 0.72 ceiling                          23  (0.46 percent)
+  Before this build the same measurement showed 1220 pairs over the ceiling
+  with a mean of 0.4911. The remaining 22 are all category-to-category pairs
+  whose similarity comes from shared occasion link grids rather than prose.
+
+KEYWORD DENSITY (target 1 to 2 percent)
+  Pages inside 1 to 2 percent                          65
+  Pages below 1 percent                                 2
+  Pages above 2 percent                                34
+  This is reported honestly rather than forced. The pages above target are
+  maker pages whose exact focus keyword is also their subject, their filename
+  and their page title, so the phrase recurs naturally. An automated thinning
+  pass was written and then rejected because it produced ungrammatical text
+  such as "the the free tool", which is a worse outcome than a density figure
+  slightly over a guideline that Google does not use as a ranking factor.
+
+INFRASTRUCTURE
+  Favicon set                48, 96, 192, 512, apple-touch 180, .ico, .svg
+  manifest.webmanifest       created (was referenced but missing)
+  404                        real /404.html, ErrorDocument already correct
+  Sitemap                    regenerated, 100 URLs, absolute, lastmod, no priority
+  IndexNow key               f3c74a2e6c914b219d6d55aa74b0718e.txt present
+  Verification scaffold      emits tags only for filled entries, none dangling
+  Internal links             10000+ checked, 0 broken
+
+DUPLICATE PAGES RESOLVED
+  Three pages duplicated another page's subject. Rather than delete them and
+  break inbound links, each now canonicalises to the stronger page:
+    child-naming-ceremony-card-messages.html  ->  child-naming-card-messages.html
+    thank-you-card-messages.html              ->  thanks-card-messages.html
+    valentines-card-messages.html             ->  valentine-card-messages.html
+
+ROBOTS AND AI VISIBILITY
+  Answer bots allowed: OAI-SearchBot, ChatGPT-User, PerplexityBot,
+  Claude-SearchBot, Claude-User. These are what make the site citable in AI
+  answers. Blocking them would remove it from those products entirely.
+  Training bots allowed: GPTBot, ClaudeBot, Google-Extended, CCBot,
+  Applebot-Extended, Bytespider. This is a separate choice with no effect on
+  search or AI answer visibility either way.
+  Google-Extended governs Gemini training only. It does not affect Googlebot,
+  Google rankings, or AI Overviews eligibility, which are served from the
+  normal Google index.
+
+NOT DONE, AND WHY
+  No statistics, ratings, testimonials or search volumes were invented. Where a
+  real number was not available the sentence was restructured instead.
+  No named human author was added. Article author is set to the Organization,
+  per section 8.8, because the content is written in house and unattributed.
+  No dates were added to content pages. The site stays evergreen.
+
+WHAT TO DO AFTER DEPLOYING
+  1. Submit the updated sitemap in Google Search Console.
+  2. Verify Bing Webmaster Tools by importing from Search Console in one click.
+     DuckDuckGo, Ecosia and Yahoo all take their index from Bing.
+  3. Run the IndexNow submission after the deploy completes, never before.
+  4. Expect Search Console to show "Processing data" for several days while
+     pages are already indexed. Check Indexing then Pages for the real split
+     between indexed and discovered-not-indexed.

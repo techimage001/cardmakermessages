@@ -1,7 +1,10 @@
+# Card Maker Messages
+
 User-agent: *
 Allow: /
 Disallow: /api/
 
+# --- Search crawlers, named explicitly so none is mistaken for a block ---
 User-agent: Googlebot
 Allow: /
 User-agent: Bingbot
@@ -25,6 +28,7 @@ Allow: /
 User-agent: Twitterbot
 Allow: /
 
+# --- AI answer and search bots: allowed so the site can be cited in AI answers ---
 User-agent: OAI-SearchBot
 Allow: /
 User-agent: ChatGPT-User
@@ -33,8 +37,12 @@ User-agent: PerplexityBot
 Allow: /
 User-agent: Claude-SearchBot
 Allow: /
+User-agent: Claude-User
+Allow: /
 
-# Training bots are allowed in this launch configuration.
+# --- AI training bots: allowed. This does not affect search or AI answer visibility.
+# Note: Google-Extended governs Gemini training only. It has no effect on Googlebot,
+# Google rankings, or AI Overviews eligibility, which are served from the normal index.
 User-agent: GPTBot
 Allow: /
 User-agent: ClaudeBot
@@ -44,6 +52,8 @@ Allow: /
 User-agent: CCBot
 Allow: /
 User-agent: Applebot-Extended
+Allow: /
+User-agent: Bytespider
 Allow: /
 
 Sitemap: https://cardmakermessages.com/sitemap.xml
