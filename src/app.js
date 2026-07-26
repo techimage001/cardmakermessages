@@ -92,6 +92,14 @@
     background: '',
     textColour: '',
     font: 'serif',
+    typoCase_label: '',
+    typoCase_dedication: '',
+    typoCase_heading: '',
+    typoCase_frontMsg: '',
+    typoCase_insideMsg: '',
+    typoCase_closing: '',
+    typoCase_sender: '',
+    typoCase_backMsg: '',
     typoFont_label: '', typoSize_label: 1,
     typoFont_dedication: '', typoSize_dedication: 1,
     typoFont_heading: '', typoSize_heading: 1,
@@ -210,10 +218,18 @@
       sizeSel.id = 'typoSize_' + id;
       sizeSel.setAttribute('aria-label', label + ' size');
       sizeOptions.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sizeSel.appendChild(o); });
+      const caseSel = document.createElement('select');
+      caseSel.className = 'field-typo-select';
+      caseSel.id = 'typoCase_' + id;
+      caseSel.setAttribute('aria-label', label + ' letter case');
+      [['', 'As typed'], ['upper', 'UPPERCASE'], ['lower', 'lowercase'], ['title', 'Title Case']]
+        .forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; caseSel.appendChild(o); });
       fontSel.addEventListener('change', () => updateState({ ['typoFont_' + id]: fontSel.value }));
       sizeSel.addEventListener('change', () => updateState({ ['typoSize_' + id]: Number(sizeSel.value) }));
+      caseSel.addEventListener('change', () => updateState({ ['typoCase_' + id]: caseSel.value }));
       row.appendChild(fontSel);
       row.appendChild(sizeSel);
+      row.appendChild(caseSel);
       const note = field.querySelector('.field-note');
       if (note) field.insertBefore(row, note); else field.appendChild(row);
       field.dataset.typoBuilt = '1';
@@ -229,6 +245,8 @@
         const want = String(state['typoSize_' + id] || 1);
         if (s.value !== want) s.value = want;
       }
+      const cs = document.getElementById('typoCase_' + id);
+      if (cs && cs.value !== (state['typoCase_' + id] || '')) cs.value = state['typoCase_' + id] || '';
     });
   }
 
@@ -286,6 +304,11 @@
           if (select.value) applyOccasion(select.value, 'card');
         });
         col.appendChild(select);
+        const choice = document.createElement('p');
+        choice.className = 'category-column-choice';
+        choice.id = 'catChoice_' + cat.id;
+        choice.hidden = true;
+        col.appendChild(choice);
         host.appendChild(col);
       });
       host.dataset.built = '1';
@@ -298,6 +321,17 @@
       if (select.value !== wanted) select.value = wanted;
       const col = select.closest('.category-column');
       if (col) col.classList.toggle('is-active', owns);
+      const choice = document.getElementById('catChoice_' + cat.id);
+      if (choice) {
+        if (owns) {
+          const label = DATA.occasions[state.occasion] ? DATA.occasions[state.occasion].label : state.occasion;
+          choice.textContent = label;
+          choice.hidden = false;
+        } else {
+          choice.textContent = '';
+          choice.hidden = true;
+        }
+      }
     });
   }
 
@@ -837,6 +871,16 @@
     ['backMsg', 'Back message', 'backMessage']
   ];
 
+
+  function typoCase(renderState, id, text) {
+    const mode = renderState['typoCase_' + id];
+    const t = String(text == null ? '' : text);
+    if (mode === 'upper') return t.toUpperCase();
+    if (mode === 'lower') return t.toLowerCase();
+    if (mode === 'title') return t.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    return t;
+  }
+
   function typoFamily(renderState, id, fallback) {
     const choice = renderState['typoFont_' + id];
     return (choice && TYPO_FONTS[choice]) ? TYPO_FONTS[choice] : fallback;
@@ -1135,7 +1179,7 @@
       drawTextBlock(context, details || 'Add the date, time and venue', {
         x: x + pad, y: y + height * (hasPhoto ? .6 : .5), width: width - pad * 2, height: height * (hasPhoto ? .13 : .17)
       }, { colour: p.ink, family, startSize: width * .035, minSize: width * .023, weight: 600, lineHeight: 1.35, maxLines: 4 });
-      drawTextBlock(context, renderState.mainMessage, {
+      drawTextBlock(context, typoCase(renderState,"insideMsg",renderState.mainMessage), {
         x: x + pad * 1.1, y: y + height * (hasPhoto ? .73 : .67), width: width - pad * 2.2, height: height * (hasPhoto ? .1 : .13)
       }, { colour: p.ink, family, startSize: width * .029, minSize: width * .02, weight: 500, lineHeight: 1.3, maxLines: hasPhoto ? 3 : 4 });
       const response = renderState.eventRsvp ? (/^rsvp/i.test(renderState.eventRsvp.trim()) ? renderState.eventRsvp : `RSVP  ${renderState.eventRsvp}`) : renderState.eventHost ? `HOSTED BY ${renderState.eventHost.toUpperCase()}` : '';
@@ -1150,18 +1194,18 @@
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.font = `700 ${Math.max(20, width * .03 * typoScale(renderState, 'label'))}px ${typoFamily(renderState, 'label', 'Arial, Helvetica, sans-serif')}`;
-      context.fillText(currentOccasionLabel(renderState).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .355 : .165), width * .76);
+      context.fillText(renderState['typoCase_label'] ? typoCase(renderState,'label',currentOccasionLabel(renderState)) : currentOccasionLabel(renderState).toUpperCase(), x + width / 2, y + height * (hasPhoto ? .355 : .165), width * .76);
 
       if (!folded && renderState.recipientName) {
         context.fillStyle = p.accent;
         context.font = `600 ${Math.max(15, width * .036 * typoScale(renderState, 'dedication'))}px ${typoFamily(renderState, 'dedication', family)}`;
-        context.fillText(`To ${renderState.recipientName}`, x + width / 2, y + height * (hasPhoto ? .415 : .243), width * .74);
+        context.fillText(typoCase(renderState,'dedication',`To ${renderState.recipientName}`), x + width / 2, y + height * (hasPhoto ? .415 : .243), width * .74);
       }
 
       const titleY = hasPhoto ? .45 : (renderState.recipientName ? .305 : .245);
       let title = renderState.frontHeading || (renderState.occasion === 'custom' && renderState.customOccasion ? renderState.customOccasion : (DATA.occasions[renderState.occasion]?.front || 'For You'));
       if (renderState.textStyle === 'statement') title = title.toUpperCase();
-      drawTextBlock(context, title, {
+      drawTextBlock(context, typoCase(renderState,'heading',title), {
         x: x + pad, y: y + height * titleY, width: width - pad * 2, height: height * (hasPhoto ? .15 : .17)
       }, {
         colour: p.ink, family: typoFamily(renderState, 'heading', family), startSize: width * .085 * typoScale(renderState, 'heading'), minSize: width * .038,
@@ -1171,7 +1215,7 @@
 
       let frontCopy = renderState.frontMessage || defaultFrontMessage(renderState.occasion);
       if (renderState.textStyle === 'quotes') frontCopy = `“${frontCopy}”`;
-      drawTextBlock(context, frontCopy, {
+      drawTextBlock(context, typoCase(renderState,'frontMsg',frontCopy), {
         x: x + pad * 1.05, y: y + height * (hasPhoto ? .58 : (renderState.recipientName ? .47 : .43)), width: width - pad * 2.1, height: height * (hasPhoto ? .16 : .2)
       }, {
         colour: p.ink, family: typoFamily(renderState, 'frontMsg', family), startSize: width * .042 * typoScale(renderState, 'frontMsg'), minSize: width * .025,
@@ -1189,7 +1233,7 @@
         const signTop = height * (hasPhoto ? .80 : .74);
         const signBand = height * (hasPhoto ? .11 : .13);
         if (renderState.coverMessage) {
-          drawTextBlock(context, renderState.coverMessage, {
+          drawTextBlock(context, typoCase(renderState,'closing',renderState.coverMessage), {
             x: x + pad, y: y + signTop, width: width - pad * 2, height: signBand * (renderState.senderName ? .55 : 1)
           }, {
             colour: signColour, family: typoFamily(renderState, 'closing', family), startSize: width * .026 * typoScale(renderState, 'closing'), minSize: width * .018,
@@ -1198,7 +1242,7 @@
         }
         if (renderState.senderName) {
           const senderTop = signTop + (renderState.coverMessage ? signBand * .6 : 0);
-          drawTextBlock(context, renderState.senderName, {
+          drawTextBlock(context, typoCase(renderState,'sender',renderState.senderName), {
             x: x + pad, y: y + senderTop, width: width - pad * 2, height: signBand * (renderState.coverMessage ? .45 : 1)
           }, {
             colour: signColour, family: typoFamily(renderState, 'sender', family), startSize: width * .026 * typoScale(renderState, 'sender'), minSize: width * .018,
@@ -1232,25 +1276,25 @@
       if (greeting) {
         context.fillStyle = p.ink; context.textAlign = 'left'; context.textBaseline = 'top';
         context.font = `600 ${width * .038 * typoScale(renderState, 'dedication')}px ${typoFamily(renderState, 'dedication', family)}`;
-        context.fillText(greeting, x + pad, y + height * .16, width - pad * 2);
+        context.fillText(typoCase(renderState,'dedication',greeting), x + pad, y + height * .16, width - pad * 2);
       }
-      drawTextBlock(context, renderState.mainMessage, {
+      drawTextBlock(context, typoCase(renderState,"insideMsg",renderState.mainMessage), {
         x: x + pad, y: y + height * (greeting ? .23 : .15), width: width - pad * 2, height: height * .47
       }, { colour: p.ink, family: typoFamily(renderState, 'insideMsg', family), startSize: width * .048 * typoScale(renderState, 'insideMsg'), minSize: width * .027, weight: 500, lineHeight: 1.42, maxLines: 11, align: 'left' });
       if (renderState.coverMessage) {
-        drawTextBlock(context, renderState.coverMessage, {
+        drawTextBlock(context, typoCase(renderState,'closing',renderState.coverMessage), {
           x: x + pad, y: y + height * .72, width: width - pad * 2, height: height * (renderState.senderName ? .07 : .14)
         }, { colour: p.ink, family: typoFamily(renderState, 'closing', family), startSize: width * .038 * typoScale(renderState, 'closing'), minSize: width * .025, weight: 600, lineHeight: 1.3, maxLines: 2, align: 'left' });
       }
       if (renderState.senderName) {
-        drawTextBlock(context, renderState.senderName, {
+        drawTextBlock(context, typoCase(renderState,'sender',renderState.senderName), {
           x: x + pad, y: y + height * (renderState.coverMessage ? .795 : .72), width: width - pad * 2, height: height * .07
         }, { colour: p.ink, family: typoFamily(renderState, 'sender', family), startSize: width * .038 * typoScale(renderState, 'sender'), minSize: width * .025, weight: 600, lineHeight: 1.3, maxLines: 2, align: 'left' });
       }
     } else if (panel === 'back') {
       context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillStyle = p.ink; context.font = `600 ${width * .038 * typoScale(renderState, 'backMsg')}px ${typoFamily(renderState, 'backMsg', family)}`;
-      if (renderState.backMessage) context.fillText(renderState.backMessage, x + width / 2, y + height * .44, width * .7);
+      if (renderState.backMessage) context.fillText(typoCase(renderState,'backMsg',renderState.backMessage), x + width / 2, y + height * .44, width * .7);
     }
 
     context.restore();
