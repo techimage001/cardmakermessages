@@ -85,10 +85,12 @@ h2 { margin: 0 0 16px; font-size: clamp(2rem, 4vw, 3.2rem); }
 h3 { margin: 0 0 10px; font-size: 1.35rem; }
 .lede { color: var(--muted); font-size: 1.15rem; max-width: 62ch; }
 .answer-block { border-left: 5px solid var(--brand); padding: 14px 18px; margin: 18px 0 26px; background: var(--surface); color: var(--ink); border-radius: 0 14px 14px 0; box-shadow: 0 8px 22px rgba(45, 28, 34, .05); }
-/* Inside a dark hero the light panel would inherit light text and vanish, so it takes the hero treatment */
-.tool-hero .answer-block, .editorial-hero .answer-block, .hero .answer-block {
-  background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.12);
-  border-left: 4px solid var(--gold); color: #e7e2da; box-shadow: none;
+/* The answer panel uses theme tokens only, so it flips correctly in light and dark.
+   .editorial-hero and .hero follow the theme, so they need no override at all. */
+/* .tool-hero is the one section that is dark in BOTH themes, so it gets light text explicitly. */
+.tool-hero .answer-block {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+  border-left: 4px solid var(--gold); color: #f2ece2; box-shadow: none;
   backdrop-filter: blur(10px); max-width: 690px; border-radius: 14px;
 }
 .answer-block p { margin: 0; }
