@@ -1,0 +1,36 @@
+Card Maker Messages ClaudeV33
+
+Invisible text fixed correctly, and brand naming on the home page.
+
+The invisible text, properly diagnosed
+- My previous fix was wrong and made the problem worse. I had assumed the answer
+  paragraph always sat on a dark background, so I forced its text to a light
+  colour. The home page hero follows the theme: it is light cream in light mode
+  and dark in dark mode. Light text on light cream is invisible, which is exactly
+  what you saw.
+- The correct fix is that the paragraph now uses only theme tokens for both its
+  background and its text, so it flips automatically and correctly with the
+  theme on every page. No hardcoded colour is applied to it anywhere that
+  follows the theme.
+- One section, the tool hero, is dark in both light and dark mode. That is the
+  only place with an explicit light text colour, and it is correct there because
+  the background is guaranteed dark.
+
+A contrast audit was added so this cannot recur
+- Every combination of text and background used by the elements added in recent
+  releases was measured in both themes against the WCAG AA standard of 4.5 to 1.
+  All twelve combinations pass, the lowest being 6.38 to 1 and the highest
+  15.67 to 1. The pre-existing hero paragraph class was also checked in all three
+  of its real contexts and passes at 6.21, 9.65 and 11.27 to 1.
+
+Brand naming
+- The home page heading is now Card Maker Messages Tool, matching the card maker
+  page and the app.
+- The home page title and description keep the phrase "card maker", because that
+  is what people search for and the branded name has no search volume of its own.
+  The brand name is what a visitor reads; the generic term is what search engines
+  index.
+- The home page answer paragraph opened with a lowercase word, left behind by an
+  earlier edit. Fixed, and every page was checked for the same fault.
+
+Cache: all asset version queries, cmm-build meta and service worker at v33.
