@@ -1160,32 +1160,99 @@
 
     if (panel === 'front' && renderState.creationType === 'invitation') {
       const hasPhoto = drawPhotoTopArea(context, x, y, width, height, renderState, p);
-      context.fillStyle = p.accent;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      context.font = `700 ${Math.max(20, width * .028)}px Arial, Helvetica, sans-serif`;
-      context.fillText('YOU’RE INVITED', x + width / 2, y + height * (hasPhoto ? .355 : .12), width * .72);
-      const eventName = renderState.eventTitle || DATA.occasions[renderState.occasion]?.front || 'A Special Celebration';
-      drawTextBlock(context, eventName, {
+
+      // Occasion label: editable, defaulting to the invitation wording
+      const inviteLabelRaw = (renderState.occasionLabelEdited && renderState.occasionLabelText.trim())
+        ? renderState.occasionLabelText.trim()
+        : 'You\u2019re Invited';
+      const inviteLabel = renderState['typoCase_label']
+        ? typoCase(renderState, 'label', inviteLabelRaw)
+        : inviteLabelRaw.toUpperCase();
+      context.fillStyle = p.accent;
+      context.font = `700 ${Math.max(20, width * .028 * typoScale(renderState, 'label'))}px ${typoFamily(renderState, 'label', 'Arial, Helvetica, sans-serif')}`;
+      context.fillText(inviteLabel, x + width / 2, y + height * (hasPhoto ? .355 : .12), width * .72);
+
+      // Headline: the front heading wins when the user has typed one, otherwise the event title
+      const headline = (renderState.frontHeading && renderState.frontHeading.trim())
+        ? renderState.frontHeading.trim()
+        : (renderState.eventTitle || DATA.occasions[renderState.occasion]?.front || 'A Special Celebration');
+      drawTextBlock(context, typoCase(renderState, 'heading', headline), {
         x: x + pad, y: y + height * (hasPhoto ? .39 : .19), width: width - pad * 2, height: height * (hasPhoto ? .14 : .22)
-      }, { colour: p.ink, family, startSize: width * (hasPhoto ? .058 : .075), minSize: width * .032, weight: 700, lineHeight: 1.15, maxLines: hasPhoto ? 3 : 4 });
-      const guest = renderState.recipientName ? `CELEBRATING ${renderState.recipientName.toUpperCase()}` : '';
-      if (guest) {
-        context.fillStyle = p.accent; context.font = `700 ${width * .026}px Arial, Helvetica, sans-serif`;
+      }, {
+        colour: p.ink, family: typoFamily(renderState, 'heading', family),
+        startSize: width * (hasPhoto ? .058 : .075) * typoScale(renderState, 'heading'),
+        minSize: width * .032, weight: 700, lineHeight: 1.15, maxLines: hasPhoto ? 3 : 4
+      });
+
+      // Guest line
+      const guestRaw = renderState.recipientName ? `Celebrating ${renderState.recipientName}` : '';
+      if (guestRaw) {
+        const guest = renderState['typoCase_dedication']
+          ? typoCase(renderState, 'dedication', guestRaw)
+          : guestRaw.toUpperCase();
+        context.fillStyle = p.accent;
+        context.font = `700 ${width * .026 * typoScale(renderState, 'dedication')}px ${typoFamily(renderState, 'dedication', 'Arial, Helvetica, sans-serif')}`;
         context.fillText(guest, x + width / 2, y + height * (hasPhoto ? .56 : .45), width * .72);
       }
-      const when = [formatEventDate(renderState.eventDate), renderState.eventTime].filter(Boolean).join('  •  ');
+
+      // Event details
+      const when = [formatEventDate(renderState.eventDate), renderState.eventTime].filter(Boolean).join('  \u2022  ');
       const details = [when, renderState.eventVenue].filter(Boolean).join('\n');
-      drawTextBlock(context, details || 'Add the date, time and venue', {
-        x: x + pad, y: y + height * (hasPhoto ? .6 : .5), width: width - pad * 2, height: height * (hasPhoto ? .13 : .17)
-      }, { colour: p.ink, family, startSize: width * .035, minSize: width * .023, weight: 600, lineHeight: 1.35, maxLines: 4 });
-      drawTextBlock(context, typoCase(renderState,"insideMsg",renderState.mainMessage), {
-        x: x + pad * 1.1, y: y + height * (hasPhoto ? .73 : .67), width: width - pad * 2.2, height: height * (hasPhoto ? .1 : .13)
-      }, { colour: p.ink, family, startSize: width * .029, minSize: width * .02, weight: 500, lineHeight: 1.3, maxLines: hasPhoto ? 3 : 4 });
-      const response = renderState.eventRsvp ? (/^rsvp/i.test(renderState.eventRsvp.trim()) ? renderState.eventRsvp : `RSVP  ${renderState.eventRsvp}`) : renderState.eventHost ? `HOSTED BY ${renderState.eventHost.toUpperCase()}` : '';
+      drawTextBlock(context, typoCase(renderState, 'frontMsg', details || 'Add the date, time and venue'), {
+        x: x + pad, y: y + height * (hasPhoto ? .6 : .5), width: width - pad * 2, height: height * (hasPhoto ? .12 : .155)
+      }, {
+        colour: p.ink, family: typoFamily(renderState, 'frontMsg', family),
+        startSize: width * .035 * typoScale(renderState, 'frontMsg'),
+        minSize: width * .023, weight: 600, lineHeight: 1.35, maxLines: 4
+      });
+
+      // Wording: the front message sits above the longer invitation wording when both are present
+      const inviteCopy = [renderState.frontMessage, renderState.mainMessage].filter(Boolean).join('\n');
+      if (inviteCopy) {
+        drawTextBlock(context, typoCase(renderState, 'insideMsg', inviteCopy), {
+          x: x + pad * 1.1, y: y + height * (hasPhoto ? .715 : .655), width: width - pad * 2.2, height: height * (hasPhoto ? .1 : .125)
+        }, {
+          colour: p.ink, family: typoFamily(renderState, 'insideMsg', family),
+          startSize: width * .029 * typoScale(renderState, 'insideMsg'),
+          minSize: width * .02, weight: 500, lineHeight: 1.3, maxLines: hasPhoto ? 3 : 4
+        });
+      }
+
+      // RSVP or host line
+      const response = renderState.eventRsvp
+        ? (/^rsvp/i.test(renderState.eventRsvp.trim()) ? renderState.eventRsvp : `RSVP  ${renderState.eventRsvp}`)
+        : renderState.eventHost ? `HOSTED BY ${renderState.eventHost.toUpperCase()}` : '';
+      const hasSignoff = Boolean(renderState.coverMessage || renderState.senderName);
       if (response) {
-        context.fillStyle = p.accent; context.font = `700 ${width * .024}px Arial, Helvetica, sans-serif`;
-        context.fillText(response, x + width / 2, y + height * .88, width * .74);
+        context.fillStyle = p.accent;
+        context.textAlign = 'center'; context.textBaseline = 'middle';
+        context.font = `700 ${width * .024 * typoScale(renderState, 'closing')}px ${typoFamily(renderState, 'closing', 'Arial, Helvetica, sans-serif')}`;
+        context.fillText(typoCase(renderState, 'closing', response), x + width / 2, y + height * (hasSignoff ? .845 : .88), width * .74);
+      }
+
+      // Optional closing wish and sender, quiet, beneath the RSVP line
+      if (hasSignoff) {
+        const signTop = y + height * (response ? .885 : .855);
+        if (renderState.coverMessage) {
+          drawTextBlock(context, typoCase(renderState, 'closing', renderState.coverMessage), {
+            x: x + pad, y: signTop, width: width - pad * 2, height: height * (renderState.senderName ? .045 : .09)
+          }, {
+            colour: p.ink, family: typoFamily(renderState, 'closing', family),
+            startSize: width * .024 * typoScale(renderState, 'closing'),
+            minSize: width * .017, weight: 500, lineHeight: 1.24, maxLines: 1
+          });
+        }
+        if (renderState.senderName) {
+          drawTextBlock(context, typoCase(renderState, 'sender', renderState.senderName), {
+            x: x + pad, y: signTop + (renderState.coverMessage ? height * .05 : 0), width: width - pad * 2, height: height * .05
+          }, {
+            colour: p.ink, family: typoFamily(renderState, 'sender', family),
+            startSize: width * .024 * typoScale(renderState, 'sender'),
+            minSize: width * .017, weight: 500, lineHeight: 1.24, maxLines: 1
+          });
+        }
       }
     } else if (panel === 'front') {
       const digital = renderState.outputMode === 'digital' && !folded;
@@ -1261,15 +1328,16 @@
         context.fillStyle = p.accent;
         context.textAlign = 'center'; context.font = `700 ${width * .08}px Georgia, serif`;
         context.fillText('“', x + width / 2, y + height * .27);
-        drawTextBlock(context, renderState.insideLeftText, {
+        drawTextBlock(context, typoCase(renderState, 'insideMsg', renderState.insideLeftText), {
           x: x + pad, y: y + height * .33, width: width - pad * 2, height: height * .32
-        }, { colour: p.ink, family, startSize: width * .05, minSize: width * .03, weight: 600, lineHeight: 1.3, maxLines: 7 });
+        }, { colour: p.ink, family: typoFamily(renderState, 'insideMsg', family), startSize: width * .05 * typoScale(renderState, 'insideMsg'), minSize: width * .03, weight: 600, lineHeight: 1.3, maxLines: 7 });
       } else if (renderState.insideLeftMode === 'illustration') {
         context.fillStyle = hexToRgba(p.accent, .2);
         context.beginPath(); context.arc(x + width / 2, y + height * .43, width * .25, 0, Math.PI * 2); context.fill();
         drawLeafSprig(context, x + width * .27, y + height * .48, width * .48, p.accent, -.2);
-        context.fillStyle = p.ink; context.textAlign = 'center'; context.font = `600 ${width * .036}px ${family}`;
-        context.fillText('Made with care, just for you', x + width / 2, y + height * .72, width * .7);
+        context.fillStyle = p.ink; context.textAlign = 'center';
+        context.font = `600 ${width * .036 * typoScale(renderState, 'insideMsg')}px ${typoFamily(renderState, 'insideMsg', family)}`;
+        context.fillText(typoCase(renderState, 'insideMsg', 'Made with care, just for you'), x + width / 2, y + height * .72, width * .7);
       }
     } else if (panel === 'inside-right') {
       const greeting = renderState.recipientName ? `Dear ${renderState.recipientName},` : '';
