@@ -1,0 +1,40 @@
+Card Maker Messages ClaudeV35
+
+Create a card buttons now open the right occasion.
+
+The reported bug
+- Opening an occasion page such as Valentine's Day and pressing Create a card
+  opened the card maker showing a completely different card, in the reported
+  case a Confirmation card reading God Bless You.
+- The cause was that the hero Create a card button linked to /app.html with no
+  occasion attached. With no occasion in the address, the card maker correctly
+  resumed whatever card you last worked on, which is the right behaviour for a
+  bare link but wrong when arriving from a specific occasion page.
+- This is also why the category dropdowns always worked: those set the occasion
+  directly in the app rather than travelling through a link.
+
+The fix
+- 341 links across 89 pages now carry the occasion, so every occasion page,
+  category page, maker page and invitation page opens the card it advertises.
+- Category pages open the first occasion in that category. Invitation pages also
+  set the creation type, so they open as an invitation rather than a card.
+- The three pages that duplicate another page's subject send you to the primary
+  occasion, matching where their canonical tag already points.
+- 60 links remain deliberately generic: the home page, the card maker page, the
+  digital card maker and the legal and guide pages. None of these advertises a
+  specific occasion, so resuming your saved card is the correct behaviour there.
+
+Verified before release
+- The exact reported scenario was reproduced and then confirmed fixed: with a
+  saved Confirmation card in storage, opening the Valentine's Day link now loads
+  Happy Valentine's Day rather than God Bless You.
+- Confirmed that a bare /app.html link still resumes saved work, since that
+  behaviour is correct and had to be preserved.
+- Every occasion page was checked programmatically to confirm its button targets
+  its own occasion. All pass.
+- All 101 pages were compared against the previous release: once the version
+  number and the app links are normalised, every page is byte for byte
+  identical, so nothing outside this fix changed.
+- No broken internal links.
+
+Cache: all asset version queries, cmm-build meta and service worker at v35.
