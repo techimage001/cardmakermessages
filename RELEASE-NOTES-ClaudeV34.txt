@@ -1,0 +1,42 @@
+Card Maker Messages ClaudeV34
+
+Invitation text fields fixed, and typography applied to every panel.
+
+The reported bug
+- On invitations, editing the text did not change the card. The cause was that
+  the invitation front is a separate drawing path from the greeting card front,
+  written earlier and never updated as the card path grew. It read only the event
+  fields and ignored five fields that remained visible and editable in the
+  editor: occasion label, front heading, front message, closing wish and sender
+  name. Typing into any of those did nothing.
+- All five now draw. The front heading takes priority over the event title when
+  the user has typed one, so whichever was edited last is what appears. The
+  occasion label is editable and defaults to "You're Invited", which was
+  previously hardcoded with no way to change it.
+
+Sender name on invitations
+- The sender name now appears as a quiet line beneath the RSVP or host line,
+  alongside an optional closing wish. It is entirely optional: left blank,
+  nothing is drawn and the layout is pixel for pixel unchanged, which was
+  verified rather than assumed.
+
+A second fault found during the review
+- The per line font, size and case controls were only wired into two of the four
+  drawing paths. The card front and the inside right panel had them; the
+  invitation front had one of twenty four, and the inside left panel of a folded
+  card had none at all. Changing the font or size of the inside left note did
+  nothing.
+- All three helpers are now applied across every panel, so the controls work
+  everywhere rather than on half the card.
+
+Verified before release
+- Fifteen render checks confirming each of the five previously ignored fields
+  now changes the invitation, that a blank sender leaves the layout untouched,
+  and that font, size and case now work on both invitations and the inside left
+  panel.
+- A layout check on a fully populated invitation: eleven distinct lines of text,
+  no overlaps, lowest line ending inside the card at 96.7 percent of its height.
+- Twelve regression checks confirming greeting cards and postcards are unchanged,
+  and all 63 occasions still render across all four panels, 252 renders in total.
+
+Cache: all asset version queries, cmm-build meta and service worker at v34.
