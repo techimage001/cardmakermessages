@@ -78,7 +78,7 @@ $e = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
 <meta name="twitter:image" content="<?= $e($ogImage) ?>">
 <meta name="theme-color" content="#6d2942">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="stylesheet" href="/assets/site.css?v=33">
+<link rel="stylesheet" href="/assets/site.css?v=34">
 <style>
 .shared-wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; text-align: center; }
 .shared-preview { margin: 24px auto 28px; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.22); max-width: 480px; }
